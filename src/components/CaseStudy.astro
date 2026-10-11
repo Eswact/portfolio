@@ -61,14 +61,14 @@ const next = featured[(index + 1) % featured.length];
     </div>
   </dl>
 
-  <div class="container stage">
+  <section class="container stage" aria-labelledby="architecture">
     <div class="rule">
-      <h2>{t('work.architecture')}</h2>
+      <h2 id="architecture">{t('work.architecture')}</h2>
     </div>
     <Architecture layers={c.layers} lang={lang}>
       <CaseDemo kind={c.demo} lang={lang} />
     </Architecture>
-  </div>
+  </section>
 
   <section class="container block" aria-labelledby="screens">
     <div class="rule">

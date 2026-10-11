@@ -272,6 +272,11 @@ const nav = [
     height: 26px;
   }
 
+  /* On a phone the name may stack on two lines, set tight like a logotype. */
+  .brand span {
+    line-height: 1.15;
+  }
+
   nav {
     display: flex;
     align-items: center;
@@ -338,7 +343,8 @@ const nav = [
     transform: none;
   }
 
-  /* The pull cord hangs from the top of the page, through the header's top padding. */
+  /* The pull cord hangs from the top of the page, through the header's top padding. The box keeps
+     28px in the row; the button itself is 44px wide (a full touch target) and overhangs it. */
   .cordbox {
     position: relative;
     align-self: flex-start;
@@ -353,9 +359,9 @@ const nav = [
     position: absolute;
     left: 50%;
     top: 0;
-    width: 28px;
+    width: 44px;
     height: calc(var(--len) + var(--stretch));
-    margin-left: -14px;
+    margin-left: -22px;
     padding: 0;
     border: 0;
     background: none;
@@ -459,8 +465,9 @@ const nav = [
     }
   }
 
+  /* Narrow screens keep only Contact: the other two sections are a short scroll away. */
   @media (max-width: 719px) {
-    .links {
+    .links li:not(:last-child) {
       display: none;
     }
   }

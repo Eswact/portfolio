@@ -48,13 +48,14 @@
     if (root.classList.contains('intro-go')) start();
     else addEventListener('intro:go', start, { once: true });
 
-    // Any click or key skips it.
+    // Any click, key or attempt to scroll skips it: the curtain never hides a page someone is moving through.
     const skip = () => {
       timers.forEach(clearTimeout);
       finish();
+      for (const type of ['keydown', 'wheel', 'touchmove', 'scroll']) removeEventListener(type, skip);
     };
     curtain.addEventListener('pointerdown', skip);
-    addEventListener('keydown', skip, { once: true });
+    for (const type of ['keydown', 'wheel', 'touchmove', 'scroll']) addEventListener(type, skip, { passive: true });
   } else {
     finish();
   }

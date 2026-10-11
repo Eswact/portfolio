@@ -2,7 +2,8 @@ import type { L10n } from '../i18n/ui';
 
 export interface Project {
   slug: string;
-  title: string;
+  /** A name that differs by language (e.g. a group of sites) is an L10n. */
+  title: string | L10n;
   type: L10n;
   stack: string[];
   summary: L10n;
@@ -221,7 +222,7 @@ export const projects: Project[] = [
   },
   {
     slug: 'promo-sites',
-    title: 'Promotional Sites',
+    title: { tr: 'Tanıtım Siteleri', en: 'Promotional Sites' },
     type: { tr: 'Tanıtım siteleri', en: 'Promotional websites' },
     stack: ['Vue', 'Next.js', 'i18n', 'SEO'],
     summary: { tr: 'nsasoft.com.tr, Fibi ve Shood tanıtım siteleri.', en: 'Promotional sites for nsasoft.com.tr, Fibi and Shood.' },
@@ -244,6 +245,6 @@ export const projects: Project[] = [
   },
 ];
 
-export type FeaturedProject = Project & { card: NonNullable<Project['card']> };
+export type FeaturedProject = Project & { title: string; card: NonNullable<Project['card']> };
 
-export const featured = projects.filter((p): p is FeaturedProject => !!p.featured && !!p.card);
+export const featured = projects.filter((p): p is FeaturedProject => !!p.featured && !!p.card && typeof p.title === 'string');

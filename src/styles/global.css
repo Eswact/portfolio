@@ -1,11 +1,20 @@
 /* Design tokens. Karar 07/08: a gallery room (Sergi) holding catalogue cards (Katalog).
    Schibsted Grotesk + JetBrains Mono. The chrome is achromatic; colour belongs to the products. */
+/* ₺ only: Schibsted Grotesk's lira sign reads as £ at a glance, so U+20BA comes from Host Grotesk
+   (one glyph, wght 400–700, 720 B woff2 inlined: no request, no swap). */
+@font-face {
+  font-family: 'Lira';
+  src: url(data:font/woff2;base64,d09GMgABAAAAAALQABIAAAAABfgAAAJwAAEAxQAAAAAAAAAAAAAAAAAAAAAAAAAAGyAcKj9IVkFSLwZgP1NUQVRyJx4ANC9MEQgKVGowWAE2AiQDCAsGAAQgBYJ8ByAb0AQgLgps1zQpLjWKVbfFOMQoP148PG9X37mvalTdQ386FhQB3M3EIAZj2Blgg+Z2w9RCMrdfqbRGJzsUinP16Df/ObX8r1v8SXfm4dKqBnxT45dHOwEdN0bYJLRAcelxomUBSSA7pTvh5HWLfp9VoNCjT8zOV7vgyeF/gEBhmBES0k+yb0Xu0IE6vCgtGAUgUBZoEAhAkKdxcQM26aq0HrAo/J3YikSMIpUq8ixPUgZIAIuX1Lv4D3hgwAPZ7/9N9nocAwTED+khMEAmhGoJLSowRDp5OBIKu4+trlSbUOgyzCRTZUhS3ADpIRAQdfFLioa0HnCaMDETUrTzDAKEisc8BlrXDjDqzgkxHUkgIUOLTKBFbgByuWDAA/8LhE9DQdQgCdwprhDcAI3GhShzrKqNOuIXoj4aaFiKxmhingDRLMT/1IMEcmTowGBADsga8rxUUcpLV7/75LuDS2+5VOykdmFpY74PbTpWT8zt/972i2PBosDpOb19aE71rTO3/YZttTbP4nVJaxrovxQKky5JQvvPP8MuKv/69qv65h6rhvPzzxVbeOUVxQBXuLwOg0Ev516u+qfUXi3sSghLPP3BS2e3LaSTf63Osi/g03fv7oLPfnTH//0nvyl7DpUSCL6Mmz8D0B1f0CVTusSSrhIRSNbjWoIlAEAmUHYbpshrJHWkXFBWh7I6UGuYLtQpm456QyxGgwaH0GiES2hS7XY0G+B+tCl77avaFT6y0s4B7WrlbWDn5OCIKHr4IAreHoidj4twEdW02jqh3ZKY1UnpNlTaw9W2LBUtVqLLC5UQK1cnG20PNyt3TOD/JTgA) format('woff2');
+  font-weight: 400 700;
+  unicode-range: U+20BA;
+}
+
 :root {
   --bg: #f5f5f3; /* wall */
   --surface: #ebebe8; /* plinth behind objects */
   --card: #fafaf8;
   --fg: #151517;
-  --muted: #66666b;
+  --muted: #58585d;
   --line: #d6d6d2;
   --accent: var(--fg);
   --product-fibi: #c8f03c;
@@ -15,7 +24,7 @@
   /* Soft light from above on the gallery stage. */
   --glow: rgb(255 255 255 / 0.75);
 
-  --font-sans: var(--font-schibsted);
+  --font-sans: 'Lira', var(--font-schibsted);
   --font-mono: var(--font-jetbrains);
 
   --step--1: clamp(0.8rem, 0.78rem + 0.1vw, 0.875rem);

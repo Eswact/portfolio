@@ -15,6 +15,7 @@ const others = projects
   .filter((p) => !p.featured)
   .map((p, i) => ({
     ...p,
+    name: typeof p.title === 'string' ? p.title : p.title[lang],
     code: `ES-${String(featured.length + i + 1).padStart(2, '0')}`,
     status: p.status ?? (p.live ? ('live' as const) : ('source' as const)),
     // Open-source parts (e.g. Scale POS) lead to their code, even when a demo is online.
@@ -50,7 +51,7 @@ const others = projects
       <tr>
         <th scope="col" class="code">{t('index.code')}</th>
         <th scope="col">{t('index.project')}</th>
-        <th scope="col" class="hide-sm">{t('index.type')}</th>
+        <th scope="col" class="type-col">{t('index.type')}</th>
         <th scope="col" class="hide-md">{t('index.stack')}</th>
         <th scope="col" class="hide-sm">{t('index.status')}</th>
       </tr>
@@ -63,7 +64,7 @@ const others = projects
             <th scope="row">
               {p.sites ? (
                 <>
-                  {p.title}
+                  {p.name}
                   <ul class="sites" role="list">
                     {p.sites.map((site) => (
                       <li>
@@ -80,14 +81,15 @@ const others = projects
                 </>
               ) : p.href ? (
                 <a class="row-link arrow" href={p.href}>
-                  {p.title}
+                  {p.name}
                 </a>
               ) : (
-                p.title
+                p.name
               )}
-              <span class="type-sm muted">{p.type[lang]}</span>
+              {/* Narrow screens show the type under the name; the column stays the one screen readers hear. */}
+              <span class="type-sm muted" aria-hidden="true">{p.type[lang]}</span>
             </th>
-            <td class="muted hide-sm">{p.type[lang]}</td>
+            <td class="muted type-col">{p.type[lang]}</td>
             <td class="muted mono hide-md">{p.stack.slice(0, 3).join(' · ')}</td>
             <td class="mono hide-sm">
               <span class:list={['status', p.status]}>{t(`status.${p.status}`)}</span>
@@ -110,7 +112,15 @@ const others = projects
             <h3>{e.company}</h3>
             <p class="muted">{e.role[lang]}</p>
           </div>
-          <p class="summary">{e.summary[lang]}</p>
+          {Array.isArray(e.summary) ? (
+            <ul class="summary points" role="list">
+              {e.summary.map((point) => (
+                <li>{point[lang]}</li>
+              ))}
+            </ul>
+          ) : (
+            <p class="summary">{e.summary[lang]}</p>
+          )}
         </li>
       ))
     }
@@ -225,7 +235,7 @@ const others = projects
 
   .index thead th {
     padding-top: 0;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
   }
 
   .index tbody tr {
@@ -244,7 +254,7 @@ const others = projects
   .index .code {
     width: 9ch;
     white-space: nowrap;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     color: var(--muted);
     padding-left: 4px;
   }
@@ -289,7 +299,7 @@ const others = projects
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     color: var(--muted);
     white-space: nowrap;
   }
@@ -317,22 +327,19 @@ const others = projects
       display: none;
     }
 
-    .sites {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 16px;
-    margin-top: 6px;
-    font-weight: 400;
-    font-size: 0.875rem;
-  }
+    /* Out of sight, still read: the type is shown under the name instead. */
+    .type-col {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
 
-  .sites a {
-    position: relative;
-    z-index: 1;
-    text-decoration: none;
-  }
-
-  .type-sm {
+    .type-sm {
       display: block;
     }
   }
@@ -348,7 +355,7 @@ const others = projects
 
   .period {
     grid-column: span 2;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     padding-top: 3px;
   }
 
@@ -359,6 +366,26 @@ const others = projects
   .summary {
     grid-column: span 7;
     max-width: 64ch;
+  }
+
+  .points {
+    display: grid;
+    gap: 8px;
+  }
+
+  .points li {
+    position: relative;
+    padding-left: 20px;
+  }
+
+  .points li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.75em;
+    width: 10px;
+    height: 1px;
+    background: var(--muted);
   }
 
   @media (max-width: 899px) {

@@ -1,7 +1,6 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// TODO: replace with the real domain once it's decided.
 const site = 'https://erensaribay.com';
 
 export default defineConfig({

@@ -1,7 +1,7 @@
 ---
-// Architecture: the product working on the left (the live demo), the layers that make it work on the right.
+// Architecture (headed by the case study's own "Architecture" rule): the product working on the left (the live demo), the layers that make it work on the right.
 import type { Case } from '../data/cases';
-import { useTranslations, type Lang } from '../i18n/ui';
+import type { Lang } from '../i18n/ui';
 
 interface Props {
   layers: Case['layers'];
@@ -9,11 +9,9 @@ interface Props {
 }
 
 const { layers, lang } = Astro.props;
-const t = useTranslations(lang);
 ---
 
-<section class="arch" aria-labelledby="architecture">
-  <h2 id="architecture" class="sr-only">{t('work.architecture')}</h2>
+<div class="arch">
   <div class="demo">
     <slot />
   </div>
@@ -30,7 +28,7 @@ const t = useTranslations(lang);
       ))
     }
   </ol>
-</section>
+</div>
 
 <style>
   .arch {

@@ -32,7 +32,7 @@ const markets = [
 const rowY = (i: number) => 22 + i * 25;
 ---
 
-<a class="card" href={localePath(lang, `/work/${p.slug}`)} data-object={card.object}>
+<article class="card" data-object={card.object}>
   <div class="top mono">
     <span>{card.code}</span>
     <span class:list={['status', card.status]}>{t(`status.${card.status}`)}</span>
@@ -163,7 +163,9 @@ const rowY = (i: number) => 22 + i * 25;
 
   <div class="body">
     <h3>
-      <span class="name" data-vt={localePath(lang, `/work/${p.slug}`)}>{p.title}</span>
+      <a class="go" href={localePath(lang, `/work/${p.slug}`)}>
+        <span class="name" data-vt={localePath(lang, `/work/${p.slug}`)}>{p.title}</span>
+      </a>
       <span class="type">{p.type[lang]}</span>
     </h3>
     <dl class="mono">
@@ -175,10 +177,12 @@ const rowY = (i: number) => 22 + i * 25;
       <dd class="num">{card.year}</dd>
     </dl>
   </div>
-</a>
+</article>
 
 <style>
+  /* Only the name is the link (a short accessible name); its ::after stretches over the whole card. */
   .card {
+    position: relative;
     display: grid;
     grid-template-rows: auto auto 1fr;
     background: var(--card);
@@ -191,7 +195,7 @@ const rowY = (i: number) => 22 + i * 25;
   }
 
   .card:hover,
-  .card:focus-visible {
+  .card:has(:focus-visible) {
     border-color: var(--fg);
   }
 
@@ -199,7 +203,7 @@ const rowY = (i: number) => 22 + i * 25;
     display: flex;
     justify-content: space-between;
     padding: 12px 14px;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
   }
 
   .status {
@@ -240,7 +244,7 @@ const rowY = (i: number) => 22 + i * 25;
   }
 
   .card:hover .obj::after,
-  .card:focus-visible .obj::after {
+  .card:has(:focus-visible) .obj::after {
     opacity: var(--spot);
   }
 
@@ -321,13 +325,13 @@ const rowY = (i: number) => 22 + i * 25;
 
   .card:hover .stack,
   .card:hover .layers,
-  .card:focus-visible .stack,
-  .card:focus-visible .layers {
+  .card:has(:focus-visible) .stack,
+  .card:has(:focus-visible) .layers {
     --g: 30px;
   }
 
   .card:hover .layers li,
-  .card:focus-visible .layers li {
+  .card:has(:focus-visible) .layers li {
     opacity: 1;
     transition-delay: 0.12s, 0.18s;
   }
@@ -364,7 +368,7 @@ const rowY = (i: number) => 22 + i * 25;
   }
 
   .card:hover .pk,
-  .card:focus-visible .pk {
+  .card:has(:focus-visible) .pk {
     animation: travel 1.15s var(--ease) var(--d, 0ms) 2 both;
   }
 
@@ -431,7 +435,7 @@ const rowY = (i: number) => 22 + i * 25;
   }
 
   .card:hover .result,
-  .card:focus-visible .result {
+  .card:has(:focus-visible) .result {
     animation: land 2.4s var(--ease) both;
   }
 
@@ -532,17 +536,17 @@ const rowY = (i: number) => 22 + i * 25;
   }
 
   .card:hover .q.old,
-  .card:focus-visible .q.old {
+  .card:has(:focus-visible) .q.old {
     animation: leave 2.4s var(--ease) both;
   }
 
   .card:hover .fresh,
-  .card:focus-visible .fresh {
+  .card:has(:focus-visible) .fresh {
     animation: arrive 2.4s var(--ease) both;
   }
 
   .card:hover .ln.new,
-  .card:focus-visible .ln.new {
+  .card:has(:focus-visible) .ln.new {
     animation: arrive 2.4s var(--ease) both;
     animation-duration: 1.2s;
   }
@@ -582,7 +586,7 @@ const rowY = (i: number) => 22 + i * 25;
 
   @media (prefers-reduced-motion: reduce) {
     .card:hover *,
-    .card:focus-visible * {
+    .card:has(:focus-visible) * {
       animation: none !important;
     }
   }
@@ -606,6 +610,20 @@ const rowY = (i: number) => 22 + i * 25;
     display: inline-block;
   }
 
+  .go {
+    text-decoration: none;
+  }
+
+  .go::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .go:focus-visible {
+    outline: none;
+  }
+
   .type {
     display: block;
     margin-top: 4px;
@@ -617,9 +635,9 @@ const rowY = (i: number) => 22 + i * 25;
 
   dl {
     display: grid;
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: 80px minmax(0, 1fr);
     gap: 5px 10px;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
   }
 
   dt {

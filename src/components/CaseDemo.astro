@@ -332,7 +332,8 @@ const cycle = { fibi: 10500, barcode: 6500, signage: 7000 }[kind];
     demos.forEach((root) => {
       const timeline = run(root);
       new IntersectionObserver(([entry]) => (entry.isIntersecting ? timeline.play() : timeline.stop()), {
-        threshold: 0.45,
+        // Start as soon as a fifth of the demo is on screen, not once most of it is.
+        threshold: 0.2,
       }).observe(root);
     });
   }
@@ -428,14 +429,19 @@ const cycle = { fibi: 10500, barcode: 6500, signage: 7000 }[kind];
     flex-direction: column;
     opacity: 0;
     transform: translateX(14px);
+    /* The outgoing screen clears quickly; the incoming one is already arriving, so the phone never
+       sits empty and the two screens don't muddle. */
     transition:
-      opacity 0.45s var(--ease),
+      opacity 0.22s var(--ease),
       transform 0.6s var(--ease);
   }
 
   .scr.on {
     opacity: 1;
     transform: none;
+    transition:
+      opacity 0.4s var(--ease),
+      transform 0.6s var(--ease);
   }
 
   .top {
