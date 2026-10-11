@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import { useTranslations } from '../i18n/ui';
+
+const t = useTranslations('tr');
+---
+
+<Base lang="tr" path="/404" title="404" noindex>
+  <section class="container nf">
+    <p class="mono">404</p>
+    <h1 class="display">{t('404.title')}</h1>
+    <p lang="en" class="muted">This page doesn’t exist.</p>
+    <a class="link arrow" href="/">{t('404.back')}</a>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    display: grid;
+    gap: 16px;
+    padding-block: clamp(80px, 18vw, 240px);
+  }
+
+  h1 {
+    font-size: var(--step-3);
+  }
+
+  a {
+    text-decoration: none;
+    color: var(--accent);
+  }
+</style>

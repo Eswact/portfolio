@@ -1,0 +1,196 @@
+---
+// Karar 11 — Perde. The page is already rendered behind a curtain in the wall colour. The mark assembles
+// in the middle (spine, three arms, two caret blinks), then the curtain lifts while the mark lands on the
+// header logo. Pure CSS motion; the script only measures the landing spot and cleans up.
+// Shown only when <head> added `html.intro` (first page of the session, motion allowed).
+// The mark is a sibling of the curtain, so the lifting clip never cuts it.
+---
+
+<div class="curtain" aria-hidden="true" data-intro></div>
+<svg class="big" viewBox="0 0 80 64" aria-hidden="true" data-intro-mark>
+  <path class="sp" d="M30 18H5.75A28 28 0 0 0 5.75 46H30Z"></path>
+  <path class="a1" d="M5.75 18A28 28 0 0 1 54.25 18Z"></path>
+  <path class="a2" d="M30 27H57.55A28 28 0 0 1 57.55 37H30Z"></path>
+  <path class="a3" d="M5.75 46A28 28 0 0 0 54.25 46Z"></path>
+  <rect class="cur" x="62" y="52" width="16" height="7"></rect>
+</svg>
+
+<script>
+  const root = document.documentElement;
+  const curtain = document.querySelector<HTMLElement>('[data-intro]');
+  const mark = document.querySelector<SVGElement>('[data-intro-mark]');
+
+  const finish = () => {
+    root.classList.remove('intro', 'intro-go');
+    curtain?.remove();
+    mark?.remove();
+  };
+
+  if (root.classList.contains('intro') && curtain && mark) {
+    // Measure where the header logo is right before the landing starts (the visitor may have scrolled).
+    const aim = () => {
+      const target = document.querySelector('.bar .logo-mark')?.getBoundingClientRect();
+      const from = mark.getBoundingClientRect();
+      if (!target || !from.width) return;
+      const dx = target.left + target.width / 2 - (from.left + from.width / 2);
+      const dy = target.top + target.height / 2 - (from.top + from.height / 2);
+      mark.style.setProperty('--dx', `${dx}px`);
+      mark.style.setProperty('--dy', `${dy}px`);
+      mark.style.setProperty('--s', String(target.width / from.width));
+    };
+
+    let timers: number[] = [];
+    // Timings count from the moment <head> says the tab is visible and the curtain starts moving.
+    const start = () => {
+      aim();
+      timers = [window.setTimeout(aim, 1050), window.setTimeout(finish, 1900)];
+    };
+    if (root.classList.contains('intro-go')) start();
+    else addEventListener('intro:go', start, { once: true });
+
+    // Any click or key skips it.
+    const skip = () => {
+      timers.forEach(clearTimeout);
+      finish();
+    };
+    curtain.addEventListener('pointerdown', skip);
+    addEventListener('keydown', skip, { once: true });
+  } else {
+    finish();
+  }
+</script>
+
+<style>
+  .curtain,
+  .big {
+    display: none;
+  }
+
+  :global(html.intro) .curtain {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--bg);
+    clip-path: inset(0 0 0 0);
+  }
+
+  :global(html.intro-go) .curtain {
+    animation: intro-lift 0.7s var(--ease-in-out-strong) 1.15s both;
+  }
+
+  :global(html.intro) .big {
+    display: block;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    z-index: 101;
+    width: clamp(88px, 12vw, 152px);
+    height: auto;
+    overflow: visible;
+    fill: var(--fg);
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+  }
+
+  :global(html.intro-go) .big {
+    opacity: 1;
+    animation: intro-land 0.7s var(--ease-in-out-strong) 1.15s both;
+  }
+
+  /* The header logo waits under the curtain until the big mark lands on it — then CSS alone brings it
+     back, so the page never depends on the script finishing. */
+  :global(html.intro .bar .logo-mark) {
+    opacity: 0;
+  }
+
+  :global(html.intro-go .bar .logo-mark) {
+    animation: intro-reveal 0.01s linear 1.85s both;
+  }
+
+  @keyframes intro-reveal {
+    to {
+      opacity: 1;
+    }
+  }
+
+  :global(html.intro-go) .sp {
+    transform-origin: 30px 32px;
+    animation: intro-spine 0.4s var(--ease-out-strong) both;
+  }
+
+  :global(html.intro-go) .a1 {
+    animation: intro-arm 0.45s var(--ease-out-strong) 0.15s both;
+  }
+
+  :global(html.intro-go) .a2 {
+    animation: intro-arm 0.45s var(--ease-out-strong) 0.23s both;
+  }
+
+  :global(html.intro-go) .a3 {
+    animation: intro-arm 0.45s var(--ease-out-strong) 0.31s both;
+  }
+
+  :global(html.intro-go) .cur {
+    animation: intro-caret 0.9s steps(1) 0.6s both;
+  }
+
+  @keyframes intro-spine {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes intro-arm {
+    from {
+      opacity: 0;
+      transform: translateX(14px);
+    }
+  }
+
+  @keyframes intro-caret {
+    0% {
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    40% {
+      opacity: 0;
+    }
+    60% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes intro-lift {
+    to {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+
+  @keyframes intro-land {
+    to {
+      transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px))) scale(var(--s, 0.2));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.intro) .curtain,
+    :global(html.intro) .big {
+      display: none;
+    }
+
+    :global(html.intro .bar .logo-mark) {
+      opacity: 1;
+    }
+  }
+</style>

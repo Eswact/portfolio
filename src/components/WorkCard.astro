@@ -1,0 +1,632 @@
+---
+// A catalogue card (Karar 07): model number, status, an object that shows the product's mechanism on hover,
+// and spec rows in the same order on every card.
+//  phone  (Fibi)            the phone separates into its layers; labels sit level with each plate
+//  api    (Barcode API)     eight marketplaces are queried at once and merge into the cheapest price
+//  screen (Digital Signage) the panel sends an update and the screens on the wall follow
+import type { FeaturedProject } from '../data/projects';
+import { localePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  project: FeaturedProject;
+  lang: Lang;
+}
+
+const { project: p, lang } = Astro.props;
+const t = useTranslations(lang);
+const tr = lang === 'tr';
+const { card } = p;
+const n = card.layers.length;
+
+// Barcode diagram: real result of the first query in the case study (8690504085720).
+const markets = [
+  { name: 'Trendyol', found: true },
+  { name: 'Hepsiburada', found: false },
+  { name: 'Pazarama', found: false },
+  { name: 'CarrefourSA', found: true },
+  { name: 'Mopaş', found: true },
+  { name: 'Afta Market', found: false },
+  { name: 'Şok Market', found: true },
+  { name: 'Market Karşılaştır', found: true, best: true },
+];
+const rowY = (i: number) => 22 + i * 25;
+---
+
+<a class="card" href={localePath(lang, `/work/${p.slug}`)} data-object={card.object}>
+  <div class="top mono">
+    <span>{card.code}</span>
+    <span class:list={['status', card.status]}>{t(`status.${card.status}`)}</span>
+  </div>
+
+  <div class="obj" aria-hidden="true">
+    {
+      card.object === 'phone' && (
+        <>
+          <div class="stack" style={`--n:${n}`}>
+            {card.layers.map((_, i) => (
+              <b style={`--i:${n - 1 - i}`} />
+            ))}
+          </div>
+          <ul class="layers" role="list">
+            {card.layers.map((l, i) => (
+              <li style={`--i:${n - 1 - i}`}>{l[lang]}</li>
+            ))}
+          </ul>
+        </>
+      )
+    }
+
+    {
+      card.object === 'api' && (
+        <svg class="diagram api" viewBox="0 0 360 224">
+          {markets.map((m, i) => (
+            <g class:list={['src', { miss: !m.found }]} style={`--d:${(i % 4) * 90 + Math.floor(i / 4) * 45}ms`}>
+              <rect x="12" y={rowY(i) - 9} width="108" height="18" rx="3" />
+              <text x="19" y={rowY(i) + 3.5}>
+                {m.name}
+              </text>
+              <path class="wire" d={`M120 ${rowY(i)} C 166 ${rowY(i)}, 174 112, 214 112`} pathLength="100" />
+              {m.found && <path class="pk" d={`M120 ${rowY(i)} C 166 ${rowY(i)}, 174 112, 214 112`} pathLength="100" />}
+            </g>
+          ))}
+          <circle class="node" cx="214" cy="112" r="3.5" />
+          <g class="result">
+            <rect x="226" y="80" width="122" height="64" rx="5" />
+            <text class="r-k" x="238" y="99">
+              {tr ? 'En ucuz · 5/8 market' : 'Cheapest · 5/8 markets'}
+            </text>
+            <text class="r-v" x="238" y="122">
+              ₺16,00
+            </text>
+            <text class="r-k" x="238" y="136">
+              Market Karşılaştır
+            </text>
+          </g>
+        </svg>
+      )
+    }
+
+    {
+      card.object === 'screen' && (
+        <svg class="diagram signage" viewBox="0 0 360 224">
+          <g class="panel">
+            <rect class="win" x="14" y="62" width="124" height="96" rx="4" />
+            <line class="sep" x1="14" y1="74" x2="138" y2="74" />
+            <circle class="dot" cx="21" cy="68" r="1.6" />
+            <circle class="dot" cx="27" cy="68" r="1.6" />
+            <circle class="dot" cx="33" cy="68" r="1.6" />
+            <rect class="side" x="14" y="74" width="26" height="84" />
+            <rect class="ln" x="48" y="84" width="60" height="5" rx="1" />
+            <rect class="ln" x="48" y="96" width="80" height="12" rx="2" />
+            <rect class="ln" x="48" y="112" width="80" height="12" rx="2" />
+            <rect class="ln new" x="48" y="128" width="80" height="12" rx="2" />
+            <text class="tag" x="54" y="137">
+              49 · Latte
+            </text>
+          </g>
+          {[
+            'M138 110 C 168 110, 170 62, 196 62',
+            'M138 110 C 168 110, 176 150, 196 152',
+            'M138 110 C 200 110, 250 150, 276 152',
+          ].map((d, i) => (
+            <>
+              <path class="wire" d={d} pathLength="100" />
+              <path class="pk" d={d} pathLength="100" style={`--d:${i * 70}ms`} />
+            </>
+          ))}
+          <g class="tv big">
+            <rect class="case" x="196" y="22" width="150" height="86" rx="4" />
+            <rect class="glass" x="200" y="26" width="142" height="78" rx="1.5" />
+            <text class="h" x="206" y="38">
+              {tr ? 'Siparişler' : 'Orders'}
+            </text>
+            <rect class="colA" x="206" y="43" width="62" height="56" rx="1.5" />
+            <rect class="colB" x="273" y="43" width="62" height="56" rx="1.5" />
+            <text class="num" x="211" y="58">
+              41
+            </text>
+            <text class="num" x="211" y="74">
+              42
+            </text>
+            <text class="num fresh" x="211" y="90">
+              49
+            </text>
+            <text class="num" x="278" y="58">
+              46
+            </text>
+            <text class="num" x="278" y="74">
+              47
+            </text>
+          </g>
+          <g class="tv">
+            <rect class="case" x="196" y="128" width="70" height="46" rx="3" />
+            <rect class="glass dark" x="199" y="131" width="64" height="40" rx="1" />
+            <text class="q old" x="231" y="157" text-anchor="middle">
+              A042
+            </text>
+            <text class="q fresh" x="231" y="157" text-anchor="middle">
+              A043
+            </text>
+          </g>
+          <g class="tv">
+            <rect class="case" x="276" y="128" width="70" height="46" rx="3" />
+            <rect class="glass dark" x="279" y="131" width="64" height="40" rx="1" />
+            <rect class="ln-tv" x="285" y="138" width="34" height="4" rx="1" />
+            <rect class="ln-tv soft" x="285" y="147" width="46" height="3" rx="1" />
+            <rect class="ln-tv soft" x="285" y="154" width="40" height="3" rx="1" />
+            <rect class="band" x="279" y="163" width="64" height="8" />
+          </g>
+        </svg>
+      )
+    }
+  </div>
+
+  <div class="body">
+    <h3>
+      <span class="name" data-vt={localePath(lang, `/work/${p.slug}`)}>{p.title}</span>
+      <span class="type">{p.type[lang]}</span>
+    </h3>
+    <dl class="mono">
+      <dt>{t('spec.platform')}</dt>
+      <dd>{card.platform[lang]}</dd>
+      <dt>{t('spec.stack')}</dt>
+      <dd>{p.stack.slice(0, 4).join(' · ')}</dd>
+      <dt>{t('spec.year')}</dt>
+      <dd class="num">{card.year}</dd>
+    </dl>
+  </div>
+</a>
+
+<style>
+  .card {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    background: var(--card);
+    border: 1px solid var(--line);
+    text-decoration: none;
+    transition:
+      opacity 0.45s var(--ease),
+      border-color 0.3s,
+      background-color 0.6s var(--ease);
+  }
+
+  .card:hover,
+  .card:focus-visible {
+    border-color: var(--fg);
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 14px;
+    font-size: 0.75rem;
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--muted);
+  }
+
+  .status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1px solid var(--fg);
+  }
+
+  .status.live::before {
+    background: var(--fg);
+  }
+
+  .obj {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--surface);
+    transition: background-color 0.6s var(--ease);
+  }
+
+  .obj::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 70% at 50% 12%, rgb(255 250 235 / 0.16), transparent 72%);
+    transition: opacity 0.45s var(--ease);
+  }
+
+  .card:hover .obj::after,
+  .card:focus-visible .obj::after {
+    opacity: var(--spot);
+  }
+
+  /* ---------- phone: plates in isometric view; --g is the gap between them ---------- */
+  /* A plate lifted by translateZ(d) rises 0.829·d on screen (rotateX 56°): labels follow that rise. */
+  .stack {
+    --g: 4px;
+    position: absolute;
+    left: 32%;
+    top: 54%;
+    width: 84px;
+    height: 148px;
+    margin: -74px 0 0 -42px;
+    transform-style: preserve-3d;
+    transform: rotateX(56deg) rotateZ(-36deg);
+  }
+
+  .stack b {
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid var(--fg);
+    border-radius: 15px;
+    background: var(--card);
+    transform: translateZ(calc(var(--i) * var(--g)));
+    transition:
+      transform 0.65s var(--spring),
+      background-color 0.6s var(--ease),
+      border-color 0.6s var(--ease);
+  }
+
+  .stack b:last-child {
+    background: var(--fg);
+  }
+
+  .stack b:first-child::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 12px;
+    height: 14px;
+    border-radius: 7px;
+    background: var(--product-fibi);
+  }
+
+  .layers {
+    --g: 4px;
+    position: absolute;
+    left: 56%;
+    right: 10px;
+    top: 54%;
+    height: 0;
+    font-size: 0.6875rem;
+  }
+
+  .layers li {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    transform: translateY(calc(-50% - var(--i) * var(--g) * 0.829));
+    opacity: 0;
+    transition:
+      transform 0.65s var(--spring),
+      opacity 0.3s;
+  }
+
+  .layers li::before {
+    content: '';
+    flex: none;
+    width: 22px;
+    height: 1px;
+    background: var(--muted);
+  }
+
+  .card:hover .stack,
+  .card:hover .layers,
+  .card:focus-visible .stack,
+  .card:focus-visible .layers {
+    --g: 30px;
+  }
+
+  .card:hover .layers li,
+  .card:focus-visible .layers li {
+    opacity: 1;
+    transition-delay: 0.12s, 0.18s;
+  }
+
+  /* ---------- diagrams (api, screen): drawn in the page's ink ---------- */
+  .diagram {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-mono);
+  }
+
+  .diagram text {
+    fill: var(--fg);
+    font-size: 8.5px;
+  }
+
+  .wire {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+
+  /* A packet: a short dash that travels the wire on hover. */
+  .pk {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 4 120;
+    stroke-dashoffset: 4;
+    opacity: 0;
+  }
+
+  .card:hover .pk,
+  .card:focus-visible .pk {
+    animation: travel 1.15s var(--ease) var(--d, 0ms) 2 both;
+  }
+
+  @keyframes travel {
+    0% {
+      stroke-dashoffset: 4;
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      stroke-dashoffset: -100;
+      opacity: 0;
+    }
+  }
+
+  .src rect {
+    fill: var(--card);
+    stroke: var(--fg);
+    stroke-width: 1;
+    transition:
+      fill 0.3s,
+      stroke 0.3s;
+  }
+
+  .src.miss {
+    opacity: 0.42;
+  }
+
+  .src.miss rect {
+    stroke: var(--muted);
+    stroke-dasharray: 2 2;
+  }
+
+  .node {
+    fill: var(--fg);
+  }
+
+  .result rect {
+    fill: var(--fg);
+  }
+
+  .result text {
+    fill: var(--card);
+  }
+
+  .diagram .r-k {
+    font-size: 7.5px;
+    opacity: 0.7;
+  }
+
+  .diagram .r-v {
+    font-family: var(--font-sans);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .result {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.5s var(--spring);
+  }
+
+  .card:hover .result,
+  .card:focus-visible .result {
+    animation: land 2.4s var(--ease) both;
+  }
+
+  @keyframes land {
+    0%,
+    45% {
+      transform: scale(0.94);
+      opacity: 0.35;
+    }
+    60%,
+    100% {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  /* signage */
+  .win {
+    fill: var(--card);
+    stroke: var(--fg);
+    stroke-width: 1;
+  }
+
+  .sep,
+  .side {
+    stroke: var(--line);
+    fill: var(--surface);
+  }
+
+  .dot {
+    fill: var(--line);
+  }
+
+  .ln {
+    fill: var(--surface);
+  }
+
+  .ln.new {
+    fill: color-mix(in srgb, var(--fg) 12%, transparent);
+  }
+
+  .diagram .tag {
+    font-size: 6.5px;
+  }
+
+  .case {
+    fill: #0c0c0d;
+  }
+
+  .glass {
+    fill: #f5f5f3;
+  }
+
+  .glass.dark {
+    fill: #17171a;
+  }
+
+  .diagram .tv .h {
+    fill: #151517;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 7px;
+  }
+
+  .colA,
+  .colB {
+    fill: #e7e7e4;
+  }
+
+  .diagram .num {
+    fill: #151517;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .diagram .q {
+    fill: #f5f5f3;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .ln-tv {
+    fill: #e7c84a;
+  }
+
+  .ln-tv.soft {
+    fill: #5d5d62;
+  }
+
+  .band {
+    fill: #e7c84a;
+  }
+
+  /* At rest the update has landed; on hover it is sent again. */
+  .q.old {
+    opacity: 0;
+  }
+
+  .card:hover .q.old,
+  .card:focus-visible .q.old {
+    animation: leave 2.4s var(--ease) both;
+  }
+
+  .card:hover .fresh,
+  .card:focus-visible .fresh {
+    animation: arrive 2.4s var(--ease) both;
+  }
+
+  .card:hover .ln.new,
+  .card:focus-visible .ln.new {
+    animation: arrive 2.4s var(--ease) both;
+    animation-duration: 1.2s;
+  }
+
+  @keyframes arrive {
+    0%,
+    48% {
+      opacity: 0;
+    }
+    62%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes leave {
+    0%,
+    48% {
+      opacity: 1;
+    }
+    62%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @media (hover: none) {
+    .stack,
+    .layers {
+      --g: 18px;
+    }
+
+    .layers li {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card:hover *,
+    .card:focus-visible * {
+      animation: none !important;
+    }
+  }
+
+  .body {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    padding: 16px 14px 18px;
+    border-top: 1px solid var(--line);
+  }
+
+  h3 {
+    font-size: 1.375rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .name {
+    display: inline-block;
+  }
+
+  .type {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--muted);
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 5px 10px;
+    font-size: 0.75rem;
+  }
+
+  dt {
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+</style>

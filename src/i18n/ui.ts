@@ -1,0 +1,131 @@
+export const languages = { tr: 'Türkçe', en: 'English' } as const;
+export type Lang = keyof typeof languages;
+export const defaultLang: Lang = 'tr';
+
+/** Bilingual text value. */
+export type L10n = Record<Lang, string>;
+
+export const ui = {
+  tr: {
+    'meta.title': 'Eren Sarıbay — Yazılım Geliştirici',
+    'meta.description':
+      'İstanbul’da yaşayan yazılım geliştirici. Web ve mobilde, uçtan uca ürünler geliştiriyorum: Vue, React, Next.js, React Native ve Node.js.',
+    'nav.work': 'Projeler',
+    'nav.about': 'Deneyim',
+    'nav.contact': 'İletişim',
+    'nav.label': 'Ana menü',
+    'nav.skip': 'İçeriğe geç',
+    'hero.title': 'Web ve mobilde, uçtan uca ürünler geliştiriyorum.',
+    'hero.role': 'Yazılım geliştirici',
+    'hero.now': '@NSA Teknoloji (Çamlıca Barkod)',
+    'hero.location': 'İstanbul, Türkiye',
+    'section.work': 'Seçili projeler',
+    'work.all': 'Tüm projeler',
+    'status.live': 'Yayında',
+    'status.source': 'Açık kaynak',
+    'status.apk': 'Test sürümü',
+    'spec.platform': 'Platform',
+    'spec.stack': 'Yığın',
+    'spec.year': 'Yıl',
+    'theme.label': 'Işıkları kapat (koyu tema)',
+    'section.index': 'Proje indeksi',
+    'section.experience': 'Deneyim',
+    'section.contact': 'İletişim',
+    'index.project': 'Proje',
+    'index.type': 'Tür',
+    'index.stack': 'Teknoloji',
+    'work.caseStudy': 'Vaka çalışması',
+    'work.back': 'Tüm işler',
+    'work.next': 'Sonraki proje',
+    'work.highlights': 'Öne çıkanlar',
+    'work.live': 'Web sitesi',
+    'work.app': 'Uygulama',
+    'work.source': 'Kaynak kod',
+    'work.links': 'Bağlantılar',
+    'work.role': 'Rol',
+    'work.demo': 'Canlı gösteri',
+    'work.sample': 'Prototip gösterim, gerçek ekran görüntüsü değil',
+    'work.architecture': 'Mimari',
+    'work.how': 'Nasıl çalışıyor',
+    'work.screens': 'Ekranlar',
+    'work.real': 'Gerçek ekran görüntüleri, dil ve temaya göre değişir',
+    'work.zoom': 'Büyüt',
+    'work.close': 'Kapat',
+    'contact.title': 'Birlikte bir şey geliştirelim.',
+    'contact.cv': 'CV indir',
+    'contact.copy': 'Kopyala',
+    'contact.copied': 'Kopyalandı',
+    'index.code': 'Kod',
+    'index.status': 'Durum',
+    'footer.updated': 'Son güncelleme',
+    '404.title': 'Bu sayfa yok.',
+    '404.back': 'Ana sayfaya dön',
+  },
+  en: {
+    'meta.title': 'Eren Sarıbay — Software Developer',
+    'meta.description':
+      'Software developer based in Istanbul, building web and mobile products end to end with Vue, React, Next.js, React Native and Node.js.',
+    'nav.work': 'Projects',
+    'nav.about': 'Experience',
+    'nav.contact': 'Contact',
+    'nav.label': 'Main',
+    'nav.skip': 'Skip to content',
+    'hero.title': 'I build web and mobile products, end to end.',
+    'hero.role': 'Software developer',
+    'hero.now': '@NSA Teknoloji (Çamlıca Barkod)',
+    'hero.location': 'Istanbul, Türkiye',
+    'section.work': 'Selected projects',
+    'work.all': 'All projects',
+    'status.live': 'Live',
+    'status.source': 'Open source',
+    'status.apk': 'Test build',
+    'spec.platform': 'Platform',
+    'spec.stack': 'Stack',
+    'spec.year': 'Year',
+    'theme.label': 'Turn off the lights (dark theme)',
+    'section.index': 'Project index',
+    'section.experience': 'Experience',
+    'section.contact': 'Contact',
+    'index.project': 'Project',
+    'index.type': 'Type',
+    'index.stack': 'Stack',
+    'work.caseStudy': 'Case study',
+    'work.back': 'All work',
+    'work.next': 'Next project',
+    'work.highlights': 'Highlights',
+    'work.live': 'Website',
+    'work.app': 'App',
+    'work.source': 'Source',
+    'work.links': 'Links',
+    'work.role': 'Role',
+    'work.demo': 'Live demo',
+    'work.sample': 'Prototype illustration, not a real screenshot',
+    'work.architecture': 'Architecture',
+    'work.how': 'How it works',
+    'work.screens': 'Screens',
+    'work.real': 'Real screenshots, matched to language and theme',
+    'work.zoom': 'Enlarge',
+    'work.close': 'Close',
+    'contact.title': 'Let’s build something together.',
+    'contact.cv': 'Download CV',
+    'contact.copy': 'Copy',
+    'contact.copied': 'Copied',
+    'index.code': 'No.',
+    'index.status': 'Status',
+    'footer.updated': 'Last updated',
+    '404.title': 'This page doesn’t exist.',
+    '404.back': 'Back to home',
+  },
+} as const;
+
+export type UIKey = keyof (typeof ui)['tr'];
+
+export function useTranslations(lang: Lang) {
+  return (key: UIKey) => ui[lang][key];
+}
+
+/** Path for a locale-neutral route, e.g. localePath('en', '/work/fibi') → '/en/work/fibi'. */
+export function localePath(lang: Lang, path = '/') {
+  const clean = path === '/' ? '' : path;
+  return lang === defaultLang ? clean || '/' : `/${lang}${clean}`;
+}

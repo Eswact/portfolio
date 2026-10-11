@@ -1,0 +1,1031 @@
+---
+// The product's mechanism in miniature. Markup renders a meaningful resting frame; when the stage scrolls
+// into view a tiny timeline replays the flow: [data-at] adds .on, [data-off] removes it (ms into the cycle).
+// Reduced motion keeps the resting frame.
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  kind: 'fibi' | 'barcode' | 'signage';
+  lang: Lang;
+}
+
+const { kind, lang } = Astro.props;
+const t = useTranslations(lang);
+const tr = lang === 'tr';
+
+const fibi = tr
+  ? {
+      add: 'Ekle',
+      ask: 'Ne aldın?',
+      hint: 'Konuş: ne aldın, kaça, ne zaman.',
+      words: ['“3700', 'liraya', 'kulaklık', 'aldım”'],
+      review: 'Kontrol et',
+      quote: '“3700 liraya kulaklık aldım”',
+      what: 'Ne aldın?',
+      item: 'kulaklık',
+      amountLabel: 'Tutar',
+      amount: '3.700',
+      category: 'Kategori',
+      categoryValue: 'Teknoloji > Ses',
+      inventory: 'Envantere ekle',
+      inventoryHint: 'Eşya olarak da kaydedilir',
+      cancel: 'Vazgeç',
+      save: 'Kaydet',
+      hello: 'Merhaba',
+      spent: 'Bu ay harcama',
+      total: '₺27.712',
+      cents: ',62',
+      recent: 'Son harcamalar',
+      today: 'Bugün · Teknoloji',
+      older: 'Bugün · Abonelik',
+      toast: 'Kaydedildi · envantere eklendi',
+      tabs: ['Ana sayfa', 'Harcamalar', 'Analiz', 'Envanter'],
+    }
+  : {
+      add: 'Add',
+      ask: 'What did you buy?',
+      hint: 'Speak: what you bought, how much, when.',
+      words: ['“bought', 'headphones', 'for', '3700 lira”'],
+      review: 'Review',
+      quote: '“bought headphones for 3700 lira”',
+      what: 'What did you buy?',
+      item: 'headphones',
+      amountLabel: 'Amount',
+      amount: '3,700',
+      category: 'Category',
+      categoryValue: 'Tech > Audio',
+      inventory: 'Add to inventory',
+      inventoryHint: 'Also saved as an item',
+      cancel: 'Cancel',
+      save: 'Save',
+      hello: 'Hello',
+      spent: 'Spent this month',
+      total: '₺27,712',
+      cents: '.62',
+      recent: 'Recent spending',
+      today: 'Today · Tech',
+      older: 'Today · Subscriptions',
+      toast: 'Saved · added to inventory',
+      tabs: ['Home', 'Expenses', 'Analytics', 'Inventory'],
+    };
+
+const markets = [
+  { name: 'Trendyol', price: '₺46,90', at: 900 },
+  { name: 'Hepsiburada', price: '₺48,50', at: 1500 },
+  { name: 'Pazarama', price: null, at: 2600 },
+  { name: 'CarrefourSA', price: '₺44,95', at: 1100, best: true },
+  { name: 'Mopaş', price: '₺47,25', at: 2000 },
+  { name: 'Afta Market', price: null, at: 2900 },
+  { name: 'Şok Market', price: '₺45,50', at: 1300 },
+  { name: 'Market Karşılaştır', price: '₺46,00', at: 1800 },
+];
+const cycle = { fibi: 10500, barcode: 6500, signage: 7000 }[kind];
+---
+
+<figure class:list={['demo', kind]} data-demo data-cycle={cycle}>
+  {
+    kind === 'fibi' && (
+      <div class="phone" aria-hidden="true">
+        <div class="app">
+          {/* 1 · listening */}
+          <div class="scr s-add" data-at="0" data-off="3300">
+            <div class="top">
+              <span class="back" />
+              <b>{fibi.add}</b>
+            </div>
+            <p class="h">{fibi.ask}</p>
+            <p class="sub">{fibi.hint}</p>
+            <div class="mic">
+              <i class="ring" />
+              <i class="ring r2" />
+              <span class="dot">
+                <svg viewBox="0 0 24 24">
+                  <rect x="9" y="3" width="6" height="11" rx="3" />
+                  <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+                </svg>
+              </span>
+            </div>
+            <p class="said">
+              {fibi.words.map((w, i) => (
+                <span class="w" data-at={String(500 + i * 420)}>
+                  {w}{' '}
+                </span>
+              ))}
+            </p>
+          </div>
+
+          {/* 2 · review (resting frame) */}
+          <div class="scr s-review on" data-at="3300" data-off="6900">
+            <div class="top">
+              <span class="back" />
+              <b>{fibi.add}</b>
+            </div>
+            <p class="h">{fibi.review}</p>
+            <p class="sub">{fibi.quote}</p>
+            <div class="sheet">
+              <span class="lbl">{fibi.what}</span>
+              <span class="field">{fibi.item}</span>
+              <span class="lbl">{fibi.amountLabel}</span>
+              <span class="field big">
+                <em>₺</em>
+                {fibi.amount}
+              </span>
+              <span class="chips">
+                <i class="sel">TRY</i>
+                <i>USD</i>
+                <i>EUR</i>
+              </span>
+              <span class="lbl">{fibi.category}</span>
+              <span class="field cat">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 15v-3a8 8 0 0 1 16 0v3" />
+                  <rect x="3" y="14" width="4" height="6" rx="1.5" />
+                  <rect x="17" y="14" width="4" height="6" rx="1.5" />
+                </svg>
+                {fibi.categoryValue}
+              </span>
+              <span class="inv">
+                <span>
+                  <b>{fibi.inventory}</b>
+                  <small>{fibi.inventoryHint}</small>
+                </span>
+                <i class="toggle" />
+              </span>
+            </div>
+            <div class="actions">
+              <span class="ghost">{fibi.cancel}</span>
+              <span class="primary" data-at="6300">
+                ✓ {fibi.save}
+              </span>
+            </div>
+          </div>
+
+          {/* 3 · saved: the expense on top of the list */}
+          <div class="scr s-home" data-at="6900">
+            <p class="h hello">{fibi.hello}</p>
+            <div class="total">
+              <span class="lbl">{fibi.spent}</span>
+              <b>
+                {fibi.total}
+                <em>{fibi.cents}</em>
+              </b>
+            </div>
+            <span class="lbl list-h">{fibi.recent}</span>
+            <div class="rows">
+              <span class="row new" data-at="7300">
+                <i class="ico">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M4 15v-3a8 8 0 0 1 16 0v3" />
+                    <rect x="3" y="14" width="4" height="6" rx="1.5" />
+                    <rect x="17" y="14" width="4" height="6" rx="1.5" />
+                  </svg>
+                </i>
+                <span>
+                  <b>{fibi.item}</b>
+                  <small>{fibi.today}</small>
+                </span>
+                <b>₺{fibi.amount}</b>
+              </span>
+              <span class="row">
+                <i class="ico" />
+                <span>
+                  <b>ChatGPT Plus</b>
+                  <small>{fibi.older}</small>
+                </span>
+                <b>₺700</b>
+              </span>
+              <span class="row">
+                <i class="ico" />
+                <span>
+                  <b>YouTube Premium</b>
+                  <small>{fibi.older}</small>
+                </span>
+                <b>₺79,99</b>
+              </span>
+            </div>
+            <span class="toast" data-at="7700" data-off="10000">
+              {fibi.toast}
+            </span>
+            <span class="tabbar">
+              {fibi.tabs.slice(0, 2).map((x, i) => (
+                <i class:list={{ cur: i === 0 }}>{x}</i>
+              ))}
+              <i class="m" />
+              {fibi.tabs.slice(2).map((x) => (
+                <i>{x}</i>
+              ))}
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    kind === 'barcode' && (
+      <div class="panel" aria-hidden="true">
+        <p class="req mono">
+          POST /api/prices/search-stream-fast <b>8690504085720</b>
+        </p>
+        <ul role="list">
+          {markets.map((m) => (
+            <li class:list={['on', { best: m.best }]} data-at={m.at}>
+              <span>{m.name}</span>
+              <span class="track">
+                <i />
+              </span>
+              <span class="mono val">
+                <span class="wait">{tr ? 'aranıyor' : 'searching'}</span>
+                <span class="got">{m.price ?? (tr ? 'bulunamadı' : 'not found')}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p class="foot mono on" data-at="3100">
+          {tr ? 'En ucuz: CarrefourSA · CSV’ye aktar' : 'Cheapest: CarrefourSA · Export CSV'}
+        </p>
+      </div>
+    )
+  }
+
+  {
+    kind === 'signage' && (
+      <div class="pair" aria-hidden="true">
+        <pre class="json mono">
+          <span>{'{ "type": "SCREEN_PATCH",'}</span>
+          <span>{'  "ops": ['}</span>
+          <span class="op on" data-at="700">{'    { "op": "add", "path": "/orders/-",'}</span>
+          <span class="op on" data-at="700">{'      "value": { "no": 128 } },'}</span>
+          <span class="op on" data-at="2600">{'    { "op": "replace",'}</span>
+          <span class="op on" data-at="2600">{'      "path": "/orders/0/status",'}</span>
+          <span class="op on" data-at="2600">{'      "value": "ready" }'}</span>
+          <span>{'  ] }'}</span>
+        </pre>
+        <div class="tv">
+          <div class="col">
+            <h4>{tr ? 'Hazırlanıyor' : 'Preparing'}</h4>
+            <span class="o out on" data-at="3100">124</span>
+            <span class="o">125</span>
+            <span class="o">127</span>
+            <span class="o in on" data-at="1200">128</span>
+          </div>
+          <div class="col">
+            <h4>{tr ? 'Hazır' : 'Ready'}</h4>
+            <span class="o in on" data-at="3100">124</span>
+            <span class="o">121</span>
+            <span class="o">122</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  <figcaption class="mono">{t('work.demo')} · {t('work.sample')}</figcaption>
+</figure>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const demos = document.querySelectorAll<HTMLElement>('[data-demo]');
+
+  function run(root: HTMLElement) {
+    const steps = [...root.querySelectorAll<HTMLElement>('[data-at]')];
+    const rest = steps.filter((el) => el.classList.contains('on'));
+    const cycle = Number(root.dataset.cycle);
+    let timers: number[] = [];
+    const later = (ms: number, fn: () => void) => timers.push(window.setTimeout(fn, ms));
+    const play = () => {
+      steps.forEach((el) => el.classList.remove('on'));
+      steps.forEach((el) => {
+        later(Number(el.dataset.at), () => el.classList.add('on'));
+        if (el.dataset.off) later(Number(el.dataset.off), () => el.classList.remove('on'));
+      });
+      later(cycle, play);
+    };
+    const stop = () => {
+      timers.forEach(clearTimeout);
+      timers = [];
+      steps.forEach((el) => el.classList.toggle('on', rest.includes(el)));
+    };
+    return { play, stop };
+  }
+
+  if (!reduce.matches && 'IntersectionObserver' in window) {
+    demos.forEach((root) => {
+      const timeline = run(root);
+      new IntersectionObserver(([entry]) => (entry.isIntersecting ? timeline.play() : timeline.stop()), {
+        threshold: 0.45,
+      }).observe(root);
+    });
+  }
+</script>
+
+<style>
+  .demo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: clamp(460px, 46vw, 660px);
+    padding: clamp(32px, 4vw, 56px) 16px 56px;
+    background: var(--surface);
+    overflow: hidden;
+    transition: background-color 0.6s var(--ease);
+  }
+
+  .demo::before {
+    content: '';
+    position: absolute;
+    left: 15%;
+    right: 15%;
+    top: 0;
+    height: 70%;
+    pointer-events: none;
+    background: radial-gradient(ellipse 50% 60% at 50% 0%, var(--glow), transparent 70%);
+  }
+
+  figcaption {
+    position: absolute;
+    left: 16px;
+    bottom: 14px;
+    font-size: 0.6875rem;
+    color: var(--muted);
+  }
+
+  /* ---------- Fibi: the real flow, in the app's own look and the page's theme ---------- */
+  .phone {
+    --a-bg: #e7e7e5;
+    --a-card: #fafaf9;
+    --a-fg: #18181b;
+    --a-muted: #71717a;
+    --a-line: #dcdcd8;
+    --a-chip: #ededeb;
+    position: relative;
+    width: 272px;
+    height: 556px;
+    padding: 9px;
+    border-radius: 44px;
+    background: #0c0c0d;
+    box-shadow:
+      0 50px 80px -44px rgb(0 0 0 / 0.55),
+      inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  }
+
+  :global(:root[data-theme='dark']) .phone {
+    --a-bg: #0d0d0e;
+    --a-card: #1c1c1e;
+    --a-fg: #f2f2f0;
+    --a-muted: #8b8b90;
+    --a-line: #2a2a2d;
+    --a-chip: #232326;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .phone {
+      --a-bg: #0d0d0e;
+      --a-card: #1c1c1e;
+      --a-fg: #f2f2f0;
+      --a-muted: #8b8b90;
+      --a-line: #2a2a2d;
+      --a-chip: #232326;
+    }
+  }
+
+  .app {
+    position: relative;
+    height: 100%;
+    border-radius: 36px;
+    overflow: hidden;
+    background: var(--a-bg);
+    color: var(--a-fg);
+    font-size: 12px;
+    line-height: 1.3;
+    transition: background-color 0.6s var(--ease);
+  }
+
+  .scr {
+    position: absolute;
+    inset: 0;
+    padding: 44px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateX(14px);
+    transition:
+      opacity 0.45s var(--ease),
+      transform 0.6s var(--ease);
+  }
+
+  .scr.on {
+    opacity: 1;
+    transform: none;
+  }
+
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    font-size: 13px;
+  }
+
+  .back {
+    width: 9px;
+    height: 9px;
+    border-left: 1.6px solid currentColor;
+    border-bottom: 1.6px solid currentColor;
+    transform: rotate(45deg);
+  }
+
+  .h {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .sub {
+    margin-top: 3px;
+    color: var(--a-muted);
+    font-size: 11.5px;
+  }
+
+  .lbl {
+    display: block;
+    color: var(--a-muted);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* 1 · listening */
+  .mic {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    margin: 54px auto 30px;
+  }
+
+  .mic .dot {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    background: var(--product-fibi);
+  }
+
+  .mic svg,
+  .cat svg,
+  .ico svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: #0c0c0d;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
+
+  .mic rect {
+    fill: #0c0c0d;
+    stroke: none;
+  }
+
+  .ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid var(--product-fibi);
+    opacity: 0;
+  }
+
+  .s-add.on .ring {
+    animation: listen 1.6s var(--ease) infinite;
+  }
+
+  .s-add.on .r2 {
+    animation-delay: 0.8s;
+  }
+
+  @keyframes listen {
+    0% {
+      transform: scale(0.7);
+      opacity: 0.9;
+    }
+    100% {
+      transform: scale(1.35);
+      opacity: 0;
+    }
+  }
+
+  .said {
+    min-height: 3em;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .w {
+    opacity: 0.12;
+    transition: opacity 0.3s;
+  }
+
+  .w.on {
+    opacity: 1;
+  }
+
+  /* 2 · review */
+  .sheet {
+    display: grid;
+    gap: 5px;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 18px;
+    background: var(--a-card);
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    margin-bottom: 6px;
+    padding-inline: 11px;
+    border: 1px solid var(--a-line);
+    border-radius: 11px;
+    font-size: 12.5px;
+  }
+
+  .field.big {
+    height: 38px;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .field em {
+    font-style: normal;
+    color: var(--a-muted);
+    font-weight: 500;
+  }
+
+  .cat svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--a-fg);
+  }
+
+  .chips {
+    display: flex;
+    gap: 5px;
+    margin: -1px 0 7px;
+  }
+
+  .chips i {
+    padding: 4px 9px;
+    border-radius: 99px;
+    background: var(--a-chip);
+    font-style: normal;
+    font-size: 10px;
+  }
+
+  .chips .sel {
+    background: var(--product-fibi);
+    color: #0c0c0d;
+    font-weight: 600;
+  }
+
+  .inv {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 10px;
+    border-radius: 12px;
+    background: var(--a-chip);
+  }
+
+  .inv b {
+    display: block;
+    font-size: 11.5px;
+  }
+
+  .inv small {
+    color: var(--a-muted);
+    font-size: 9.5px;
+  }
+
+  .toggle {
+    position: relative;
+    flex: none;
+    width: 30px;
+    height: 17px;
+    border-radius: 99px;
+    background: var(--product-fibi);
+  }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #0c0c0d;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 8px;
+    margin-top: auto;
+  }
+
+  .actions span {
+    display: grid;
+    place-items: center;
+    height: 40px;
+    border-radius: 99px;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  .ghost {
+    background: var(--a-card);
+  }
+
+  .primary {
+    background: var(--product-fibi);
+    color: #0c0c0d;
+    transition: transform 0.25s var(--spring);
+  }
+
+  .primary.on {
+    transform: scale(0.94);
+  }
+
+  /* 3 · saved */
+  .hello {
+    margin: 6px 0 12px;
+  }
+
+  .total {
+    display: grid;
+    gap: 6px;
+    padding: 14px;
+    border-radius: 18px;
+    background: #141416;
+    color: #f5f5f3;
+  }
+
+  .total .lbl {
+    color: #9a9a9f;
+  }
+
+  .total b {
+    font-size: 25px;
+    letter-spacing: -0.03em;
+  }
+
+  .total em {
+    font-style: normal;
+    color: #8b8b90;
+  }
+
+  .list-h {
+    margin: 16px 0 8px;
+  }
+
+  .rows {
+    display: grid;
+    gap: 2px;
+    padding: 6px;
+    border-radius: 18px;
+    background: var(--a-card);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 30px 1fr auto;
+    gap: 9px;
+    align-items: center;
+    padding: 7px 6px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+
+  .row small {
+    display: block;
+    color: var(--a-muted);
+    font-size: 10px;
+  }
+
+  .ico {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--a-chip);
+  }
+
+  .ico svg {
+    width: 15px;
+    height: 15px;
+    stroke: var(--a-fg);
+  }
+
+  .row.new {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition:
+      opacity 0.4s var(--ease),
+      transform 0.55s var(--spring),
+      background-color 1.2s var(--ease);
+  }
+
+  .row.new.on {
+    opacity: 1;
+    transform: none;
+    background: color-mix(in srgb, var(--product-fibi) 26%, transparent);
+  }
+
+  .toast {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 64px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #141416;
+    color: #f5f5f3;
+    font-size: 11px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.35s var(--ease),
+      transform 0.45s var(--spring);
+  }
+
+  .toast.on {
+    opacity: 1;
+    transform: none;
+  }
+
+  .tabbar {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr) 40px repeat(2, 1fr);
+    align-items: center;
+    height: 46px;
+    padding-inline: 4px;
+    border-radius: 99px;
+    background: var(--a-card);
+  }
+
+  .tabbar i {
+    font-style: normal;
+    font-size: 8px;
+    text-align: center;
+    color: var(--a-muted);
+  }
+
+  .tabbar .cur {
+    color: var(--a-fg);
+    font-weight: 600;
+  }
+
+  .tabbar .m {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--product-fibi);
+  }
+
+  /* ---------- Barcode: 8 markets streaming in ---------- */
+  .panel {
+    position: relative;
+    width: min(100%, 560px);
+    padding: 18px 20px 16px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    transition: background-color 0.6s var(--ease);
+  }
+
+  .req {
+    margin-bottom: 14px;
+    font-size: 0.6875rem;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  .req b {
+    color: var(--fg);
+    font-weight: 400;
+  }
+
+  .panel ul {
+    display: grid;
+  }
+
+  .panel li {
+    display: grid;
+    grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr) 6rem;
+    gap: 14px;
+    align-items: center;
+    padding-block: 9px;
+    border-top: 1px solid var(--line);
+    font-size: 0.875rem;
+  }
+
+  .track {
+    height: 2px;
+    background: var(--line);
+    overflow: hidden;
+  }
+
+  .track i {
+    display: block;
+    height: 100%;
+    background: var(--fg);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .val {
+    position: relative;
+    font-size: 0.75rem;
+    text-align: right;
+  }
+
+  .wait,
+  .got {
+    transition: opacity 0.25s;
+  }
+
+  .got {
+    position: absolute;
+    right: 0;
+    opacity: 0;
+  }
+
+  .wait {
+    color: var(--muted);
+  }
+
+  .on .wait {
+    opacity: 0;
+  }
+
+  .on .got {
+    opacity: 1;
+  }
+
+  .on .track i {
+    transform: scaleX(1);
+    transition: transform 0.4s var(--ease);
+  }
+
+  .best .got::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 7px;
+    border-radius: 50%;
+    background: var(--fg);
+    vertical-align: 1px;
+  }
+
+  .foot {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--fg);
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .foot.on {
+    opacity: 1;
+  }
+
+  @media (max-width: 539px) {
+    .panel li {
+      grid-template-columns: minmax(0, 1fr) 6rem;
+    }
+
+    .track {
+      display: none;
+    }
+  }
+
+  /* ---------- Signage: a JSON patch, a screen that follows ---------- */
+  .pair {
+    position: relative;
+    display: grid;
+    gap: 20px;
+    width: min(100%, 560px);
+  }
+
+  .json {
+    display: grid;
+    margin: 0;
+    padding: 16px 18px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    font-size: 0.75rem;
+    line-height: 1.7;
+    white-space: pre;
+    overflow-x: auto;
+    transition: background-color 0.6s var(--ease);
+  }
+
+  .json .op {
+    color: var(--muted);
+    transition:
+      color 0.3s,
+      background-color 0.3s;
+  }
+
+  .json .op.on {
+    color: var(--fg);
+    background: var(--surface);
+  }
+
+  .tv {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    aspect-ratio: 16 / 9;
+    padding: 3px;
+    background: #0c0c0d;
+    border: 10px solid #0c0c0d;
+    border-radius: 6px;
+    box-shadow: 0 40px 70px -40px rgb(0 0 0 / 0.55);
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    background: #f5f5f3;
+    color: #151517;
+  }
+
+  .col + .col {
+    background: #151517;
+    color: #f5f5f3;
+  }
+
+  .col h4 {
+    margin-bottom: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .o {
+    font-size: clamp(1.25rem, 0.8rem + 1.4vw, 1.875rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .o.in {
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.4s var(--ease),
+      transform 0.5s var(--spring);
+  }
+
+  .o.in.on {
+    opacity: 1;
+    transform: none;
+  }
+
+  .o.out {
+    height: 1em;
+    overflow: hidden;
+    transition:
+      opacity 0.3s,
+      height 0.4s 0.25s var(--ease),
+      margin 0.4s 0.25s var(--ease);
+  }
+
+  .o.out.on {
+    opacity: 0;
+    height: 0;
+    margin-bottom: -6px;
+  }
+</style>

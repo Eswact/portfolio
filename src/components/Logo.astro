@@ -1,0 +1,51 @@
+---
+// Karar 08 — A "Katmanlı E": a disc split into a spine and three arms by two thick slots,
+// plus a cursor underscore.
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<svg class:list={['logo-mark', className]} viewBox="0 0 80 64" aria-hidden="true">
+  <path d="M30 18H5.75A28 28 0 0 0 5.75 46H30Z"></path>
+  <path d="M5.75 18A28 28 0 0 1 54.25 18Z"></path>
+  <path d="M30 27H57.55A28 28 0 0 1 57.55 37H30Z"></path>
+  <path d="M5.75 46A28 28 0 0 0 54.25 46Z"></path>
+  <rect class="cursor" x="62" y="52" width="16" height="7"></rect>
+</svg>
+
+<style>
+  .logo-mark {
+    display: block;
+    width: auto;
+    height: 100%;
+    overflow: visible;
+    fill: currentColor;
+  }
+
+  .cursor {
+    animation: blink 1.1s steps(1) infinite;
+    transition: transform 0.4s var(--ease);
+  }
+
+  /* On hover the caret stops blinking and steps forward, as if a letter was just typed. */
+  :global(:is(a, button):hover) > .logo-mark .cursor,
+  :global(:is(a, button):focus-visible) > .logo-mark .cursor {
+    animation: none;
+    transform: translateX(4px);
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor {
+      animation: none;
+    }
+  }
+</style>

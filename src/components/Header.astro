@@ -1,0 +1,471 @@
+---
+// Karar 10 — the lights hang from the ceiling as a pull cord; the language is a mono pair with a sliding rule.
+import Logo from './Logo.astro';
+import { profile } from '../data/profile';
+import { languages, localePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  path: string;
+}
+
+const { lang, path } = Astro.props;
+const t = useTranslations(lang);
+const home = localePath(lang, '/');
+const anchor = path === '/' ? '' : home;
+const langs = Object.keys(languages) as Lang[];
+const nav = [
+  { id: 'work', label: t('nav.work') },
+  { id: 'experience', label: t('nav.about') },
+  { id: 'contact', label: t('nav.contact') },
+];
+---
+
+<header class="site-header">
+  <div class="container bar">
+  <a class="brand" href={home}>
+    <Logo />
+    <span>{profile.name}</span>
+  </a>
+
+  <nav aria-label={t('nav.label')}>
+    <ul role="list" class="links">
+      {
+        nav.map((item) => (
+          <li>
+            <a class="link" href={`${anchor}#${item.id}`}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="lang mono" data-cur={lang}>
+      {
+        langs.map((l) => (
+          <a href={localePath(l, path)} hreflang={l} lang={l} aria-current={l === lang ? 'true' : undefined}>
+            <span aria-hidden="true">{l.toUpperCase()}</span>
+            <span class="sr-only">{languages[l]}</span>
+          </a>
+        ))
+      }
+      <i class="rule" aria-hidden="true"></i>
+    </div>
+
+    <div class="cordbox">
+      <button class="cord" type="button" aria-pressed="false" data-theme-switch title={t('theme.label')}>
+        <span class="sr-only">{t('theme.label')}</span>
+      </button>
+    </div>
+  </nav>
+  </div>
+</header>
+
+<script>
+  // The pull cord. The initial theme is set inline in <head> to avoid a flash.
+  const root = document.documentElement;
+  const cord = document.querySelector<HTMLButtonElement>('[data-theme-switch]');
+  const media = matchMedia('(prefers-color-scheme: dark)');
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+  const isDark = () => root.dataset.theme === 'dark' || (!root.dataset.theme && media.matches);
+  const sync = () => cord?.setAttribute('aria-pressed', String(isDark()));
+
+  const flip = () => {
+    const next = isDark() ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {}
+    sync();
+  };
+
+  const replay = (name: string) => {
+    if (!cord || still.matches) return;
+    cord.classList.remove('pull', 'sway');
+    void cord.offsetWidth;
+    cord.classList.add(name);
+  };
+
+  sync();
+  media.addEventListener('change', sync);
+
+  if (cord) {
+    // Drag it down to pull; a click (or Enter / Space) pulls it too (the CSS `pull` animation).
+    // While dragged, the cord follows the pointer through a stiff spring (a little lag, like a real cord),
+    // stretches with a rubber-band falloff and swings from the top up to MAX_SWING. On release it snaps
+    // back up and keeps swaying like a pendulum until it settles. Small spring simulation, no library.
+    const MAX_STRETCH = 32;
+    const MAX_SWING = 16;
+    let startY: number | null = null;
+    let startX = 0;
+    let pulled = false;
+    let moved = false;
+    let swallowClick = false;
+    let target = { y: 0, a: 0 };
+    let y = 0;
+    let vy = 0;
+    let a = 0;
+    let va = 0;
+    let dir = 1;
+    let frame = 0;
+    let last = 0;
+
+    const paint = () => {
+      cord.style.setProperty('--stretch', `${y.toFixed(2)}px`);
+      cord.style.setProperty('--swing', `${a.toFixed(2)}deg`);
+    };
+
+    const settle = () => {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      y = vy = a = va = 0;
+      cord.classList.remove('dragging');
+      cord.style.removeProperty('--stretch');
+      cord.style.removeProperty('--swing');
+    };
+
+    const tick = (now: number) => {
+      const dt = Math.min(0.032, (now - last) / 1000 || 0.016);
+      last = now;
+      const held = startY !== null;
+      // Held: stiff and well damped, so it tracks the hand. Free: bouncy stretch, a slow pendulum swing.
+      const [ky, cy, ka, ca] = held ? [900, 48, 520, 34] : [650, 18, 120, 3.4];
+      for (let t = 0; t < dt; t += 1 / 240) {
+        const h = Math.min(1 / 240, dt - t);
+        vy += (ky * (target.y - y) - cy * vy) * h;
+        va += (ka * (target.a - a) - ca * va) * h;
+        y = Math.max(-10, y + vy * h);
+        a += va * h;
+      }
+      paint();
+      const resting = Math.abs(y) + Math.abs(vy) / 20 + Math.abs(a) + Math.abs(va) / 20 < 0.05;
+      if (!held && resting) settle();
+      else frame = requestAnimationFrame(tick);
+    };
+
+    const run = () => {
+      if (frame) return;
+      last = performance.now();
+      frame = requestAnimationFrame(tick);
+    };
+
+    cord.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); // no text selection or native drag image while pulling
+      startY = e.clientY;
+      startX = e.clientX;
+      moved = false;
+      pulled = false;
+      target = { y: 0, a: 0 };
+      cord.classList.remove('sway', 'pull');
+      cord.classList.add('dragging');
+      cord.setPointerCapture?.(e.pointerId);
+    });
+
+    cord.addEventListener('pointermove', (e) => {
+      if (startY === null) return;
+      const dx = e.clientX - startX;
+      const dy = Math.max(0, e.clientY - startY);
+      if (Math.hypot(dx, dy) > 6) moved = true;
+      if (Math.abs(dx) > 2) dir = Math.sign(dx);
+      const stretch = MAX_STRETCH * (1 - Math.exp(-dy / MAX_STRETCH));
+      if (stretch > 14) pulled = true;
+      // The bob hangs below the pointer: the angle from the pivot, softly limited (tanh) instead of a wall.
+      const raw = (-Math.atan2(dx, 44 + stretch) * 180) / Math.PI;
+      target = { y: stretch, a: MAX_SWING * Math.tanh(raw / MAX_SWING) };
+      if (still.matches) {
+        y = target.y;
+        a = target.a;
+        paint();
+      } else run();
+    });
+
+    const release = () => {
+      if (startY === null) return;
+      startY = null;
+      target = { y: 0, a: 0 };
+      if (pulled) flip();
+      // After a real drag (a pull, or just a swing) the click that follows must not flip the theme.
+      if (moved) {
+        swallowClick = true;
+        window.setTimeout(() => (swallowClick = false), 400);
+      }
+      if (still.matches || !moved) return settle();
+      // The snap back up kicks the cord sideways, so even a straight pull sways a little.
+      va += -dir * y * 2.6;
+      run();
+    };
+
+    addEventListener('pointerup', release);
+    addEventListener('pointercancel', release);
+    cord.addEventListener('lostpointercapture', release);
+    cord.addEventListener('click', () => {
+      if (swallowClick) return;
+      replay('pull');
+      window.setTimeout(flip, still.matches ? 0 : 160);
+    });
+    cord.addEventListener('pointerenter', () => {
+      if (!frame) replay('sway');
+    });
+  }
+</script>
+
+<style>
+  /* Sticky: the header stays while the page scrolls. A hairline fades in once the page has moved
+     (scroll-driven, paint only — no layout change, no script). */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+    border-bottom: 1px solid transparent;
+    view-transition-name: site-header;
+    transition: background-color 0.6s var(--ease);
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .site-header {
+      animation: header-edge linear both;
+      animation-range: 0 64px;
+    }
+
+    /* A separate, more specific rule: the minifier would otherwise fold the timeline into the
+       animation shorthand, which browsers reject. */
+    header.site-header {
+      animation-timeline: scroll();
+    }
+  }
+
+  @keyframes header-edge {
+    to {
+      border-bottom-color: var(--line);
+    }
+  }
+
+  .bar {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding-block: 14px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 44px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+
+  .brand :global(.logo-mark) {
+    height: 26px;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(16px, 2.4vw, 32px);
+  }
+
+  .links {
+    display: flex;
+    gap: clamp(16px, 2.4vw, 28px);
+  }
+
+  .links a {
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .links a:hover,
+  .links a:focus-visible {
+    color: var(--fg);
+  }
+
+  /* Language: both codes, a rule under the current one that slides toward the other on hover. */
+  .lang {
+    position: relative;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 36px;
+    font-size: 0.75rem;
+  }
+
+  .lang a {
+    display: grid;
+    place-items: center;
+    height: 44px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.25s;
+  }
+
+  .lang a[aria-current],
+  .lang a:hover,
+  .lang a:focus-visible {
+    color: var(--fg);
+  }
+
+  .rule {
+    position: absolute;
+    left: 10px;
+    bottom: 9px;
+    width: 16px;
+    height: 1.5px;
+    background: var(--fg);
+    transition: transform 0.45s var(--spring);
+  }
+
+  .lang[data-cur='en'] .rule,
+  .lang:has(a:nth-child(2):hover) .rule,
+  .lang:has(a:nth-child(2):focus-visible) .rule {
+    transform: translateX(36px);
+  }
+
+  .lang:has(a:nth-child(1):hover) .rule,
+  .lang:has(a:nth-child(1):focus-visible) .rule {
+    transform: none;
+  }
+
+  /* The pull cord hangs from the top of the page, through the header's top padding. */
+  .cordbox {
+    position: relative;
+    align-self: flex-start;
+    width: 28px;
+    height: 58px;
+    margin-top: -14px;
+  }
+
+  .cord {
+    --len: 44px;
+    --stretch: 0px;
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 28px;
+    height: calc(var(--len) + var(--stretch));
+    margin-left: -14px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    transform-origin: 50% 0;
+    transform: rotate(var(--swing, 0deg));
+    transition:
+      height 0.55s cubic-bezier(0.3, 1.6, 0.4, 1),
+      transform 0.9s cubic-bezier(0.3, 1.2, 0.4, 1);
+  }
+
+  /* Held or still settling after a drag: the script's spring drives height and angle frame by frame. */
+  .cord.dragging {
+    transition: none;
+  }
+
+  .cord:active {
+    cursor: grabbing;
+  }
+
+  .cord::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 12px;
+    width: 1.5px;
+    margin-left: -0.75px;
+    background: var(--fg);
+    opacity: 0.75;
+    transition: background-color 0.6s var(--ease);
+  }
+
+  .cord::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 10px;
+    height: 14px;
+    margin-left: -5px;
+    border-radius: 3px 3px 5px 5px;
+    background: var(--fg);
+    transition: background-color 0.6s var(--ease);
+  }
+
+  .cord:focus-visible {
+    outline: none;
+  }
+
+  .cord:focus-visible::after {
+    outline: 2px solid var(--fg);
+    outline-offset: 3px;
+  }
+
+  .cord.pull {
+    animation: pull 0.7s cubic-bezier(0.3, 1.6, 0.4, 1);
+  }
+
+  .cord.sway {
+    animation: sway 1.4s cubic-bezier(0.3, 1.2, 0.4, 1);
+  }
+
+  @keyframes pull {
+    0% {
+      height: var(--len);
+    }
+    25% {
+      height: calc(var(--len) + 20px);
+    }
+    55% {
+      height: calc(var(--len) - 4px);
+    }
+    75% {
+      height: calc(var(--len) + 2px);
+    }
+    100% {
+      height: var(--len);
+    }
+  }
+
+  @keyframes sway {
+    0% {
+      transform: rotate(0);
+    }
+    20% {
+      transform: rotate(6deg);
+    }
+    45% {
+      transform: rotate(-4deg);
+    }
+    70% {
+      transform: rotate(2deg);
+    }
+    100% {
+      transform: rotate(0);
+    }
+  }
+
+  @media (max-width: 719px) {
+    .links {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cord.pull,
+    .cord.sway {
+      animation: none;
+    }
+
+    .cord {
+      transition: none;
+    }
+  }
+</style>

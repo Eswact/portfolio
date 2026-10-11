@@ -1,0 +1,31 @@
+---
+interface Props {
+  title: string;
+  id: string;
+}
+
+const { title, id } = Astro.props;
+---
+
+<div class="head">
+  <h2 id={id}>{title}</h2>
+  <slot />
+</div>
+
+<style>
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--fg);
+    margin-bottom: clamp(20px, 3vw, 32px);
+  }
+
+  h2 {
+    font-size: var(--step-0);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+</style>

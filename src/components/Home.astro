@@ -1,0 +1,433 @@
+---
+import SectionHead from './SectionHead.astro';
+import WorkCard from './WorkCard.astro';
+import { experience, profile } from '../data/profile';
+import { featured, projects } from '../data/projects';
+import { localePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const others = projects
+  .filter((p) => !p.featured)
+  .map((p, i) => ({
+    ...p,
+    code: `ES-${String(featured.length + i + 1).padStart(2, '0')}`,
+    status: p.status ?? (p.live ? ('live' as const) : ('source' as const)),
+    // Open-source parts (e.g. Scale POS) lead to their code, even when a demo is online.
+    href: p.status === 'source' ? (p.source?.[0] ?? p.live) : (p.live ?? p.release ?? p.source?.[0]),
+  }));
+
+---
+
+<section class="container intro">
+  <h1>{t('hero.title')}</h1>
+  <p class="muted">{t('hero.role')} · {t('hero.location')} · {t('hero.now')}</p>
+</section>
+
+<section class="container block" aria-labelledby="work">
+  <SectionHead id="work" title={t('section.work')}>
+    <a class="link muted all" href="#index">{t('work.all')} ({projects.length})</a>
+  </SectionHead>
+  <ul class="cards" role="list">
+    {
+      featured.map((p) => (
+        <li>
+          <WorkCard project={p} lang={lang} />
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<section class="container block" aria-labelledby="index">
+  <SectionHead id="index" title={t('section.index')} />
+  <table class="index">
+    <thead class="mono muted">
+      <tr>
+        <th scope="col" class="code">{t('index.code')}</th>
+        <th scope="col">{t('index.project')}</th>
+        <th scope="col" class="hide-sm">{t('index.type')}</th>
+        <th scope="col" class="hide-md">{t('index.stack')}</th>
+        <th scope="col" class="hide-sm">{t('index.status')}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        others.map((p) => (
+          <tr>
+            <td class="mono code">{p.code}</td>
+            <th scope="row">
+              {p.sites ? (
+                <>
+                  {p.title}
+                  <ul class="sites" role="list">
+                    {p.sites.map((site) => (
+                      <li>
+                        {site.href ? (
+                          <a class="link arrow" href={site.href}>
+                            {site.name}
+                          </a>
+                        ) : (
+                          <span class="muted">{site.name}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : p.href ? (
+                <a class="row-link arrow" href={p.href}>
+                  {p.title}
+                </a>
+              ) : (
+                p.title
+              )}
+              <span class="type-sm muted">{p.type[lang]}</span>
+            </th>
+            <td class="muted hide-sm">{p.type[lang]}</td>
+            <td class="muted mono hide-md">{p.stack.slice(0, 3).join(' · ')}</td>
+            <td class="mono hide-sm">
+              <span class:list={['status', p.status]}>{t(`status.${p.status}`)}</span>
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</section>
+
+<section class="container block" aria-labelledby="experience">
+  <SectionHead id="experience" title={t('section.experience')} />
+  <ol class="rows" role="list">
+    {
+      experience.map((e) => (
+        <li class="row">
+          <span class="mono period">{e.period[lang]}</span>
+          <div class="who">
+            <h3>{e.company}</h3>
+            <p class="muted">{e.role[lang]}</p>
+          </div>
+          <p class="summary">{e.summary[lang]}</p>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<section class="container contact" aria-labelledby="contact">
+  <SectionHead id="contact" title={t('section.contact')} />
+  <p class="big">{t('contact.title')}</p>
+  <div class="mail">
+    <a class="email" href={`mailto:${profile.email}`}>{profile.email}</a>
+    <button class="copy mono" type="button" data-copy={profile.email} data-done={t('contact.copied')}>
+      {t('contact.copy')}
+    </button>
+  </div>
+  <ul class="links" role="list">
+    <li><a class="link arrow" href={profile.github}>GitHub</a></li>
+    <li><a class="link arrow" href={profile.linkedin}>LinkedIn</a></li>
+    <li><a class="link" href={profile.cv[lang]} download>{t('contact.cv')} (PDF)</a></li>
+  </ul>
+</section>
+
+<script>
+  const copy = document.querySelector<HTMLButtonElement>('[data-copy]');
+  copy?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(copy.dataset.copy!);
+      const label = copy.textContent;
+      copy.textContent = copy.dataset.done!;
+      copy.toggleAttribute('data-ok', true);
+      setTimeout(() => {
+        copy.textContent = label;
+        copy.toggleAttribute('data-ok', false);
+      }, 1600);
+    } catch {
+      // Clipboard refused: the address stays visible and selectable.
+    }
+  });
+</script>
+
+<style>
+  .block {
+    padding-bottom: clamp(80px, 10vw, 140px);
+  }
+
+  .intro {
+    padding-block: clamp(24px, 5vw, 56px) clamp(40px, 5vw, 64px);
+  }
+
+  .intro h1 {
+    max-width: 16em;
+    font-size: var(--step-3);
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+  }
+
+  .intro p {
+    margin-top: 16px;
+  }
+
+  h3 {
+    font-size: var(--step-0);
+    font-weight: 600;
+  }
+
+  /* Selected work: equal catalogue cards. In the dark, unlit cards dim. */
+  .all {
+    font-size: var(--step--1);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .cards > li {
+    display: grid;
+  }
+
+  @media (hover: hover) {
+    .cards:hover > li:not(:hover) {
+      opacity: var(--dim);
+    }
+
+    .cards > li {
+      transition: opacity 0.45s var(--ease);
+    }
+  }
+
+  @media (max-width: 899px) {
+    .cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* Index: the rest of the catalogue. */
+  .index {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .index th,
+  .index td {
+    text-align: left;
+    font-weight: 400;
+    padding: 14px 16px 14px 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: baseline;
+  }
+
+  .index thead th {
+    padding-top: 0;
+    font-size: 0.75rem;
+  }
+
+  .index tbody tr {
+    position: relative;
+    transition: background-color 0.2s;
+  }
+
+  .index tbody tr:hover {
+    background: var(--surface);
+  }
+
+  .index tbody th {
+    font-weight: 600;
+  }
+
+  .index .code {
+    width: 9ch;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: var(--muted);
+    padding-left: 4px;
+  }
+
+  .row-link {
+    text-decoration: none;
+  }
+
+  /* The whole row is the link's hit area. */
+  .row-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .row-link::after {
+    color: var(--muted);
+  }
+
+  .sites {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin-top: 6px;
+    font-weight: 400;
+    font-size: 0.875rem;
+  }
+
+  .sites a {
+    position: relative;
+    z-index: 1;
+    text-decoration: none;
+  }
+
+  .type-sm {
+    display: none;
+    font-weight: 400;
+    font-size: 0.875rem;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.75rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1px solid var(--fg);
+  }
+
+  .status.live::before {
+    background: var(--fg);
+  }
+
+  @media (max-width: 1023px) {
+    .hide-md {
+      display: none;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .hide-sm {
+      display: none;
+    }
+
+    .sites {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin-top: 6px;
+    font-weight: 400;
+    font-size: 0.875rem;
+  }
+
+  .sites a {
+    position: relative;
+    z-index: 1;
+    text-decoration: none;
+  }
+
+  .type-sm {
+      display: block;
+    }
+  }
+
+  /* Experience */
+  .row {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 8px 16px;
+    padding-block: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .period {
+    grid-column: span 2;
+    font-size: 0.75rem;
+    padding-top: 3px;
+  }
+
+  .who {
+    grid-column: span 3;
+  }
+
+  .summary {
+    grid-column: span 7;
+    max-width: 64ch;
+  }
+
+  @media (max-width: 899px) {
+    .period,
+    .who,
+    .summary {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Contact: the room's closing wall. */
+  .contact {
+    padding-bottom: clamp(64px, 8vw, 112px);
+  }
+
+  .big {
+    font-size: var(--step-3);
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    max-width: 14em;
+  }
+
+  .mail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    margin-top: clamp(20px, 3vw, 32px);
+  }
+
+  .email {
+    font-size: var(--step-2);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    overflow-wrap: anywhere;
+  }
+
+  .email:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .copy {
+    height: 32px;
+    padding-inline: 14px;
+    border: 1px solid var(--fg);
+    border-radius: 99px;
+    background: transparent;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .copy:hover,
+  .copy[data-ok] {
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+    margin-top: clamp(32px, 4vw, 48px);
+  }
+
+  .links a {
+    text-decoration: none;
+  }
+</style>
