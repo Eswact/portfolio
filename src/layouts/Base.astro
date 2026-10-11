@@ -5,7 +5,7 @@ import Header from '../components/Header.astro';
 import Intro from '../components/Intro.astro';
 import Footer from '../components/Footer.astro';
 import { profile } from '../data/profile';
-import { languages, localePath, useTranslations, type Lang } from '../i18n/ui';
+import { defaultLang, languages, localePath, useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -47,7 +47,7 @@ const person = {
     <meta name="description" content={pageDescription} />
     <link rel="canonical" href={canonical} />
     {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
-    <link rel="alternate" hreflang="x-default" href={alternates[0].href} />
+    <link rel="alternate" hreflang="x-default" href={new URL(localePath(defaultLang, path), Astro.site).href} />
     {noindex && <meta name="robots" content="noindex" />}
 
     <meta name="theme-color" content="#f5f5f3" media="(prefers-color-scheme: light)" />

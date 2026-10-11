@@ -13,8 +13,8 @@ export default defineConfig({
     format: 'directory',
   },
   i18n: {
-    defaultLocale: 'tr',
-    locales: ['tr', 'en'],
+    defaultLocale: 'en',
+    locales: ['en', 'tr'],
     routing: { prefixDefaultLocale: false },
   },
   // Self-hosted subsets (latin + Turkish). Schibsted Grotesk is limited to wght 400–700.
@@ -49,7 +49,7 @@ export default defineConfig({
   ],
   integrations: [
     sitemap({
-      i18n: { defaultLocale: 'tr', locales: { tr: 'tr-TR', en: 'en-US' } },
+      i18n: { defaultLocale: 'en', locales: { en: 'en-US', tr: 'tr-TR' } },
     }),
   ],
 });

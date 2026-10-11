@@ -10,6 +10,6 @@ export function getStaticPaths() {
 const { project } = Astro.props as { project: FeaturedProject };
 ---
 
-<Base lang="tr" path={`/work/${project.slug}`} title={project.title} description={project.summary.tr}>
-  <CaseStudy lang="tr" project={project} />
+<Base lang="en" path={`/work/${project.slug}`} title={project.title} description={project.summary.en}>
+  <CaseStudy lang="en" project={project} />
 </Base>

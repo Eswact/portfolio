@@ -90,6 +90,13 @@ const nav = [
   sync();
   media.addEventListener('change', sync);
 
+  // Remember the chosen language for a year; the Vercel middleware reads it on the next visit.
+  document.querySelectorAll<HTMLAnchorElement>('.lang a').forEach((a) =>
+    a.addEventListener('click', () => {
+      document.cookie = `lang=${a.hreflang}; path=/; max-age=31536000; samesite=lax`;
+    }),
+  );
+
   if (cord) {
     // Drag it down to pull; a click (or Enter / Space) pulls it too (the CSS `pull` animation).
     // While dragged, the cord follows the pointer through a stiff spring (a little lag, like a real cord),

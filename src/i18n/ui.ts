@@ -1,6 +1,6 @@
 export const languages = { tr: 'Türkçe', en: 'English' } as const;
 export type Lang = keyof typeof languages;
-export const defaultLang: Lang = 'tr';
+export const defaultLang: Lang = 'en';
 
 /** Bilingual text value. */
 export type L10n = Record<Lang, string>;
@@ -124,7 +124,7 @@ export function useTranslations(lang: Lang) {
   return (key: UIKey) => ui[lang][key];
 }
 
-/** Path for a locale-neutral route, e.g. localePath('en', '/work/fibi') → '/en/work/fibi'. */
+/** Path for a locale-neutral route, e.g. localePath('tr', '/work/fibi') → '/tr/work/fibi'. */
 export function localePath(lang: Lang, path = '/') {
   const clean = path === '/' ? '' : path;
   return lang === defaultLang ? clean || '/' : `/${lang}${clean}`;
