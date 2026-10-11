@@ -459,7 +459,7 @@ export const cases: Record<string, Case> = {
         },
       },
       {
-        title: { tr: 'Gerçek bir ürün gibi', en: 'Built like a real product' },
+        title: { tr: 'Ekipler, entegrasyonlar ve kurulum', en: 'Teams, integrations and setup' },
         body: {
           tr: 'Organizasyonlar, sahip/editör/izleyici rolleri, e-posta davetleri, iki adımlı doğrulama, ekran bazlı API anahtarlarıyla POS ve sıramatik entegrasyonu. Kurulum Docker Compose ve Caddy ile tek komut, HTTPS otomatik.',
           en: 'Organizations, owner/editor/viewer roles, email invitations, two-factor authentication, POS and queue-machine integration with screen-scoped API keys. Deployment is one command with Docker Compose and Caddy, with automatic HTTPS.',
