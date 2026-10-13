@@ -132,7 +132,7 @@ export const projects: Project[] = [
       ],
     },
     type: { tr: 'Toplantı kayıt ve analiz uygulaması', en: 'Meeting recording & analysis app' },
-    stack: ['React Native', 'Expo', 'expo-audio', 'OAuth', 'i18n'],
+    stack: ['React Native', 'Expo', 'OAuth', 'i18n'],
     summary: {
       tr: 'NSA Teknoloji’de çalışırken geliştirdiğim, toplantıyı kaydedip analize gönderen ve özet, karar ve puanlarla dönen raporu telefonda gösteren mobil uygulama.',
       en: 'A mobile app I built while working at NSA Teknoloji that records a meeting, sends it for analysis and shows the report, with its summary, decisions and scores, on the phone.',

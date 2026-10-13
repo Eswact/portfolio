@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eren Sarıbay — CV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+  /* =========================================================
+     Düzenleme notu:
+     - Metinleri doğrudan aşağıdaki HTML içinde değiştir.
+     - PDF almak için: tarayıcıda aç → Yazdır → "PDF olarak kaydet",
+       kağıt A4, kenar boşlukları "Varsayılan", "Arka plan grafikleri" açık.
+     - Sayfa 2'nin nerede başladığını .page-break sınıfı belirler.
+     ========================================================= */
+  :root {
+    --ink: #111;
+    --muted: #555;
+    --soft: #777;
+    --faint: #888;
+    --fainter: #999;
+    --link: #1f5fbf;
+    --rule: #444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #e9e9ec; }
+  body {
+    font-family: "Montserrat", system-ui, sans-serif;
+    color: var(--ink);
+    font-size: 7.6pt;
+    line-height: 1.42;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .page {
+    width: 210mm; min-height: 297mm;
+    margin: 24px auto; padding: 12mm 19mm 12mm;
+    background: #fff;
+    box-shadow: 0 2px 16px rgba(0,0,0,.12);
+  }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  b, strong { font-weight: 700; }
+
+  /* Başlık */
+  header { text-align: center; }
+  h1 { font-size: 24pt; font-weight: 700; line-height: 1.2; }
+  .role { font-size: 11pt; font-weight: 700; color: var(--soft); margin-top: 2pt; }
+  .contact {
+    display: flex; justify-content: space-between; flex-wrap: nowrap; gap: 4pt 6pt; white-space: nowrap;
+    margin-top: 10pt; padding-bottom: 5pt; border-bottom: .8pt solid var(--rule);
+    font-size: 6.6pt;
+  }
+  .contact a, .contact span { color: var(--ink); display: inline-flex; align-items: center; gap: 4pt; }
+
+  .ic { width: 8pt; height: 8pt; flex: none; fill: currentColor; }
+  .contact .ic { width: 7.5pt; height: 7.5pt; }
+
+  /* Bölümler */
+  section { padding: 5pt 0 5pt; border-bottom: .8pt solid var(--rule); }
+  section:last-child, section:has(+ .page-break) { border-bottom: 0; }
+  h2 { font-size: 12pt; font-weight: 700; color: var(--muted); margin-bottom: 3pt; }
+  h3 { font-size: 9.6pt; font-weight: 700; margin-top: 4pt; }
+  h4 { font-size: 7.8pt; font-weight: 700; margin-top: 4pt; }
+  .meta { font-size: 7pt; font-weight: 700; color: var(--faint); }
+  .note { font-size: 6.7pt; font-style: italic; color: var(--fainter); }
+  .stack { font-size: 6.4pt; font-weight: 700; font-style: italic; color: var(--faint); }
+
+  ul { padding-left: 14pt; margin-top: 2pt; }
+  li { margin-bottom: .5pt; }
+  .exp li { font-style: italic; font-size: 7.4pt; }
+
+  .links { display: flex; flex-wrap: wrap; align-items: center; gap: 1pt 8pt; margin-top: 2pt; }
+  .links.stacked { flex-direction: column; align-items: flex-start; gap: 1pt; }
+  .links a { display: inline-flex; align-items: center; gap: 4pt; }
+  .links .sep { font-weight: 700; color: var(--ink); }
+
+  .edu-name { font-size: 9.6pt; font-weight: 700; margin-top: 2pt; }
+
+  .tech { display: grid; grid-template-columns: 34mm 1fr; gap: 2.5pt 8pt; align-items: baseline; margin-top: 1pt; }
+  .tech dt { font-weight: 700; font-style: italic; font-size: 7.4pt; }
+  .tech dd { font-size: 8.4pt; }
+  .tech dd b { margin: 0 2pt; }
+
+  .plain-italic { font-size: 9.2pt; font-style: italic; }
+
+  /* 1. sayfa daha az dolu: bölüm ve madde aralarını açarak sayfaya yay. 2. sayfa sıkı kalır. */
+  main > section:not(.page-break, .page-break ~ section) { padding-block: 11pt; }
+  .page-break, .page-break ~ section { padding-block: 7pt; }
+  header .contact { margin-top: 12pt; padding-bottom: 8pt; }
+  h2 { margin-bottom: 5pt; }
+  .exp h3 { margin-top: 10pt; }
+  .exp .meta { margin-top: 1pt; }
+  .exp ul { margin-top: 4pt; }
+  .exp li { margin-bottom: 3pt; }
+  .tech { gap: 4pt 8pt; }
+
+  .page-break { break-before: page; border-top: .8pt solid var(--rule); }
+
+  @page { size: A4; margin: 10mm 19mm; }
+  @media print {
+    html { background: #fff; }
+    .page { margin: 0; padding: 0; box-shadow: none; width: auto; min-height: 0; }
+    h3, h4 { break-after: avoid; }
+    li, .links { break-inside: avoid; }
+  }
+  @media screen and (max-width: 840px) {
+    .page { width: auto; margin: 0; padding: 16px; box-shadow: none; }
+    .contact { justify-content: flex-start; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- İkonlar -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><path d="M2 5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5zm2.4 0L12 10.8 19.6 5H4.4zM20 7.1l-8 6.1-8-6.1V19h16V7.1z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></symbol>
+  <symbol id="i-gh" viewBox="0 0 24 24"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2.1c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></symbol>
+  <symbol id="i-in" viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3V9.5zm6.5 0h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.2 0-2.8-1.7-2.8s-2 1.3-2 2.7V21h-4V9.5z"/></symbol>
+  <symbol id="i-web" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-2.9a15.6 15.6 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8zM12 4c.8 1.2 1.5 2.5 1.9 4h-3.8c.4-1.4 1.1-2.8 1.9-4zM4.3 14a8.2 8.2 0 0 1 0-4h3.4a16.5 16.5 0 0 0 0 4H4.3zm.8 2h3a15.6 15.6 0 0 0 1.3 3.6A8 8 0 0 1 5.1 16zm3-8h-3a8 8 0 0 1 4.3-3.6A15.6 15.6 0 0 0 8.1 8zM12 20c-.8-1.2-1.5-2.5-1.9-4h3.8c-.4 1.4-1.1 2.8-1.9 4zm2.3-6H9.7a14.7 14.7 0 0 1 0-4h4.6a14.7 14.7 0 0 1 0 4zm.3 5.6c.6-1.1 1.1-2.3 1.4-3.6h2.9a8 8 0 0 1-4.3 3.6zm1.7-5.6a16.5 16.5 0 0 0 0-4h3.4a8.2 8.2 0 0 1 0 4h-3.4z"/></symbol>
+</svg>
+
+<main class="page">
+
+  <header>
+    <h1>Eren Sarıbay</h1>
+    <div class="role">Yazılım Geliştiricisi</div>
+    <div class="contact">
+      <a href="tel:+905455008796"><svg class="ic"><use href="#i-phone"/></svg>+90 545 500 87 96</a>
+      <a href="mailto:eren99srb@gmail.com"><svg class="ic"><use href="#i-mail"/></svg>eren99srb@gmail.com</a>
+      <span><svg class="ic"><use href="#i-pin"/></svg>İstanbul, Türkiye</span>
+      <a href="https://erensaribay.com/"><svg class="ic"><use href="#i-web"/></svg>erensaribay.com</a>
+      <a href="https://github.com/Eswact"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact</a>
+      <a href="https://linkedin.com/in/eren-saribay"><svg class="ic"><use href="#i-in"/></svg>linkedin.com/in/eren-saribay</a>
+    </div>
+  </header>
+
+  <section>
+    <h2>Hakkımda</h2>
+    <p>Web ve mobilde uçtan uca ürün geliştiren, 3+ yıllık deneyime sahip, frontend odaklı bir yazılım geliştiriciyim. <b>Vue, React ve Next.js</b> ile web uygulamaları geliştiriyor, <b>Node.js ve .NET</b> ile API entegrasyonu ve backend tarafında da çalışıyorum. Son dönemde <b>React Native ve Expo</b> ile <b>Android tabanlı POS/kiosk cihazlarına</b> ve <b>yapay zekâ destekli ürünlere</b> yönelik mobil uygulamalar geliştirdim. <b>Web scraping, gerçek zamanlı veri akışı, cache yönetimi, LLM entegrasyonu ve Bluetooth/BLE</b> konularında deneyimim var.</p>
+  </section>
+
+  <section>
+    <h2>Teknolojiler</h2>
+    <dl class="tech">
+      <dt>Frontend</dt>
+      <dd>Vue.js <b>/</b> React <b>/</b> Next.js <b>/</b> TailwindCSS <b>/</b> JavaScript <b>/</b> TypeScript</dd>
+      <dt>Backend &amp; APIs</dt>
+      <dd>Node.js <b>/</b> Express.js <b>/</b> .NET <b>/</b> FastAPI <b>/</b> REST APIs <b>/</b> SSE</dd>
+      <dt>Databases &amp; Storage</dt>
+      <dd>MongoDB <b>/</b> SQLite <b>/</b> MSSQL <b>/</b> Redis</dd>
+      <dt>Mobile</dt>
+      <dd>React Native <b>/</b> Expo <b>/</b> Cordova <b>/</b> PWA</dd>
+    </dl>
+  </section>
+
+  <section class="exp">
+    <h2>Deneyim</h2>
+
+    <h3>Yazılım Geliştirici — NSA Teknoloji (Çamlıca Barkod)</h3>
+    <div class="meta">Şubat 2023 - Devam ediyor / İstanbul, Türkiye</div>
+    <div class="note">Çamlıca Barkod'un yazılım birimi 2024'te NSA Teknoloji olarak ayrı bir şirkete dönüştü; aynı ekiple çalışmaya devam ediyorum.</div>
+    <ul>
+      <li><b>React, Next.js, Vue.js ve jQuery</b> ile canlı kurumsal uygulamalarda yeni özellikler, UI/UX iyileştirmeleri ve performans optimizasyonları geliştirdim; frontend ile başlayan rolümü backend ve mobile genişlettim.</li>
+      <li><b>.NET Core tabanlı çok kanallı e-ticaret yönetim platformunun</b> frontend’ini geliştirdim; ürün, stok ve siparişler pazaryeri API entegrasyonlarıyla tek panelden yönetiliyor. Yüzlerce müşterinin kullandığı ön muhasebe programına yeni özellikler ve arayüz iyileştirmeleri ekledim.</li>
+      <li>8 e-ticaret platformundan veri toplayan scraping sistemlerini <b>Puppeteer, Cheerio, Node.js/Express, SSE ve Redis</b> ile gerçek zamanlı akış ve önbellek içeren API servislerine dönüştürüp mevcut uygulamalara entegre ettim. DataTables tabanlı yeniden kullanılabilir tablo bileşenlerini npm paketi haline getirdim.</li>
+      <li><b>Cordova, React Native (Expo) ve TypeScript</b> ile <b>Android tabanlı POS/kiosk cihazları</b> ve <b>yapay zekâ destekli ürünler</b> için <b>5+ mobil uygulama</b> geliştirdim: görüntü işleme ile ürün tanıma, sesli sipariş, toplantı analizi (Meetnal) ve sesli görev yönetimi (Warbly). Konuşmadan metne, LLM ile niyet çıkarımı, POS ödeme, QR ile giriş ve native Android entegrasyonları üzerinde çalıştım; ürünlerin <b>markalaşma</b> ve <b>yayın</b> süreçlerini yürüttüm.</li>
+    </ul>
+
+    <h3>Stajyer — Çamlıca Barkod</h3>
+    <div class="meta">Ağustos 2022 - Eylül 2022 / İstanbul, Türkiye</div>
+    <ul>
+      <li><b>.NET MVC ve MS SQL Server</b> ile bir çağrı merkezi otomasyonu web uygulaması geliştirdim.</li>
+      <li>DataTables ile etkileşimli tablolar ve yeniden kullanılabilir frontend bileşenleri oluşturdum.</li>
+    </ul>
+
+    <h3>Stajyer — WhiteCAD</h3>
+    <div class="meta">Temmuz 2022 - Ağustos 2022 / İstanbul, Türkiye</div>
+    <ul>
+      <li><b>Three.js</b> ile sahne kurulumu, aydınlatma, animasyon ve OrbitControls içeren etkileşimli bir 3D gardırop geliştirdim.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Eğitim</h2>
+    <div class="edu-name">Bilgisayar Mühendisliği - Lisans</div>
+    <div class="note">Bilecik Şeyh Edebali Üniversitesi | 2019-2024 | GNO: 3.32</div>
+  </section>
+
+  <section>
+    <h2>Yabancı Dil</h2>
+    <p class="plain-italic">İngilizce — Profesyonel Çalışma Yetkinliği (B2)</p>
+    <p class="plain-italic">Türkçe — Ana dil</p>
+  </section>
+
+  <!-- ===== Sayfa 2 ===== -->
+  <section class="page-break">
+    <h2>Seçilmiş Projeler</h2>
+
+    <h3>Fibi — Sesli Kişisel Finans ve Envanter Uygulaması</h3>
+    <div class="stack">React Native (Expo) - TypeScript - SQLite - Node.js - LLM</div>
+    <ul>
+      <li>Tek bir sesli veya yazılı cümleyi (“3700 liraya kulaklık aldım”) hem gider hem de envanter kaydına dönüştüren mobil uygulama geliştirdim. Cümleler önce cihaz üzerindeki kural tabanlı ayrıştırıcıyla işlenir, belirsiz olanlar çok katmanlı fallback zinciriyle LLM’e yönlendirilir; tutar ve tarih her durumda kodla doğrulanır.</li>
+      <li>Taksit, abonelik ve gelecek ay planlaması, canlı fiyatlı yatırım takibi (BIST, altın, döviz, kripto) ve banka SMS’inden gider önerisi gibi modüller içerir. Local-first mimaride veriler SQLite’ta cihazda tutulur ve JSON/CSV yedekleme desteklenir.</li>
+    </ul>
+    <div class="links stacked">
+      <a href="https://fibi-app.vercel.app/"><svg class="ic"><use href="#i-web"/></svg>fibi-app.vercel.app</a>
+      <a href="https://github.com/Eswact/fibi"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/fibi</a>
+    </div>
+
+    <h3>Barcode Lookup API — Barkod Tabanlı Sorgulama API’si</h3>
+    <div class="stack">Node.js - Puppeteer - Cheerio - Redis - SSE</div>
+    <ul>
+      <li>8 Türk e-ticaret platformundan barkod bazlı fiyat karşılaştırması ve ürün bilgisi çeken bir REST API geliştirdim.</li>
+      <li>Fiyat karşılaştırma modunda tüm platformlar paralel taranır ve sonuçlar SSE ile gerçek zamanlı akıtılır. Ürün bilgisi modunda “ilk bulan kazanır” stratejisiyle hızlı sonuç döner. Sonuçlar Redis ile önbelleğe alınır.</li>
+    </ul>
+    <div class="links stacked">
+      <a href="https://barcode-scraper-api.onrender.com/"><svg class="ic"><use href="#i-web"/></svg>barcode-scraper-api.onrender.com</a>
+      <a href="https://github.com/Eswact/barcode-scraper-api"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/barcode-scraper-api</a>
+    </div>
+
+    <h3>Meetnal — Toplantı Kayıt ve Analiz Uygulaması</h3>
+    <div class="stack">React Native (Expo) - OAuth - i18n - Whisper - LLM</div>
+    <ul>
+      <li>NSA Teknoloji’de çalışırken, toplantıyı kaydedip analize gönderen ve özet, karar, aksiyon ve puanlarla dönen raporu telefonda gösteren mobil uygulamayı geliştirdim. Kayıt sunucuda Whisper ile metne çevrilip LLM ile analiz edilir; raporlar internetsiz de açılır. QR, kısa kod, Google ve Apple ile girişi ve yedi dili destekler.</li>
+    </ul>
+    <div class="links stacked">
+      <a href="https://play.google.com/store/apps/details?id=com.nsasoft.meetnal"><svg class="ic"><use href="#i-web"/></svg>Google Play — Meetnal</a>
+    </div>
+
+    <h3>Digital Signage — Dijital Ekran Yönetim Sistemi</h3>
+    <div class="stack">NestJS - Next.js - Kotlin (Jetpack Compose) - WebSocket - Docker</div>
+    <ul>
+      <li>Android ekranlara video yerine küçük JSON dokümanları gönderip cihazda şablonlarla render eden gerçek zamanlı bir dijital ekran sisteminin backend (NestJS + WebSocket), yönetim paneli (Next.js) ve native Android (Kotlin/Compose) tarafını uçtan uca geliştirdim.</li>
+      <li>Çok kiracılı organizasyon/ekip yapısı, içerik zamanlama, cihazda önbelleğe alınan medyanın offline oynatılması ve Docker Compose + Caddy ile otomatik TLS’li deploy altyapısı içerir.</li>
+    </ul>
+    <div class="links stacked">
+      <a href="https://github.com/Eswact/digital-signage"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/digital-signage</a>
+    </div>
+
+    <h3>Warbly — Sesli Görev Asistanı</h3>
+    <div class="stack">React Native (Expo) - Node.js - Whisper - LLM - SQLite</div>
+    <ul>
+      <li>NSA Teknoloji’de çalışırken, konuşarak ya da yazarak söyleneni tarihi, saati ve alt görevleriyle bir göreve çeviren mobil uygulamayı geliştirdim. Ses sunucuda Whisper ile yazıya dökülür; LLM yalnızca kalıbı belli bir niyet üretir, tarihler ve listedeki değişiklikler kodla çözülür. Geri alınabilir işlem geçmişi ve ana ekran widget’ı içerir.</li>
+    </ul>
+    <div class="links stacked">
+      <a href="https://apps.apple.com/tr/app/warbly-sesli-g%C3%B6revler/id6818455214"><svg class="ic"><use href="#i-web"/></svg>App Store — Warbly</a>
+    </div>
+  </section>
+
+  <section>
+    <h2>Diğer Projeler</h2>
+
+    <h4>Tanıtım Siteleri</h4>
+    <div class="stack">Vue - Next.js - i18n - SEO</div>
+    <div class="links">
+      <a href="https://nsasoft.com.tr/"><svg class="ic"><use href="#i-web"/></svg>nsasoft.com.tr</a>
+      <span class="sep">|</span>
+      <a href="https://fibi-app.vercel.app/"><svg class="ic"><use href="#i-web"/></svg>fibi-app.vercel.app</a>
+      <span class="sep">|</span>
+      <a href="https://shood-introduction.vercel.app/"><svg class="ic"><use href="#i-web"/></svg>shood-introduction.vercel.app</a>
+    </div>
+
+    <h4>Wardrobe 3D — Etkileşimli 3D Gardırop</h4>
+    <div class="stack">Three.js - JavaScript</div>
+    <div class="links">
+      <a href="https://wardrobe-3d.netlify.app/"><svg class="ic"><use href="#i-web"/></svg>wardrobe-3d.netlify.app</a>
+      <span class="sep">|</span>
+      <a href="https://github.com/Eswact/wardrobe-3D"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/wardrobe-3D</a>
+    </div>
+
+    <h4>Scale POS — TamPOS Terazi Arayüzü</h4>
+    <div class="stack">JavaScript - jQuery - Cordova</div>
+    <div class="links">
+      <a href="https://scale-pos.netlify.app/"><svg class="ic"><use href="#i-web"/></svg>scale-pos.netlify.app</a>
+      <span class="sep">|</span>
+      <a href="https://github.com/Eswact/scale-pos"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/scale-pos</a>
+    </div>
+
+    <h4>BLExpo — Bluetooth Geliştirici Altyapısı</h4>
+    <div class="stack">React Native (Expo) - BLE - Classic Bluetooth - Android Intent Integration</div>
+    <div class="links"><a href="https://github.com/Eswact/blexpo"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/blexpo</a></div>
+
+    <h4>DataTable Eklentileri (npm)</h4>
+    <div class="stack">JavaScript - jQuery - DataTables - npm</div>
+    <div class="links">
+      <a href="https://github.com/Eswact/datatable-responsive-modal"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/datatable-responsive-modal</a>
+      <span class="sep">|</span>
+      <a href="https://github.com/Eswact/datatable-visibility-settings"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/datatable-visibility-settings</a>
+    </div>
+
+    <h4>VOIDRUN — Mobil Oyun</h4>
+    <div class="stack">Godot</div>
+    <div class="links"><a href="https://github.com/Eswact/voidrun"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/voidrun</a></div>
+  </section>
+
+  <section>
+    <h2>Kişisel Bilgiler</h2>
+    <p class="plain-italic">Doğum tarihi: 23.12.2001 | Askerlik durumu: Tamamlandı | Ehliyet: B Sınıfı</p>
+  </section>
+
+</main>
+</body>
+</html>

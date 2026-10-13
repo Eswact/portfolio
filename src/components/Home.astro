@@ -156,7 +156,8 @@ const projectLink = (slug: string) => {
   }
 
   @media (hover: hover) {
-    .cards:hover > li:not(:hover) {
+    /* Only while a card is under the pointer: in the gaps between cards nothing dims. */
+    .cards:has(> li:hover) > li:not(:hover) {
       opacity: var(--dim);
     }
 

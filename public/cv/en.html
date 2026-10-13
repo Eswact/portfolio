@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eren Sarıbay — CV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+  /* =========================================================
+     Editing notes:
+     - Change the text directly in the HTML below.
+     - To export: open in a browser → Print → "Save as PDF",
+       paper A4, margins "Default", "Background graphics" on.
+     - The .page-break class marks where page 2 starts.
+     ========================================================= */
+  :root {
+    --ink: #111;
+    --muted: #555;
+    --soft: #777;
+    --faint: #888;
+    --fainter: #999;
+    --link: #1f5fbf;
+    --rule: #444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: #e9e9ec; }
+  body {
+    font-family: "Montserrat", system-ui, sans-serif;
+    color: var(--ink);
+    font-size: 7.6pt;
+    line-height: 1.42;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .page {
+    width: 210mm; min-height: 297mm;
+    margin: 24px auto; padding: 12mm 19mm 12mm;
+    background: #fff;
+    box-shadow: 0 2px 16px rgba(0,0,0,.12);
+  }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  b, strong { font-weight: 700; }
+
+  /* Başlık */
+  header { text-align: center; }
+  h1 { font-size: 24pt; font-weight: 700; line-height: 1.2; }
+  .role { font-size: 11pt; font-weight: 700; color: var(--soft); margin-top: 2pt; }
+  .contact {
+    display: flex; justify-content: space-between; flex-wrap: nowrap; gap: 4pt 6pt; white-space: nowrap;
+    margin-top: 10pt; padding-bottom: 5pt; border-bottom: .8pt solid var(--rule);
+    font-size: 6.6pt;
+  }
+  .contact a, .contact span { color: var(--ink); display: inline-flex; align-items: center; gap: 4pt; }
+
+  .ic { width: 8pt; height: 8pt; flex: none; fill: currentColor; }
+  .contact .ic { width: 7.5pt; height: 7.5pt; }
+
+  /* Bölümler */
+  section { padding: 5pt 0 5pt; border-bottom: .8pt solid var(--rule); }
+  section:last-child, section:has(+ .page-break) { border-bottom: 0; }
+  h2 { font-size: 12pt; font-weight: 700; color: var(--muted); margin-bottom: 3pt; }
+  h3 { font-size: 9.6pt; font-weight: 700; margin-top: 4pt; }
+  h4 { font-size: 7.8pt; font-weight: 700; margin-top: 4pt; }
+  .meta { font-size: 7pt; font-weight: 700; color: var(--faint); }
+  .note { font-size: 6.7pt; font-style: italic; color: var(--fainter); }
+  .stack { font-size: 6.4pt; font-weight: 700; font-style: italic; color: var(--faint); }
+
+  ul { padding-left: 14pt; margin-top: 2pt; }
+  li { margin-bottom: .5pt; }
+  .exp li { font-style: italic; font-size: 7.4pt; }
+
+  .links { display: flex; flex-wrap: wrap; align-items: center; gap: 1pt 8pt; margin-top: 2pt; }
+  .links.stacked { flex-direction: column; align-items: flex-start; gap: 1pt; }
+  .links a { display: inline-flex; align-items: center; gap: 4pt; }
+  .links .sep { font-weight: 700; color: var(--ink); }
+
+  .edu-name { font-size: 9.6pt; font-weight: 700; margin-top: 2pt; }
+
+  .tech { display: grid; grid-template-columns: 34mm 1fr; gap: 2.5pt 8pt; align-items: baseline; margin-top: 1pt; }
+  .tech dt { font-weight: 700; font-style: italic; font-size: 7.4pt; }
+  .tech dd { font-size: 8.4pt; }
+  .tech dd b { margin: 0 2pt; }
+
+  .plain-italic { font-size: 9.2pt; font-style: italic; }
+
+  /* Page 1 has room to spare: open up sections and points to fill it. Page 2 stays tight. */
+  main > section:not(.page-break, .page-break ~ section) { padding-block: 11pt; }
+  .page-break, .page-break ~ section { padding-block: 7pt; }
+  header .contact { margin-top: 12pt; padding-bottom: 8pt; }
+  h2 { margin-bottom: 5pt; }
+  .exp h3 { margin-top: 10pt; }
+  .exp .meta { margin-top: 1pt; }
+  .exp ul { margin-top: 4pt; }
+  .exp li { margin-bottom: 3pt; }
+  .tech { gap: 4pt 8pt; }
+
+  .page-break { break-before: page; border-top: .8pt solid var(--rule); }
+
+  @page { size: A4; margin: 10mm 19mm; }
+  @media print {
+    html { background: #fff; }
+    .page { margin: 0; padding: 0; box-shadow: none; width: auto; min-height: 0; }
+    h3, h4 { break-after: avoid; }
+    li, .links { break-inside: avoid; }
+  }
+  @media screen and (max-width: 840px) {
+    .page { width: auto; margin: 0; padding: 16px; box-shadow: none; }
+    .contact { justify-content: flex-start; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><path d="M2 5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5zm2.4 0L12 10.8 19.6 5H4.4zM20 7.1l-8 6.1-8-6.1V19h16V7.1z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></symbol>
+  <symbol id="i-gh" viewBox="0 0 24 24"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2.1c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></symbol>
+  <symbol id="i-in" viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3V9.5zm6.5 0h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.2 0-2.8-1.7-2.8s-2 1.3-2 2.7V21h-4V9.5z"/></symbol>
+  <symbol id="i-web" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-2.9a15.6 15.6 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8zM12 4c.8 1.2 1.5 2.5 1.9 4h-3.8c.4-1.4 1.1-2.8 1.9-4zM4.3 14a8.2 8.2 0 0 1 0-4h3.4a16.5 16.5 0 0 0 0 4H4.3zm.8 2h3a15.6 15.6 0 0 0 1.3 3.6A8 8 0 0 1 5.1 16zm3-8h-3a8 8 0 0 1 4.3-3.6A15.6 15.6 0 0 0 8.1 8zM12 20c-.8-1.2-1.5-2.5-1.9-4h3.8c-.4 1.4-1.1 2.8-1.9 4zm2.3-6H9.7a14.7 14.7 0 0 1 0-4h4.6a14.7 14.7 0 0 1 0 4zm.3 5.6c.6-1.1 1.1-2.3 1.4-3.6h2.9a8 8 0 0 1-4.3 3.6zm1.7-5.6a16.5 16.5 0 0 0 0-4h3.4a8.2 8.2 0 0 1 0 4h-3.4z"/></symbol>
+</svg>
+
+<main class="page">
+
+  <header>
+    <h1>Eren Sarıbay</h1>
+    <div class="role">Software Developer</div>
+    <div class="contact">
+      <a href="tel:+905455008796"><svg class="ic"><use href="#i-phone"/></svg>+90 545 500 87 96</a>
+      <a href="mailto:eren99srb@gmail.com"><svg class="ic"><use href="#i-mail"/></svg>eren99srb@gmail.com</a>
+      <span><svg class="ic"><use href="#i-pin"/></svg>İstanbul, Türkiye</span>
+      <a href="https://erensaribay.com/"><svg class="ic"><use href="#i-web"/></svg>erensaribay.com</a>
+      <a href="https://github.com/Eswact"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact</a>
+      <a href="https://linkedin.com/in/eren-saribay"><svg class="ic"><use href="#i-in"/></svg>linkedin.com/in/eren-saribay</a>
+    </div>
+  </header>
+
+  <section>
+    <h2>About</h2>
+    <p>I'm a frontend-focused software developer with 3+ years of experience, building products end to end across web and mobile. I build web applications with <b>Vue, React and Next.js</b>, and work on API integration and the backend with <b>Node.js and .NET</b>. More recently I've built mobile apps with <b>React Native and Expo</b> for <b>Android-based POS/kiosk devices</b> and <b>AI-powered products</b>. I have hands-on experience with <b>web scraping, real-time data streaming, cache management, LLM integration and Bluetooth/BLE</b>.</p>
+  </section>
+
+  <section>
+    <h2>Technologies</h2>
+    <dl class="tech">
+      <dt>Frontend</dt>
+      <dd>Vue.js <b>/</b> React <b>/</b> Next.js <b>/</b> TailwindCSS <b>/</b> JavaScript <b>/</b> TypeScript</dd>
+      <dt>Backend &amp; APIs</dt>
+      <dd>Node.js <b>/</b> Express.js <b>/</b> .NET <b>/</b> FastAPI <b>/</b> REST APIs <b>/</b> SSE</dd>
+      <dt>Databases &amp; Storage</dt>
+      <dd>MongoDB <b>/</b> SQLite <b>/</b> MSSQL <b>/</b> Redis</dd>
+      <dt>Mobile</dt>
+      <dd>React Native <b>/</b> Expo <b>/</b> Cordova <b>/</b> PWA</dd>
+    </dl>
+  </section>
+
+  <section class="exp">
+    <h2>Experience</h2>
+
+    <h3>Software Developer — NSA Teknoloji (Çamlıca Barkod)</h3>
+    <div class="meta">February 2023 – Present / Istanbul, Türkiye</div>
+    <div class="note">Çamlıca Barkod's software unit became a separate company, NSA Teknoloji, in 2024; I continued with the same team.</div>
+    <ul>
+      <li>Built new features, UI/UX improvements and performance optimizations for live enterprise apps with <b>React, Next.js, Vue.js and jQuery</b>; grew a frontend role into backend and mobile work.</li>
+      <li>Built the frontend of a <b>.NET Core multi-channel e-commerce management platform</b> that manages products, stock and orders from one panel through marketplace API integrations. Shipped new features and UI improvements to a pre-accounting product used by hundreds of customers.</li>
+      <li>Turned scraping systems that collect data from 8 e-commerce platforms into API services with real-time streaming and caching, using <b>Puppeteer, Cheerio, Node.js/Express, SSE and Redis</b>, and integrated them into existing apps. Packaged reusable DataTables-based table components as npm packages.</li>
+      <li>Built <b>5+ mobile apps</b> with <b>Cordova, React Native (Expo) and TypeScript</b> for <b>Android-based POS/kiosk devices</b> and <b>AI-powered products</b>: computer-vision product recognition, voice ordering, meeting analysis (Meetnal) and voice-first task management (Warbly). Worked on speech-to-text, LLM-based intent extraction, POS payments, QR login and native Android integrations, and ran the products’ <b>branding</b> and <b>release</b> processes.</li>
+    </ul>
+
+    <h3>Intern — Çamlıca Barkod</h3>
+    <div class="meta">August 2022 – September 2022 / Istanbul, Türkiye</div>
+    <ul>
+      <li>Built a call center automation web app with <b>.NET MVC and MS SQL Server</b>.</li>
+      <li>Built interactive tables and reusable frontend components with DataTables.</li>
+    </ul>
+
+    <h3>Intern — WhiteCAD</h3>
+    <div class="meta">July 2022 – August 2022 / Istanbul, Türkiye</div>
+    <ul>
+      <li>Built an interactive 3D wardrobe in <b>Three.js</b> with scene setup, lighting, animation and OrbitControls.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Education</h2>
+    <div class="edu-name">BSc in Computer Engineering</div>
+    <div class="note">Bilecik Şeyh Edebali University | 2019–2024 | GPA: 3.32</div>
+  </section>
+
+  <section>
+    <h2>Languages</h2>
+    <p class="plain-italic">English — Professional Working Proficiency (B2)</p>
+    <p class="plain-italic">Turkish — Native</p>
+  </section>
+
+  <!-- ===== Page 2 ===== -->
+  <section class="page-break">
+    <h2>Selected Projects</h2>
+
+    <h3>Fibi — Voice-First Personal Finance &amp; Inventory App</h3>
+    <div class="stack">React Native (Expo) - TypeScript - SQLite - Node.js - LLM</div>
+    <ul>
+      <li>Built a mobile app that turns a single spoken or typed sentence (“bought headphones for 3700 lira”) into both an expense and an inventory record. Input is first handled by an on-device rule-based parser; ambiguous sentences are routed to LLMs through a multi-layer fallback chain, with amount and date always verified in code.</li>
+      <li>Includes installment, subscription and monthly cash-flow planning, investment tracking with live prices (stocks, gold, FX, crypto), and expense suggestions from bank SMS. Local-first architecture keeps all data on-device in SQLite, with JSON/CSV backup and restore.</li>
+    </ul>
+    <div class="links stacked">
+      <a href="https://fibi-app.vercel.app/"><svg class="ic"><use href="#i-web"/></svg>fibi-app.vercel.app</a>
+      <a href="https://github.com/Eswact/fibi"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/fibi</a>
+    </div>
+
+    <h3>Barcode Lookup API — Barcode-Based Product Lookup</h3>
+    <div class="stack">Node.js - Puppeteer - Cheerio - Redis - SSE</div>
+    <ul>
+      <li>Developed a REST API that fetches barcode-based price comparisons and product information from 8 Turkish e-commerce platforms.</li>
+      <li>In price comparison mode, all platforms are scraped in parallel and results are streamed in real time via SSE. In product info mode, a “first-found-wins” strategy returns results quickly. Results are cached with Redis.</li>
+    </ul>
+    <div class="links stacked">
+      <a href="https://barcode-scraper-api.onrender.com/"><svg class="ic"><use href="#i-web"/></svg>barcode-scraper-api.onrender.com</a>
+      <a href="https://github.com/Eswact/barcode-scraper-api"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/barcode-scraper-api</a>
+    </div>
+
+    <h3>Meetnal — Meeting Recording &amp; Analysis App</h3>
+    <div class="stack">React Native (Expo) - OAuth - i18n - Whisper - LLM</div>
+    <ul>
+      <li>Built, while working at NSA Teknoloji, a mobile app that records a meeting, sends it for analysis and shows the report, with its summary, decisions, action items and scores, on the phone. Recordings are transcribed on the server with Whisper and analyzed by an LLM, and reports open offline; supports sign-in by QR, short code, Google or Apple, and seven languages.</li>
+    </ul>
+    <div class="links stacked">
+      <a href="https://play.google.com/store/apps/details?id=com.nsasoft.meetnal"><svg class="ic"><use href="#i-web"/></svg>Google Play — Meetnal</a>
+    </div>
+
+    <h3>Digital Signage — Screen Management System</h3>
+    <div class="stack">NestJS - Next.js - Kotlin (Jetpack Compose) - WebSocket - Docker</div>
+    <ul>
+      <li>Built end to end a real-time digital signage system that sends lightweight JSON documents instead of video files to Android screens, which render them with templates: the backend (NestJS + WebSocket), the admin panel (Next.js) and the native Android app (Kotlin/Compose).</li>
+      <li>Features multi-tenant organizations and teams, content scheduling, offline playback of media cached on-device, and a Docker Compose + Caddy deployment with automatic TLS.</li>
+    </ul>
+    <div class="links stacked">
+      <a href="https://github.com/Eswact/digital-signage"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/digital-signage</a>
+    </div>
+
+    <h3>Warbly — Voice-First Task Assistant</h3>
+    <div class="stack">React Native (Expo) - Node.js - Whisper - LLM - SQLite</div>
+    <ul>
+      <li>Built, while working at NSA Teknoloji, a mobile app that turns what you say or type into a task, with its date, time and subtasks. Audio is transcribed on the server with Whisper; the LLM only produces a fixed-shape intent, while dates and list changes are resolved in code. Includes an undoable action history and a home-screen widget.</li>
+    </ul>
+    <div class="links stacked">
+      <a href="https://apps.apple.com/tr/app/warbly-sesli-g%C3%B6revler/id6818455214"><svg class="ic"><use href="#i-web"/></svg>App Store — Warbly</a>
+    </div>
+  </section>
+
+  <section>
+    <h2>Other Projects</h2>
+
+    <h4>Promotional Websites</h4>
+    <div class="stack">Vue - Next.js - i18n - SEO</div>
+    <div class="links">
+      <a href="https://nsasoft.com.tr/"><svg class="ic"><use href="#i-web"/></svg>nsasoft.com.tr</a>
+      <span class="sep">|</span>
+      <a href="https://fibi-app.vercel.app/"><svg class="ic"><use href="#i-web"/></svg>fibi-app.vercel.app</a>
+      <span class="sep">|</span>
+      <a href="https://shood-introduction.vercel.app/"><svg class="ic"><use href="#i-web"/></svg>shood-introduction.vercel.app</a>
+    </div>
+
+    <h4>Wardrobe 3D — Interactive 3D Wardrobe</h4>
+    <div class="stack">Three.js - JavaScript</div>
+    <div class="links">
+      <a href="https://wardrobe-3d.netlify.app/"><svg class="ic"><use href="#i-web"/></svg>wardrobe-3d.netlify.app</a>
+      <span class="sep">|</span>
+      <a href="https://github.com/Eswact/wardrobe-3D"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/wardrobe-3D</a>
+    </div>
+
+    <h4>Scale POS — TamPOS Scale Interface</h4>
+    <div class="stack">JavaScript - jQuery - Cordova</div>
+    <div class="links">
+      <a href="https://scale-pos.netlify.app/"><svg class="ic"><use href="#i-web"/></svg>scale-pos.netlify.app</a>
+      <span class="sep">|</span>
+      <a href="https://github.com/Eswact/scale-pos"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/scale-pos</a>
+    </div>
+
+    <h4>BLExpo — Bluetooth Developer Toolkit</h4>
+    <div class="stack">React Native (Expo) - BLE - Classic Bluetooth - Android Intent Integration</div>
+    <div class="links"><a href="https://github.com/Eswact/blexpo"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/blexpo</a></div>
+
+    <h4>DataTable Plugins (npm)</h4>
+    <div class="stack">JavaScript - jQuery - DataTables - npm</div>
+    <div class="links">
+      <a href="https://github.com/Eswact/datatable-responsive-modal"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/datatable-responsive-modal</a>
+      <span class="sep">|</span>
+      <a href="https://github.com/Eswact/datatable-visibility-settings"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/datatable-visibility-settings</a>
+    </div>
+
+    <h4>VOIDRUN — Mobile Game</h4>
+    <div class="stack">Godot</div>
+    <div class="links"><a href="https://github.com/Eswact/voidrun"><svg class="ic"><use href="#i-gh"/></svg>github.com/Eswact/voidrun</a></div>
+  </section>
+
+</main>
+</body>
+</html>

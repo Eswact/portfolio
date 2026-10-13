@@ -481,8 +481,8 @@ export const cases: Record<string, Case> = {
       {
         title: { tr: 'Arayüz', en: 'Interface' },
         detail: {
-          tr: 'React Native + Expo. Mikrofon, yazı kutusu ve Android ana ekran widget’ı aynı akışa girer.',
-          en: 'React Native + Expo. The microphone, the text box and the Android home screen widget all feed the same flow.',
+          tr: 'React Native + Expo. Mikrofon, yazı kutusu ve ana ekran widget’ı aynı akışa girer.',
+          en: 'React Native + Expo. The microphone, the text box and the home screen widget all feed the same flow.',
         },
       },
       {
@@ -617,8 +617,8 @@ export const cases: Record<string, Case> = {
       {
         title: { tr: 'Mağazaya hazır bir uygulama', en: 'An app ready for the store' },
         body: {
-          tr: 'Google ve Apple ile giriş, uygulama içinden hesap silme, hatırlatma bildirimleri, açık ve koyu tema, vurgu rengi seçimi ve internet yokken kendi ekranı. Android’de ana ekrana konan widget’a dokununca uygulama doğrudan dinlemeye başlıyor.',
-          en: 'Google and Apple sign-in, account deletion from inside the app, reminder notifications, light and dark themes, a choice of accent colour and its own screen when the connection drops. On Android, tapping the home screen widget opens the app straight into listening.',
+          tr: 'Google ve Apple ile giriş, uygulama içinden hesap silme, hatırlatma bildirimleri, açık ve koyu tema, vurgu rengi seçimi ve internet yokken kendi ekranı. Ana ekrana konan widget’a dokununca uygulama doğrudan dinlemeye başlıyor.',
+          en: 'Google and Apple sign-in, account deletion from inside the app, reminder notifications, light and dark themes, a choice of accent colour and its own screen when the connection drops. Tapping the home screen widget opens the app straight into listening.',
         },
       },
     ],
