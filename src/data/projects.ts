@@ -16,7 +16,7 @@ export interface Project {
     status: 'live' | 'source' | 'apk';
     platform: L10n;
     /** Shape of the layered object drawn on the card. */
-    object: 'phone' | 'api' | 'screen';
+    object: 'phone' | 'api' | 'screen' | 'voice' | 'meeting';
     /** Layer labels, top to bottom. */
     layers: L10n[];
   };
@@ -24,10 +24,12 @@ export interface Project {
   live?: string;
   /** Download page for an installable build (GitHub Releases). */
   release?: string;
+  /** Store listing of a published app; the link is named after the store. */
+  store?: { name: 'App Store' | 'Google Play'; href: string };
   /** Overrides the status derived from links (an index row with a live demo that is still only a part). */
   status?: 'live' | 'source' | 'apk';
   source?: string[];
-  /** A row that groups several sites; each is listed with its own link. */
+  /** A row that groups several sites or packages; each is listed with its own link. */
   sites?: { name: string; href?: string }[];
 }
 
@@ -113,11 +115,36 @@ export const projects: Project[] = [
     source: ['https://github.com/Eswact/barcode-scraper-api'],
   },
   {
+    slug: 'meetnal',
+    title: 'Meetnal',
+    featured: true,
+    card: {
+      code: 'ES-03',
+      year: 2026,
+      status: 'live',
+      platform: { tr: 'Android · iOS', en: 'Android · iOS' },
+      object: 'meeting',
+      layers: [
+        { tr: 'Kayıt', en: 'Recording' },
+        { tr: 'Cihazda saklama', en: 'On-device storage' },
+        { tr: 'Eşleştirme', en: 'Pairing' },
+        { tr: 'Analiz servisi', en: 'Analysis service' },
+      ],
+    },
+    type: { tr: 'Toplantı kayıt ve analiz uygulaması', en: 'Meeting recording & analysis app' },
+    stack: ['React Native', 'Expo', 'expo-audio', 'OAuth', 'i18n'],
+    summary: {
+      tr: 'NSA Teknoloji’de çalışırken geliştirdiğim, toplantıyı kaydedip analize gönderen ve özet, karar ve puanlarla dönen raporu telefonda gösteren mobil uygulama.',
+      en: 'A mobile app I built while working at NSA Teknoloji that records a meeting, sends it for analysis and shows the report, with its summary, decisions and scores, on the phone.',
+    },
+    store: { name: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.nsasoft.meetnal' },
+  },
+  {
     slug: 'digital-signage',
     title: 'Digital Signage',
     featured: true,
     card: {
-      code: 'ES-03',
+      code: 'ES-04',
       year: 2026,
       status: 'source',
       platform: { tr: 'Android · Web', en: 'Android · Web' },
@@ -152,73 +179,29 @@ export const projects: Project[] = [
     source: ['https://github.com/Eswact/digital-signage'],
   },
   {
-    slug: 'voxlog',
-    title: 'VoxLog',
-    type: { tr: 'Gerçek zamanlı transkripsiyon', en: 'Real-time transcription app' },
-    stack: ['React Native', 'Expo', 'Python', 'FastAPI', 'Whisper'],
-    summary: { tr: 'Local-first toplantı transkripsiyon uygulaması.', en: 'Local-first meeting transcription app.' },
-    source: ['https://github.com/Eswact/voxlog'],
-  },
-  {
-    slug: 'blexpo',
-    title: 'BLExpo',
-    type: { tr: 'Bluetooth geliştirici altyapısı', en: 'Bluetooth developer toolkit' },
-    stack: ['React Native', 'Expo', 'BLE', 'Classic Bluetooth'],
-    summary: { tr: 'Android’de Bluetooth denemeleri için Expo uygulaması.', en: 'An Expo app for experimenting with Bluetooth on Android.' },
-    source: ['https://github.com/Eswact/blexpo'],
-  },
-  {
-    slug: 'datatable-responsive-modal',
-    title: 'DataTable Responsive Modal',
-    type: { tr: 'Mobil tablo görünümü (npm)', en: 'Mobile table view (npm)' },
-    stack: ['JavaScript', 'jQuery', 'DataTables', 'npm'],
-    summary: {
-      tr: 'DataTables tablolarını mobilde satır detaylarını gösteren bir modal görünümüne çeviren npm paketi.',
-      en: 'An npm package that turns DataTables tables into a modal row-detail view on mobile.',
+    slug: 'warbly',
+    title: 'Warbly',
+    featured: true,
+    card: {
+      code: 'ES-05',
+      year: 2026,
+      status: 'live',
+      platform: { tr: 'iOS · Android', en: 'iOS · Android' },
+      object: 'voice',
+      layers: [
+        { tr: 'Ses ve metin', en: 'Voice and text' },
+        { tr: 'Whisper', en: 'Whisper' },
+        { tr: 'Niyet (LLM)', en: 'Intent (LLM)' },
+        { tr: 'Reducer', en: 'Reducer' },
+      ],
     },
-    live: 'https://datatable-mobile-modal.netlify.app',
-    status: 'source',
-    source: ['https://github.com/Eswact/datatable-responsive-modal'],
-  },
-  {
-    slug: 'datatable-visibility-settings',
-    title: 'DataTable Visibility Settings',
-    type: { tr: 'Kolon görünürlük ayarları (npm)', en: 'Column visibility settings (npm)' },
-    stack: ['JavaScript', 'jQuery', 'DataTables', 'Sortable.js', 'npm'],
+    type: { tr: 'Sesli görev asistanı', en: 'Voice-first task assistant' },
+    stack: ['React Native', 'Expo', 'Whisper', 'LLM', 'Node.js', 'SQLite'],
     summary: {
-      tr: 'DataTables kolonlarını bir modalden gizleyip sürükleyerek sıralayan, tercihleri saklayan npm paketi.',
-      en: 'An npm package for hiding and drag-reordering DataTables columns from a modal, with saved preferences.',
+      tr: 'NSA Teknoloji’de çalışırken geliştirdiğim, konuşarak ya da yazarak söyleneni tarihi, saati ve alt görevleriyle bir göreve çeviren mobil uygulama.',
+      en: 'A mobile app I built while working at NSA Teknoloji that turns what you say or type into a task, with its date, time and subtasks.',
     },
-    live: 'https://datatable-visibility-settings.netlify.app',
-    status: 'source',
-    source: ['https://github.com/Eswact/datatable-visibility-settings'],
-  },
-  {
-    slug: 'scale-pos',
-    title: 'Scale POS',
-    type: { tr: 'Terazi POS arayüzü', en: 'Scale POS interface' },
-    stack: ['HTML', 'CSS', 'JavaScript'],
-    summary: { tr: 'Elektronik teraziler için ürün yönetimli web arayüzü.', en: 'A web UI for electronic scales with product management.' },
-    live: 'https://scale-pos.netlify.app',
-    status: 'source',
-    source: ['https://github.com/Eswact/scale-pos'],
-  },
-  {
-    slug: 'floor-plan-editor',
-    title: 'Floor Plan Editor',
-    type: { tr: 'Kat planı editörü', en: 'Floor plan editor' },
-    stack: ['HTML', 'CSS', 'JavaScript'],
-    summary: { tr: 'Restoranlar için sürükle-bırak, JSON çıktılı kat planı editörü.', en: 'A drag-and-drop restaurant floor plan editor with JSON export.' },
-    source: ['https://github.com/Eswact/floor-plan-editor'],
-  },
-  {
-    slug: 'wardrobe-3d',
-    title: 'Wardrobe 3D',
-    type: { tr: 'Etkileşimli 3D gardırop', en: 'Interactive 3D wardrobe' },
-    stack: ['Three.js', 'JavaScript'],
-    summary: { tr: 'Kapıları açılabilen Three.js gardırop simülasyonu.', en: 'A Three.js wardrobe simulation with openable doors.' },
-    live: 'https://wardrobe-3d.netlify.app',
-    source: ['https://github.com/Eswact/wardrobe-3D'],
+    store: { name: 'App Store', href: 'https://apps.apple.com/tr/app/warbly-sesli-g%C3%B6revler/id6818455214' },
   },
   {
     slug: 'promo-sites',
@@ -231,6 +214,51 @@ export const projects: Project[] = [
       { name: 'nsasoft.com.tr', href: 'https://www.nsasoft.com.tr' },
       { name: 'Fibi', href: 'https://fibi-app.vercel.app' },
       { name: 'Shood', href: 'https://shood-introduction.vercel.app' },
+    ],
+  },
+  {
+    slug: 'wardrobe-3d',
+    title: 'Wardrobe 3D',
+    type: { tr: 'Etkileşimli 3D gardırop', en: 'Interactive 3D wardrobe' },
+    stack: ['Three.js', 'JavaScript'],
+    summary: { tr: 'Kapıları açılabilen Three.js gardırop simülasyonu.', en: 'A Three.js wardrobe simulation with openable doors.' },
+    live: 'https://wardrobe-3d.netlify.app',
+    source: ['https://github.com/Eswact/wardrobe-3D'],
+  },
+  {
+    slug: 'scale-pos',
+    title: 'Scale POS',
+    type: { tr: 'TamPOS’un terazi arayüzü', en: 'TamPOS scale interface' },
+    stack: ['JavaScript', 'jQuery', 'Cordova'],
+    summary: {
+      tr: 'TamPOS’un terazi modunda kullanılan arayüz; ürünü kameradan tanıyan uygulamayı arka planda çağırıyor.',
+      en: 'The interface used in TamPOS’s scale mode; it calls the camera-based product recognition app in the background.',
+    },
+    live: 'https://scale-pos.netlify.app',
+    status: 'source',
+    source: ['https://github.com/Eswact/scale-pos'],
+  },
+  {
+    slug: 'blexpo',
+    title: 'BLExpo',
+    type: { tr: 'Bluetooth geliştirici altyapısı', en: 'Bluetooth developer toolkit' },
+    stack: ['React Native', 'Expo', 'BLE', 'Classic Bluetooth'],
+    summary: { tr: 'Android’de Bluetooth denemeleri için Expo uygulaması.', en: 'An Expo app for experimenting with Bluetooth on Android.' },
+    source: ['https://github.com/Eswact/blexpo'],
+  },
+  {
+    slug: 'datatable-plugins',
+    title: { tr: 'DataTable Eklentileri', en: 'DataTable Plugins' },
+    type: { tr: 'Tablo eklentileri (npm)', en: 'Table plugins (npm)' },
+    stack: ['JavaScript', 'jQuery', 'DataTables', 'npm'],
+    summary: {
+      tr: 'DataTables için iki npm paketi: mobilde satır detayını modalde gösteren görünüm ve kolonları gizleyip sürükleyerek sıralayan ayarlar.',
+      en: 'Two npm packages for DataTables: a mobile modal row-detail view, and settings for hiding and drag-reordering columns.',
+    },
+    status: 'source',
+    sites: [
+      { name: 'Responsive Modal', href: 'https://github.com/Eswact/datatable-responsive-modal' },
+      { name: 'Visibility Settings', href: 'https://github.com/Eswact/datatable-visibility-settings' },
     ],
   },
   {

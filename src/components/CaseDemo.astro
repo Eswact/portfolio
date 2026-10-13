@@ -5,7 +5,7 @@
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
-  kind: 'fibi' | 'barcode' | 'signage';
+  kind: 'fibi' | 'barcode' | 'signage' | 'warbly' | 'meetnal';
   lang: Lang;
 }
 
@@ -90,7 +90,106 @@ const markets = [
   { name: 'Şok Market', price: '₺45,50', at: 1300 },
   { name: 'Market Karşılaştır', price: '₺46,00', at: 1800 },
 ];
-const cycle = { fibi: 10500, barcode: 6500, signage: 7000 }[kind];
+
+// Warbly: one sentence becomes a task with a time and a subtask (the example from its store page).
+const warbly = tr
+  ? {
+      ask: 'Konuşun ya da yazın',
+      hint: 'Görev, tarih, saat; nasıl aklınıza gelirse.',
+      words: ['“Bu', 'akşam', 'saat', '9’da', 'anneanneme', 'gideceğim,', 'önce', 'çiçek', 'alacağım”'],
+      heard: 'Anladım',
+      quote: '“Bu akşam saat 9’da anneanneme gideceğim, önce çiçek alacağım”',
+      fields: [
+        ['Görev', 'Anneanneme ziyaret et'],
+        ['Tarih', 'Bugün'],
+        ['Saat', '21:00'],
+        ['Alt görev', 'Çiçek al'],
+      ],
+      title: 'Görevler',
+      today: 'Bugün',
+      task: 'Anneanneme ziyaret et',
+      when: 'Bugün · 21:00',
+      sub: 'Çiçek al',
+      others: [
+        ['Faturayı öde', 'Bugün · 18:00'],
+        ['Spora git', 'Bugün · 19:30'],
+      ],
+      toast: 'Görev eklendi',
+      undo: 'Geri al',
+    }
+  : {
+      ask: 'Speak or type',
+      hint: 'Task, date, time; however it comes to mind.',
+      words: ['“Tonight', 'at', '9', 'I’m', 'visiting', 'grandma,', 'buying', 'flowers', 'first”'],
+      heard: 'Got it',
+      quote: '“Tonight at 9 I’m visiting grandma, buying flowers first”',
+      fields: [
+        ['Task', 'Visit grandma'],
+        ['Date', 'Today'],
+        ['Time', '21:00'],
+        ['Subtask', 'Buy flowers'],
+      ],
+      title: 'Tasks',
+      today: 'Today',
+      task: 'Visit grandma',
+      when: 'Today · 21:00',
+      sub: 'Buy flowers',
+      others: [
+        ['Pay the bill', 'Today · 18:00'],
+        ['Go to the gym', 'Today · 19:30'],
+      ],
+      toast: 'Task added',
+      undo: 'Undo',
+    };
+
+// Meetnal: record, send, read the report (labels from the app's own locales).
+const meetnal = tr
+  ? {
+      record: 'Kayıt',
+      date: '13 EKİM 2026 SALI',
+      hint: 'Kayıt sürüyor · duraklatmak için dokun',
+      recordings: 'Kayıtlar',
+      name: 'Haftalık ürün toplantısı',
+      meta: '13 Eki 2026 · 47:12',
+      older: 'Müşteri görüşmesi',
+      olderMeta: '9 Eki 2026 · 28:40',
+      status: ['Cihazda', 'Gönderiliyor', 'Analiz ediliyor', 'Analiz edildi'],
+      send: 'Analize gönder',
+      view: 'Raporu gör',
+      scores: 'Skorlar',
+      overall: 'Genel',
+      kinds: ['Netlik', 'Verimlilik', 'İletişim', 'Sonuç netliği'],
+      decisions: 'Kararlar',
+      decision: 'Tasarım teslimi Cuma’ya alındı.',
+      actions: 'Aksiyonlar',
+      action: 'Ekran akışlarını güncelle',
+      owner: 'Sorumlu: Konuşmacı 2',
+      tabs: ['Kayıt', 'Kayıtlar', 'Raporlar'],
+    }
+  : {
+      record: 'Record',
+      date: 'TUESDAY, 13 OCTOBER 2026',
+      hint: 'Recording · tap to pause',
+      recordings: 'Recordings',
+      name: 'Weekly product meeting',
+      meta: '13 Oct 2026 · 47:12',
+      older: 'Client call',
+      olderMeta: '9 Oct 2026 · 28:40',
+      status: ['On device', 'Sending', 'Analyzing', 'Analyzed'],
+      send: 'Send for analysis',
+      view: 'View report',
+      scores: 'Scores',
+      overall: 'Overall',
+      kinds: ['Clarity', 'Efficiency', 'Communication', 'Outcome clarity'],
+      decisions: 'Decisions',
+      decision: 'Design handoff moved to Friday.',
+      actions: 'Actions',
+      action: 'Update the screen flows',
+      owner: 'Owner: Speaker 2',
+      tabs: ['Record', 'Recordings', 'Reports'],
+    };
+const waveform = [6, 12, 20, 9, 26, 15, 32, 18, 11, 24, 36, 21, 13, 28, 17, 9, 22, 30, 14, 8, 19, 27, 12, 6];
+const cycle = { fibi: 10500, barcode: 6500, signage: 7000, warbly: 10000, meetnal: 11500 }[kind];
 ---
 
 <figure class:list={['demo', kind]} data-demo data-cycle={cycle}>
@@ -294,6 +393,199 @@ const cycle = { fibi: 10500, barcode: 6500, signage: 7000 }[kind];
             <span class="o">121</span>
             <span class="o">122</span>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    kind === 'warbly' && (
+      <div class="phone w-tok" aria-hidden="true">
+        <div class="app">
+          {/* 1 · listening */}
+          <div class="scr" data-at="0" data-off="3600">
+            <p class="h w-h">{warbly.ask}</p>
+            <p class="sub">{warbly.hint}</p>
+            <div class="w-mic">
+              <i class="w-ring" />
+              <i class="w-ring w-r2" />
+              <span>
+                <svg viewBox="0 0 24 24">
+                  <rect x="9" y="3" width="6" height="11" rx="3" />
+                  <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+                </svg>
+              </span>
+            </div>
+            <p class="said">
+              {warbly.words.map((w, i) => (
+                <span class="w" data-at={String(400 + i * 300)}>
+                  {w}{' '}
+                </span>
+              ))}
+            </p>
+          </div>
+
+          {/* 2 · the intent, field by field (resting frame) */}
+          <div class="scr on" data-at="3600" data-off="6800">
+            <p class="h w-h">{warbly.heard}</p>
+            <p class="sub">{warbly.quote}</p>
+            <div class="w-fields">
+              {warbly.fields.map(([k, v], i) => (
+                <span class="w-field on" data-at={String(3900 + i * 450)}>
+                  <small>{k}</small>
+                  <b>{v}</b>
+                </span>
+              ))}
+            </div>
+            <p class="w-intent mono on" data-at="5800">
+              add · add_subtask
+            </p>
+          </div>
+
+          {/* 3 · on the list, with undo */}
+          <div class="scr" data-at="6800">
+            <p class="w-title">{warbly.title}</p>
+            <span class="lbl">{warbly.today}</span>
+            <div class="w-list">
+              <span class="w-task w-new" data-at="7100">
+                <i class="w-check" />
+                <span>
+                  <b>{warbly.task}</b>
+                  <small class="w-when">{warbly.when}</small>
+                  <span class="w-subtask">
+                    <i class="w-check" />
+                    {warbly.sub}
+                  </span>
+                </span>
+              </span>
+              {warbly.others.map(([title, when]) => (
+                <span class="w-task">
+                  <i class="w-check" />
+                  <span>
+                    <b>{title}</b>
+                    <small>{when}</small>
+                  </span>
+                </span>
+              ))}
+            </div>
+            <span class="w-toast" data-at="7500" data-off="9600">
+              {warbly.toast}
+              <b>{warbly.undo}</b>
+            </span>
+            <span class="w-fab">
+              <svg viewBox="0 0 24 24">
+                <rect x="9" y="3" width="6" height="11" rx="3" />
+                <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    kind === 'meetnal' && (
+      <div class="phone m-tok" aria-hidden="true">
+        <div class="app">
+          {/* 1 · recording */}
+          <div class="scr" data-at="0" data-off="3600">
+            <p class="m-date">{meetnal.date}</p>
+            <p class="m-title">{meetnal.record}</p>
+            <div class="m-clock num">
+              {['47:09', '47:10', '47:11', '47:12'].map((x, i) => (
+                <span data-at={String(i * 900)} data-off={i < 3 ? String((i + 1) * 900) : undefined}>
+                  {x}
+                </span>
+              ))}
+            </div>
+            <div class="m-wave">
+              {waveform.map((h, i) => (
+                <i style={`--h:${h}px;--d:${(i % 6) * 110}ms`} />
+              ))}
+            </div>
+            <span class="m-rec">
+              <i />
+            </span>
+            <p class="sub m-hint">{meetnal.hint}</p>
+          </div>
+
+          {/* 2 · sent, analysed */}
+          <div class="scr" data-at="3600" data-off="7600">
+            <p class="m-title">{meetnal.recordings}</p>
+            <div class="m-card">
+              <span class="m-play" />
+              <span class="m-name">
+                <b>{meetnal.name}</b>
+                <small>{meetnal.meta}</small>
+              </span>
+              <span class="m-status">
+                {meetnal.status.map((x, i) => (
+                  <i class:list={['m-st', { 'm-done': i === 3 }]} data-at={String(3600 + i * 1000)} data-off={i < 3 ? String(4600 + i * 1000) : undefined}>
+                    {x}
+                  </i>
+                ))}
+              </span>
+              <span class="m-bar" data-at="4600" data-off="6600">
+                <i />
+              </span>
+              <span class="m-btn">
+                <span data-at="3600" data-off="4500">
+                  {meetnal.send}
+                </span>
+                <span data-at="6600">{meetnal.view}</span>
+              </span>
+            </div>
+            <div class="m-card m-old">
+              <span class="m-play" />
+              <span class="m-name">
+                <b>{meetnal.older}</b>
+                <small>{meetnal.olderMeta}</small>
+              </span>
+              <span class="m-status">
+                <i class="m-st m-done on">{meetnal.status[3]}</i>
+              </span>
+            </div>
+          </div>
+
+          {/* 3 · the report (resting frame) */}
+          <div class="scr on" data-at="7600">
+            <span class="back" />
+            <p class="m-rname">{meetnal.name}</p>
+            <small class="m-rmeta">{meetnal.meta}</small>
+            <div class="m-sec">
+              <span class="lbl">{meetnal.scores}</span>
+              <span class="m-overall on" data-at="7900">
+                <b>8</b>
+                {meetnal.overall}
+              </span>
+              <span class="m-grid">
+                {meetnal.kinds.map((k, i) => (
+                  <span class="m-score on" data-at={String(8200 + i * 180)}>
+                    <b>{i < 2 ? 8 : 7}</b>
+                    {k}
+                  </span>
+                ))}
+              </span>
+            </div>
+            <div class="m-sec m-lines on" data-at="9000">
+              <span class="lbl">{meetnal.decisions}</span>
+              <p>{meetnal.decision}</p>
+              <span class="lbl">{meetnal.actions}</span>
+              <p>
+                {meetnal.action}
+                <small>{meetnal.owner}</small>
+              </p>
+            </div>
+          </div>
+
+          <span class="m-tabs">
+            {meetnal.tabs.map((x, i) => (
+              <i class:list={{ on: i === 2 }} data-at={String([0, 3600, 7600][i])} data-off={i < 2 ? String([3600, 7600][i]) : undefined}>
+                {x}
+              </i>
+            ))}
+          </span>
         </div>
       </div>
     )
@@ -1089,5 +1381,641 @@ const cycle = { fibi: 10500, barcode: 6500, signage: 7000 }[kind];
     opacity: 0;
     height: 0;
     margin-bottom: -6px;
+  }
+
+  /* ---------- Warbly and Meetnal: each in its own palette, following the page's theme ---------- */
+  .w-tok {
+    --a-bg: #f7f7f5;
+    --a-card: #ffffff;
+    --a-fg: #15151a;
+    --a-muted: #6b6f78;
+    --a-line: rgb(21 21 26 / 0.12);
+    --a-chip: #f0f0ee;
+    --acc: #16744d;
+  }
+
+  .m-tok {
+    --a-bg: #f7f7f5;
+    --a-card: #ffffff;
+    --a-fg: #18181b;
+    --a-muted: #52525b;
+    --a-line: #e3e3df;
+    --a-chip: #efefec;
+    --acc: #ea580c;
+    --ok: #15803d;
+  }
+
+  :global(:root[data-theme='dark']) .w-tok {
+    --a-bg: #0f0f13;
+    --a-card: #1a1a22;
+    --a-fg: #e8e8f0;
+    --a-muted: #7a7f8c;
+    --a-line: rgb(232 232 240 / 0.1);
+    --a-chip: #24242f;
+    --acc: #1f8a5f;
+  }
+
+  :global(:root[data-theme='dark']) .m-tok {
+    --a-bg: #0c0c0d;
+    --a-card: #161618;
+    --a-fg: #fafafa;
+    --a-muted: #a1a1aa;
+    --a-line: #2c2c30;
+    --a-chip: #1f1f22;
+    --acc: #fb923c;
+    --ok: #4ade80;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .w-tok {
+      --a-bg: #0f0f13;
+      --a-card: #1a1a22;
+      --a-fg: #e8e8f0;
+      --a-muted: #7a7f8c;
+      --a-line: rgb(232 232 240 / 0.1);
+      --a-chip: #24242f;
+      --acc: #1f8a5f;
+    }
+
+    :global(:root:not([data-theme='light'])) .m-tok {
+      --a-bg: #0c0c0d;
+      --a-card: #161618;
+      --a-fg: #fafafa;
+      --a-muted: #a1a1aa;
+      --a-line: #2c2c30;
+      --a-chip: #1f1f22;
+      --acc: #fb923c;
+      --ok: #4ade80;
+    }
+  }
+
+  /* Warbly 1 · listening */
+  .w-h {
+    margin-top: 10px;
+  }
+
+  .w-mic {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    margin: 48px auto 28px;
+  }
+
+  .w-mic > span {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: var(--acc);
+  }
+
+  .w-mic svg,
+  .w-fab svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
+
+  .w-mic rect,
+  .w-fab rect {
+    fill: #fff;
+    stroke: none;
+  }
+
+  .w-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid var(--acc);
+    opacity: 0;
+  }
+
+  .scr.on .w-ring {
+    animation: listen 1.6s var(--ease) infinite;
+  }
+
+  .scr.on .w-r2 {
+    animation-delay: 0.8s;
+  }
+
+  /* Warbly 2 · the intent */
+  .w-fields {
+    display: grid;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .w-field {
+    display: grid;
+    gap: 3px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.35s var(--ease),
+      transform 0.5s var(--spring);
+  }
+
+  .w-field.on {
+    opacity: 1;
+    transform: none;
+  }
+
+  .w-field small {
+    color: var(--a-muted);
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .w-field b {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .w-intent {
+    margin-top: auto;
+    padding-bottom: 6px;
+    text-align: center;
+    color: var(--acc);
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease);
+  }
+
+  .w-intent.on {
+    opacity: 1;
+  }
+
+  /* Warbly 3 · on the list */
+  .w-title {
+    margin: 6px 0 14px;
+    font-size: 25px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .w-list {
+    display: grid;
+    gap: 7px;
+    margin-top: 8px;
+  }
+
+  .w-task {
+    display: grid;
+    grid-template-columns: 16px 1fr;
+    gap: 10px;
+    align-items: start;
+    padding: 11px 12px;
+    border-radius: 16px;
+    background: var(--a-card);
+    font-size: 12.5px;
+  }
+
+  .w-task small {
+    display: block;
+    margin-top: 2px;
+    color: var(--a-muted);
+    font-size: 10px;
+  }
+
+  .w-task .w-when {
+    color: var(--acc);
+  }
+
+  .w-check {
+    width: 15px;
+    height: 15px;
+    margin-top: 1px;
+    border: 1.5px solid var(--a-muted);
+    border-radius: 5px;
+  }
+
+  .w-subtask {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 9px;
+    padding-top: 8px;
+    border-top: 1px solid var(--a-line);
+    color: var(--a-muted);
+    font-size: 11.5px;
+  }
+
+  .w-subtask .w-check {
+    width: 12px;
+    height: 12px;
+    margin: 0;
+    border-radius: 4px;
+  }
+
+  .w-new {
+    opacity: 0;
+    transform: translateY(-10px);
+    box-shadow: inset 0 0 0 1.5px transparent;
+    transition:
+      opacity 0.4s var(--ease),
+      transform 0.55s var(--spring),
+      box-shadow 1.2s var(--ease);
+  }
+
+  .w-new.on {
+    opacity: 1;
+    transform: none;
+    box-shadow: inset 0 0 0 1.5px var(--acc);
+  }
+
+  .w-toast {
+    position: absolute;
+    left: 16px;
+    right: 74px;
+    bottom: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 42px;
+    padding-inline: 14px;
+    border-radius: 14px;
+    background: #15151a;
+    color: #f2f2f0;
+    font-size: 11.5px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.35s var(--ease),
+      transform 0.45s var(--spring);
+  }
+
+  .w-toast b {
+    color: #3db87a;
+    font-weight: 600;
+  }
+
+  .w-toast.on {
+    opacity: 1;
+    transform: none;
+  }
+
+  .w-fab {
+    position: absolute;
+    right: 16px;
+    bottom: 18px;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--acc);
+  }
+
+  .w-fab svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Meetnal 1 · recording */
+  .m-date {
+    color: var(--a-muted);
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+  }
+
+  .m-title {
+    margin: 2px 0 14px;
+    font-size: 25px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .m-clock {
+    display: grid;
+    margin-top: 40px;
+    text-align: center;
+    font-size: 44px;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+  }
+
+  .m-clock span {
+    grid-area: 1 / 1;
+    opacity: 0;
+  }
+
+  .m-clock span.on {
+    opacity: 1;
+  }
+
+  /* Resting (no timeline yet): show the last second. */
+  .m-clock span:last-child {
+    opacity: 1;
+  }
+
+  .m-clock:has(span.on) span:not(.on) {
+    opacity: 0;
+  }
+
+  .m-wave {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 48px;
+    margin: 22px 0 46px;
+  }
+
+  .m-wave i {
+    width: 3px;
+    height: var(--h);
+    border-radius: 2px;
+    background: var(--acc);
+    opacity: 0.85;
+  }
+
+  .scr.on .m-wave i {
+    animation: m-level 0.9s ease-in-out var(--d) infinite alternate;
+  }
+
+  @keyframes m-level {
+    to {
+      transform: scaleY(0.35);
+    }
+  }
+
+  .m-rec {
+    display: grid;
+    place-items: center;
+    width: 78px;
+    height: 78px;
+    margin-inline: auto;
+    border-radius: 50%;
+    background: var(--acc);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--acc) 16%, transparent);
+  }
+
+  .m-rec i {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: #fff;
+  }
+
+  .m-hint {
+    margin-top: 16px;
+    text-align: center;
+  }
+
+  /* Meetnal 2 · sent, analysed */
+  .m-card {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 8px 10px;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 12px;
+    border-radius: 16px;
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+  }
+
+  .m-play {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--a-fg);
+    clip-path: circle(50%);
+    position: relative;
+  }
+
+  .m-play::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 9px;
+    border-left: 9px solid var(--a-card);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+  }
+
+  .m-name b {
+    display: block;
+    font-size: 12.5px;
+  }
+
+  .m-name small {
+    color: var(--a-muted);
+    font-size: 10px;
+  }
+
+  .m-status {
+    grid-column: 1 / -1;
+    display: grid;
+  }
+
+  .m-st {
+    grid-area: 1 / 1;
+    justify-self: start;
+    padding: 3px 9px;
+    border-radius: 99px;
+    background: var(--a-chip);
+    color: var(--a-muted);
+    font-style: normal;
+    font-size: 10px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s var(--ease);
+  }
+
+  .m-st.on {
+    opacity: 1;
+  }
+
+  .m-st.m-done {
+    background: color-mix(in srgb, var(--ok) 14%, transparent);
+    color: var(--ok);
+  }
+
+  .m-bar {
+    grid-column: 1 / -1;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--a-chip);
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .m-bar.on {
+    opacity: 1;
+  }
+
+  .m-bar i {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--acc);
+  }
+
+  .m-bar.on i {
+    width: 100%;
+    transition: width 1s var(--ease);
+  }
+
+  .m-btn {
+    grid-column: 1 / -1;
+    display: grid;
+  }
+
+  /* "Send" while the recording is on the device, nothing while it travels, then "View report". */
+  .m-btn span {
+    grid-area: 1 / 1;
+    display: grid;
+    place-items: center;
+    height: 34px;
+    border-radius: 99px;
+    background: var(--a-fg);
+    color: var(--a-bg);
+    font-size: 11.5px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s var(--ease);
+  }
+
+  .m-btn span.on {
+    opacity: 1;
+  }
+
+  .m-old {
+    opacity: 0.6;
+  }
+
+  /* Meetnal 3 · the report */
+  .m-rname {
+    margin-top: 12px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .m-rmeta {
+    color: var(--a-muted);
+    font-size: 10px;
+  }
+
+  .m-sec {
+    display: grid;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 16px;
+    background: var(--a-card);
+  }
+
+  .m-overall,
+  .m-score {
+    display: grid;
+    justify-items: center;
+    gap: 1px;
+    padding: 8px 4px;
+    border-radius: 12px;
+    background: var(--a-chip);
+    color: var(--a-muted);
+    font-size: 9.5px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.94);
+    transition:
+      opacity 0.35s var(--ease),
+      transform 0.5s var(--spring);
+  }
+
+  .m-overall.on,
+  .m-score.on {
+    opacity: 1;
+    transform: none;
+  }
+
+  .m-overall b,
+  .m-score b {
+    color: var(--ok);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .m-overall b {
+    font-size: 30px;
+  }
+
+  .m-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .m-lines {
+    opacity: 0;
+    transition: opacity 0.4s var(--ease);
+  }
+
+  .m-lines.on {
+    opacity: 1;
+  }
+
+  .m-lines p {
+    margin-bottom: 4px;
+    font-size: 11.5px;
+  }
+
+  .m-lines small {
+    display: block;
+    color: var(--a-muted);
+    font-size: 10px;
+  }
+
+  .m-tabs {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+    height: 40px;
+    border-radius: 99px;
+    background: var(--a-card);
+    border: 1px solid var(--a-line);
+  }
+
+  .m-tabs i {
+    justify-self: center;
+    padding: 4px 10px;
+    border-radius: 99px;
+    color: var(--a-muted);
+    font-style: normal;
+    font-size: 9.5px;
+    transition:
+      color 0.3s,
+      background-color 0.3s;
+  }
+
+  .m-tabs i.on {
+    background: var(--a-chip);
+    color: var(--a-fg);
+    font-weight: 600;
+  }
+
+  .meetnal .scr {
+    padding-bottom: 60px;
   }
 </style>

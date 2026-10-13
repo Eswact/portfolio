@@ -4,6 +4,8 @@
 //  phone  (Fibi)            the phone separates into its layers; labels sit level with each plate
 //  api    (Barcode API)     eight marketplaces are queried at once and merge into the cheapest price
 //  screen (Digital Signage) the panel sends an update and the screens on the wall follow
+//  voice  (Warbly)          Karar 14 C: tap the widget, speak, the task lands at the top of the list
+//  meeting (Meetnal)        a recording turns into a report with scores
 import type { FeaturedProject } from '../data/projects';
 import { localePath, useTranslations, type Lang } from '../i18n/ui';
 
@@ -30,6 +32,50 @@ const markets = [
   { name: 'Market Karşılaştır', found: true, best: true },
 ];
 const rowY = (i: number) => 22 + i * 25;
+
+// Warbly diagram (Karar 14 C): the example sentence from its store page, in three short lines so it stays inside the phone.
+const voice = tr
+  ? {
+      said: [['“Bu', 'akşam', '9’da'], ['anneanneme', 'gideceğim,'], ['önce', 'çiçek', 'alacağım”']],
+      state: 'dinliyor',
+      title: 'Görevler',
+      today: 'BUGÜN',
+      task: 'Anneanneme ziyaret et',
+      when: 'Bugün · 21:00',
+      sub: 'Çiçek al',
+      others: [['Faturayı öde', 'Bugün · 18:00'], ['Spora git', 'Bugün · 19:30']],
+      toast: 'Görev eklendi',
+      undo: 'Geri al',
+      steps: [
+        ['Widget’a dokun', ['Ana ekrandan tek dokunuş']],
+        ['Konuş', ['“Bu akşam 9’da anneanneme', 'gideceğim, önce çiçek alacağım”']],
+        ['Listede', ['Bugün 21:00 · alt görev:', 'Çiçek al']],
+      ],
+    }
+  : {
+      said: [['“Tonight', 'at', '9', 'I’m'], ['visiting', 'grandma,'], ['buying', 'flowers', 'first”']],
+      state: 'listening',
+      title: 'Tasks',
+      today: 'TODAY',
+      task: 'Visit grandma',
+      when: 'Today · 21:00',
+      sub: 'Buy flowers',
+      others: [['Pay the bill', 'Today · 18:00'], ['Go to the gym', 'Today · 19:30']],
+      toast: 'Task added',
+      undo: 'Undo',
+      steps: [
+        ['Tap the widget', ['One tap from the home screen']],
+        ['Speak', ['“Tonight at 9 I’m visiting', 'grandma, buying flowers first”']],
+        ['On the list', ['Today 21:00 · subtask:', 'Buy flowers']],
+      ],
+    };
+const appGrid = [38, 68, 98].flatMap((y) => [52, 75, 98, 121].map((x) => ({ x, y })));
+
+// Meetnal diagram: a recording, then the report's scores.
+const meeting = tr
+  ? { title: 'Haftalık toplantı', overall: 'Genel', upload: 'analize gönder', kinds: ['Netlik', 'Verimlilik', 'İletişim', 'Sonuç'] }
+  : { title: 'Weekly meeting', overall: 'Overall', upload: 'send for analysis', kinds: ['Clarity', 'Efficiency', 'Communication', 'Outcome'] };
+const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
 ---
 
 <article class="card" data-object={card.object}>
@@ -155,6 +201,171 @@ const rowY = (i: number) => 22 + i * 25;
             <rect class="ln-tv soft" x="285" y="147" width="46" height="3" rx="1" />
             <rect class="ln-tv soft" x="285" y="154" width="40" height="3" rx="1" />
             <rect class="band" x="279" y="163" width="64" height="8" />
+          </g>
+        </svg>
+      )
+    }
+
+    {
+      card.object === 'voice' && (
+        <svg class="diagram voice" viewBox="0 0 360 224">
+          <rect class="body-p" x="40" y="12" width="112" height="200" rx="16" />
+          <line class="ear" x1="86" y1="21" x2="106" y2="21" />
+
+          <g class="wb-s1">
+            {appGrid.map(({ x, y }) =>
+              x === 75 && y === 98 ? (
+                <>
+                  <rect class="mic" x={x} y={y} width="16" height="16" rx="4" />
+                  <rect class="mic-g" x="81.4" y="101.5" width="3.2" height="6" rx="1.6" />
+                  <path class="mic-s thin" d="M79.6 106a3.4 3.4 0 0 0 6.8 0M83 109.6v1.6" />
+                </>
+              ) : (
+                <rect class="app-i" x={x} y={y} width="16" height="16" rx="4" />
+              ),
+            )}
+            <text class="r-k tiny" x="83" y="122" text-anchor="middle">
+              Warbly
+            </text>
+            <circle class="wb-ripple" cx="83" cy="106" r="14" />
+            {[52, 75, 98, 121].map((x) => (
+              <rect class="app-i" x={x} y="180" width="16" height="16" rx="4" />
+            ))}
+          </g>
+
+          <g class="wb-s2">
+            <circle class="ring" cx="96" cy="80" r="17" />
+            <circle class="ring r2" cx="96" cy="80" r="17" />
+            <circle class="mic" cx="96" cy="80" r="17" />
+            <rect class="mic-g" x="92.2" y="70.5" width="7.6" height="12.5" rx="3.8" />
+            <path class="mic-s" d="M87.8 79.5a8.2 8.2 0 0 0 16.4 0M96 87.7v3.8" />
+            <text class="r-k small" x="96" y="116" text-anchor="middle">
+              {voice.state}
+            </text>
+            {voice.said.map((line, li) => (
+              <text class="sans said" x="96" y={138 + li * 11} text-anchor="middle">
+                {line.map((w, wi) => (
+                  <tspan class="wb-w" style={`--d:${(voice.said.slice(0, li).flat().length + wi) * 110}ms`}>
+                    {w}{' '}
+                  </tspan>
+                ))}
+              </text>
+            ))}
+          </g>
+
+          <g class="wb-s3">
+            <text class="sans list-h" x="52" y="44">
+              {voice.title}
+            </text>
+            <text class="r-k tiny" x="52" y="58">
+              {voice.today}
+            </text>
+            <g class="wb-new">
+              <rect class="row hot" x="50" y="64" width="92" height="40" rx="5" />
+              <rect class="box" x="55" y="70" width="6" height="6" rx="1.5" />
+              <text class="sans row-t" x="65" y="75.5">
+                {voice.task}
+              </text>
+              <text class="tiny when" x="65" y="84">
+                {voice.when}
+              </text>
+              <line class="div" x1="65" y1="89" x2="137" y2="89" />
+              <rect class="box" x="65" y="93" width="5" height="5" rx="1.2" />
+              <text class="r-k tiny" x="74" y="97.6">
+                {voice.sub}
+              </text>
+            </g>
+            <g class="wb-others">
+              {voice.others.map(([title, when], i) => (
+                <>
+                  <rect class="row" x="50" y={64 + i * 30} width="92" height="26" rx="5" />
+                  <rect class="box" x="55" y={70 + i * 30} width="6" height="6" rx="1.5" />
+                  <text class="sans row-t" x="65" y={75.5 + i * 30}>
+                    {title}
+                  </text>
+                  <text class="r-k tiny" x="65" y={84 + i * 30}>
+                    {when}
+                  </text>
+                </>
+              ))}
+            </g>
+            <g class="wb-toast">
+              <rect x="50" y="184" width="92" height="17" rx="5" />
+              <text x="56" y="194.6">
+                {voice.toast}
+              </text>
+              <text class="undo" x="136" y="194.6" text-anchor="end">
+                {voice.undo}
+              </text>
+            </g>
+          </g>
+
+          {voice.steps.map(([title, lines], i) => (
+            <g class:list={['wb-step', `wb-step${i + 1}`]}>
+              <text x="176" y={56 + i * 50}>
+                {String(i + 1).padStart(2, '0')}
+              </text>
+              <text class="sans step-t" x="196" y={56 + i * 50}>
+                {title}
+              </text>
+              {(lines as string[]).map((line, li) => (
+                <text class="r-k" x="196" y={69 + i * 50 + li * 11}>
+                  {line}
+                </text>
+              ))}
+            </g>
+          ))}
+        </svg>
+      )
+    }
+
+    {
+      card.object === 'meeting' && (
+        <svg class="diagram meeting" viewBox="14 0 360 224">
+          <g class="handset">
+            <rect class="body-p" x="40" y="30" width="84" height="164" rx="14" />
+            <line class="ear" x1="72" y1="39" x2="92" y2="39" />
+            <circle class="dot-rec" cx="56" cy="58" r="3" />
+            <text class="r-k" x="63" y="61">
+              REC
+            </text>
+            <text class="clock" x="82" y="90" text-anchor="middle">
+              47:12
+            </text>
+            {bars.map((h, i) => (
+              <rect class="lvl" x={52 + i * 5} y={118 - h / 2} width="2.5" height={h} rx="1.25" style={`--d:${(i % 5) * 90}ms`} />
+            ))}
+            <circle class="rec-btn" cx="82" cy="160" r="13" />
+            <rect class="rec-stop" x="78" y="156" width="8" height="8" rx="2" />
+          </g>
+          <path class="wire" d="M124 112 L 206 112" pathLength="100" />
+          <path class="pk" d="M124 112 L 206 112" pathLength="100" />
+          <text class="r-k up" x="165" y="104" text-anchor="middle">
+            {meeting.upload}
+          </text>
+          <g class="report">
+            <rect class="sheet" x="206" y="38" width="142" height="148" rx="8" />
+            <text x="216" y="56">
+              {meeting.title}
+            </text>
+            <line class="div" x1="216" y1="64" x2="338" y2="64" />
+            <g class="fresh">
+              <text class="big-n" x="216" y="92">
+                8
+              </text>
+              <text class="r-k" x="234" y="91">
+                {meeting.overall}
+              </text>
+            </g>
+            {meeting.kinds.map((k, i) => (
+              <>
+                <text class="r-k" x="216" y={114 + i * 18}>
+                  {k}
+                </text>
+                <rect class="track" x="290" y={109 + i * 18} width="48" height="4" rx="2" />
+                <rect class="fill" x="290" y={109 + i * 18} width={i < 2 ? 38 : 34} height="4" rx="2" style={`--d:${700 + i * 120}ms`} />
+              </>
+            ))}
           </g>
         </svg>
       )
@@ -570,6 +781,459 @@ const rowY = (i: number) => 22 + i * 25;
     62%,
     100% {
       opacity: 0;
+    }
+  }
+
+  /* The phone that hears it (Warbly, Meetnal) */
+  .body-p {
+    fill: var(--card);
+    stroke: var(--fg);
+    stroke-width: 1.5;
+  }
+
+  .ear {
+    stroke: var(--fg);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .ph-ln {
+    fill: var(--fg);
+    opacity: 0.8;
+  }
+
+  .ph-ln.soft {
+    opacity: 0.25;
+  }
+
+  .mic-g {
+    fill: #fff;
+  }
+
+  .mic-s {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  .ring {
+    fill: none;
+    stroke: var(--product-warbly);
+    stroke-width: 1.2;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .card:hover .ring,
+  .card:has(:focus-visible) .ring {
+    animation: ring-out 1.4s var(--ease) 2;
+  }
+
+  .card:hover .r2,
+  .card:has(:focus-visible) .r2 {
+    animation-delay: 0.7s;
+  }
+
+  @keyframes ring-out {
+    0% {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+    100% {
+      transform: scale(1.8);
+      opacity: 0;
+    }
+  }
+
+  .diagram .clock {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  .rec-btn {
+    fill: var(--product-meetnal);
+  }
+
+  .rec-stop {
+    fill: #fff;
+  }
+
+  .diagram .up {
+    fill: var(--muted);
+  }
+
+  /* voice (Warbly, Karar 14 C). At rest: the task is on the list. On hover: home screen → listening → list. */
+  .bubble rect,
+  .sheet {
+    fill: var(--card);
+    stroke: var(--fg);
+    stroke-width: 1;
+  }
+
+  .mic {
+    fill: var(--product-warbly);
+  }
+
+  .mic-s.thin {
+    stroke-width: 1;
+  }
+
+  .box {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 1;
+  }
+
+  .div {
+    stroke: var(--line);
+  }
+
+  .app-i {
+    fill: var(--line);
+  }
+
+  .diagram .tiny {
+    font-size: 5.5px;
+  }
+
+  .diagram .small {
+    font-size: 6.5px;
+  }
+
+  .diagram .sans {
+    font-family: var(--font-sans);
+  }
+
+  .diagram .said {
+    font-size: 7px;
+    font-weight: 500;
+  }
+
+  .diagram .list-h {
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .diagram .row-t {
+    font-size: 6.5px;
+    font-weight: 600;
+  }
+
+  .diagram .when {
+    fill: var(--product-warbly);
+  }
+
+  .diagram .step-t {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .row {
+    fill: var(--surface);
+  }
+
+  .row.hot {
+    stroke: var(--product-warbly);
+    stroke-width: 1;
+  }
+
+  .wb-s1,
+  .wb-s2,
+  .wb-toast,
+  .wb-ripple {
+    opacity: 0;
+  }
+
+  .wb-others {
+    transform: translateY(44px);
+  }
+
+  .wb-ripple {
+    fill: var(--fg);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .wb-toast rect {
+    fill: var(--fg);
+  }
+
+  .diagram .wb-toast text {
+    fill: var(--card);
+    font-size: 6px;
+  }
+
+  .diagram .wb-toast .undo {
+    fill: #3db87a;
+  }
+
+  .wb-step1,
+  .wb-step2 {
+    opacity: 0.38;
+  }
+
+  .card:hover .wb-s1,
+  .card:has(:focus-visible) .wb-s1 {
+    animation: wb-s1 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-s2,
+  .card:has(:focus-visible) .wb-s2 {
+    animation: wb-s2 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-s2 .ring,
+  .card:has(:focus-visible) .wb-s2 .ring {
+    animation: ring-out 1.3s var(--ease) 1.6s 2;
+  }
+
+  .card:hover .wb-s2 .r2,
+  .card:has(:focus-visible) .wb-s2 .r2 {
+    animation-delay: 2.25s;
+  }
+
+  .card:hover .wb-w,
+  .card:has(:focus-visible) .wb-w {
+    animation: wb-word 6.4s linear var(--d) both;
+  }
+
+  .card:hover .wb-s3,
+  .card:has(:focus-visible) .wb-s3 {
+    animation: wb-s3 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-new,
+  .card:has(:focus-visible) .wb-new {
+    animation: wb-new 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-others,
+  .card:has(:focus-visible) .wb-others {
+    animation: wb-others 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-toast,
+  .card:has(:focus-visible) .wb-toast {
+    animation: wb-toast 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-ripple,
+  .card:has(:focus-visible) .wb-ripple {
+    animation: wb-ripple 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-step1,
+  .card:has(:focus-visible) .wb-step1 {
+    animation: wb-step1 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-step2,
+  .card:has(:focus-visible) .wb-step2 {
+    animation: wb-step2 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-step3,
+  .card:has(:focus-visible) .wb-step3 {
+    animation: wb-step3 6.4s var(--ease) both;
+  }
+
+  @keyframes wb-s1 {
+    0%,
+    22% {
+      opacity: 1;
+    }
+    25%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes wb-s2 {
+    0%,
+    23% {
+      opacity: 0;
+    }
+    26%,
+    54% {
+      opacity: 1;
+    }
+    57%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes wb-s3 {
+    0%,
+    56% {
+      opacity: 0;
+    }
+    59%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes wb-word {
+    0%,
+    29% {
+      fill-opacity: 0.14;
+    }
+    32%,
+    100% {
+      fill-opacity: 1;
+    }
+  }
+
+  @keyframes wb-new {
+    0%,
+    61% {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    67%,
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes wb-others {
+    0%,
+    61% {
+      transform: none;
+    }
+    67%,
+    100% {
+      transform: translateY(44px);
+    }
+  }
+
+  @keyframes wb-toast {
+    0%,
+    66% {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    70%,
+    90% {
+      opacity: 1;
+      transform: none;
+    }
+    94%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes wb-ripple {
+    0%,
+    10% {
+      opacity: 0;
+      transform: scale(0.2);
+    }
+    11% {
+      opacity: 0.35;
+      transform: scale(0.2);
+    }
+    19%,
+    100% {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+  }
+
+  @keyframes wb-step1 {
+    0%,
+    22% {
+      opacity: 1;
+    }
+    25%,
+    100% {
+      opacity: 0.38;
+    }
+  }
+
+  @keyframes wb-step2 {
+    0%,
+    22% {
+      opacity: 0.38;
+    }
+    25%,
+    54% {
+      opacity: 1;
+    }
+    57%,
+    100% {
+      opacity: 0.38;
+    }
+  }
+
+  @keyframes wb-step3 {
+    0%,
+    54% {
+      opacity: 0.38;
+    }
+    57%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* meeting (Meetnal) */
+  .dot-rec {
+    fill: var(--product-meetnal);
+  }
+
+  .lvl {
+    fill: var(--fg);
+  }
+
+  .lvl {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .card:hover .lvl,
+  .card:has(:focus-visible) .lvl {
+    animation: level 0.45s ease-in-out var(--d) 4 alternate;
+  }
+
+  @keyframes level {
+    to {
+      transform: scaleY(0.4);
+    }
+  }
+
+  .diagram .big-n {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  .track {
+    fill: var(--surface);
+    stroke: var(--line);
+    stroke-width: 0.5;
+  }
+
+  .fill {
+    fill: var(--fg);
+    transform-box: fill-box;
+    transform-origin: left;
+  }
+
+  .card:hover .fill,
+  .card:has(:focus-visible) .fill {
+    animation: grow 0.9s var(--ease) var(--d) both;
+  }
+
+  @keyframes grow {
+    from {
+      transform: scaleX(0);
     }
   }
 

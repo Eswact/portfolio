@@ -9,9 +9,10 @@ import { useTranslations, type Lang } from '../i18n/ui';
 interface Props {
   surfaces: GallerySurface[];
   lang: Lang;
+  note?: string;
 }
 
-const { surfaces, lang } = Astro.props;
+const { surfaces, lang, note } = Astro.props;
 const t = useTranslations(lang);
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -109,7 +110,7 @@ const widths = {
     ))
   }
 
-  <p class="note mono muted">{t('work.real')}</p>
+  <p class="note mono muted">{note ?? t('work.real')}</p>
 
   <dialog class="lightbox" data-lightbox aria-label={t('work.screens')}>
     <div class="big" data-big></div>

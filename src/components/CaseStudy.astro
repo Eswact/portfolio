@@ -54,6 +54,7 @@ const next = featured[(index + 1) % featured.length];
     <div>
       <dt class="mono muted">{t('work.links')}</dt>
       <dd class="links">
+        {p.store && <a class="link arrow" href={p.store.href}>{p.store.name}</a>}
         {p.live && <a class="link arrow" href={p.live}>{t('work.live')}</a>}
         {p.release && <a class="link arrow" href={p.release}>{t('work.app')}</a>}
         {p.source?.map((href) => <a class="link arrow" href={href}>{t('work.source')}</a>)}
@@ -70,12 +71,16 @@ const next = featured[(index + 1) % featured.length];
     </Architecture>
   </section>
 
-  <section class="container block" aria-labelledby="screens">
-    <div class="rule">
-      <h2 id="screens">{t('work.screens')}</h2>
-    </div>
-    <Gallery surfaces={c.gallery} lang={lang} />
-  </section>
+  {
+    c.gallery.length > 0 && (
+      <section class="container block" aria-labelledby="screens">
+        <div class="rule">
+          <h2 id="screens">{t('work.screens')}</h2>
+        </div>
+        <Gallery surfaces={c.gallery} lang={lang} note={c.galleryNote?.[lang]} />
+      </section>
+    )
+  }
 
   <section class="container block" aria-labelledby="how">
     <div class="rule">

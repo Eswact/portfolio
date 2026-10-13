@@ -18,6 +18,8 @@
   --line: #d6d6d2;
   --accent: var(--fg);
   --product-fibi: #c8f03c;
+  --product-warbly: #1f8a5f;
+  --product-meetnal: #ea580c;
   /* Lights: how far unlit cards dim, and how bright the spotlight is. */
   --dim: 1;
   --spot: 0;

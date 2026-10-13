@@ -6,12 +6,14 @@ export interface Case {
   claim: L10n;
   role: L10n;
   /** Which live demo the stage plays. */
-  demo: 'fibi' | 'barcode' | 'signage';
+  demo: 'fibi' | 'barcode' | 'signage' | 'warbly' | 'meetnal';
   /** Layers of the architecture drawing, top to bottom. */
   layers: { title: L10n; detail: L10n }[];
   sections: { title: L10n; body: L10n }[];
-  /** Real screenshots grouped by surface; `key` resolves through src/data/shots.ts. */
+  /** Real screenshots grouped by surface; `key` resolves through src/data/shots.ts. Empty hides the section. */
   gallery: GallerySurface[];
+  /** Replaces the default line under the gallery when the captures don't follow language and theme. */
+  galleryNote?: L10n;
 }
 
 export interface GallerySurface {
@@ -463,6 +465,319 @@ export const cases: Record<string, Case> = {
         body: {
           tr: 'Organizasyonlar, sahip/editör/izleyici rolleri, e-posta davetleri, iki adımlı doğrulama, ekran bazlı API anahtarlarıyla POS ve sıramatik entegrasyonu. Kurulum Docker Compose ve Caddy ile tek komut, HTTPS otomatik.',
           en: 'Organizations, owner/editor/viewer roles, email invitations, two-factor authentication, POS and queue-machine integration with screen-scoped API keys. Deployment is one command with Docker Compose and Caddy, with automatic HTTPS.',
+        },
+      },
+    ],
+  },
+
+  warbly: {
+    claim: {
+      tr: 'Ne yapacağını söyle; görev tarihi ve saatiyle yazılsın.',
+      en: 'Say what you need to do; the task is written down with its date and time.',
+    },
+    role: { tr: 'Ürün, mobil uygulama, sunucu', en: 'Product, mobile app, server' },
+    demo: 'warbly',
+    layers: [
+      {
+        title: { tr: 'Arayüz', en: 'Interface' },
+        detail: {
+          tr: 'React Native + Expo. Mikrofon, yazı kutusu ve Android ana ekran widget’ı aynı akışa girer.',
+          en: 'React Native + Expo. The microphone, the text box and the Android home screen widget all feed the same flow.',
+        },
+      },
+      {
+        title: { tr: 'Sesten metne', en: 'Speech to text' },
+        detail: {
+          tr: 'Kayıt sunucuda Whisper ile yazıya dökülür. Sessiz bir kayıtta Whisper’ın uydurduğu metin göreve dönüşmeden elenir.',
+          en: 'The recording is transcribed on the server with Whisper. Text Whisper makes up from a silent recording is dropped before it can become a task.',
+        },
+      },
+      {
+        title: { tr: 'Niyet', en: 'Intent' },
+        detail: {
+          tr: 'LLM sadece kalıbı belli bir niyet üretir: ekle, tamamla, güncelle, alt görev. Gemini önce, Groq yedekte.',
+          en: 'The LLM only produces an intent of a fixed shape: add, complete, update, subtask. Gemini first, Groq as backup.',
+        },
+      },
+      {
+        title: { tr: 'Görev listesi', en: 'Task list' },
+        detail: {
+          tr: 'Listeyi saf bir reducer günceller; “yarın”, “Cuma akşamı” gibi tarihler kodla çözülür. Veri SQLite’ta, her kullanıcıya ayrı.',
+          en: 'A pure reducer updates the list; dates like “tomorrow” or “Friday evening” are resolved in code. Data lives in SQLite, separate for each user.',
+        },
+      },
+    ],
+    gallery: [
+      {
+        id: 'app',
+        label: { tr: 'Uygulama', en: 'App' },
+        device: 'phone',
+        shots: [
+          {
+            key: 'warbly/app/listening',
+            caption: { tr: 'Konuşurken', en: 'While you speak' },
+            note: {
+              tr: 'Söylenen cümle yazıya dökülürken görev listesi arkada bekliyor.',
+              en: 'The sentence is transcribed while the task list waits behind it.',
+            },
+            alt: {
+              tr: 'Warbly dinleme ekranı: “Bu akşam saat 9’da anneannemi ziyarete gideceğim. Ziyarete gitmeden önce ona çiçek alacağım.” cümlesi anlaşılıyor.',
+              en: 'Warbly listening: the Turkish sentence “Tonight at 9 I’ll visit my grandmother. Before I go I’ll buy her flowers.” is being understood.',
+            },
+          },
+          {
+            key: 'warbly/app/tasks',
+            caption: { tr: 'Görevler', en: 'Tasks' },
+            note: {
+              tr: 'Yeni görev saatiyle listede; az önce eklenen tek dokunuşla geri alınabiliyor.',
+              en: 'The new task is on the list with its time; what was just added can be undone with one tap.',
+            },
+            alt: {
+              tr: 'Görevler listesi: Pazara git (0/5 alt görev), her iki günde bir Spora git ve yeni eklenen Anneanneme ziyaret (13 Eki 2026 21:00); altta “1 görev, 1 alt görev eklendi” bildirimi ve Geri Al düğmesi.',
+              en: 'The task list: Go to the market (0/5 subtasks), Go to the gym every two days and the newly added Visit grandmother (13 Oct 2026 21:00); below, a “1 task, 1 subtask added” notice with an Undo button.',
+            },
+          },
+          {
+            key: 'warbly/app/calendar',
+            caption: { tr: 'Takvim', en: 'Calendar' },
+            note: {
+              tr: 'Haftalık şerit ve seçilen günün görevleri.',
+              en: 'A week strip and the chosen day’s tasks.',
+            },
+            alt: {
+              tr: 'Takvim: haftalık şerit, bugün (13 Ekim) seçili, Anneanneme ziyaret görevi 21:00’de.',
+              en: 'Calendar: a week strip with today (13 October) selected and the Visit grandmother task at 21:00.',
+            },
+          },
+          {
+            key: 'warbly/app/agenda',
+            caption: { tr: 'Ajanda', en: 'Agenda' },
+            note: {
+              tr: 'Yaklaşan görevler güne göre sıralanıyor.',
+              en: 'Upcoming tasks, grouped by day.',
+            },
+            alt: {
+              tr: 'Ajanda: Bugün altında Anneanneme ziyaret, Yarın altında Pazara git ve Spora git.',
+              en: 'Agenda: Visit grandmother under Today, Go to the market and Go to the gym under Tomorrow.',
+            },
+          },
+          {
+            key: 'warbly/app/history',
+            caption: { tr: 'Geçmiş', en: 'History' },
+            note: {
+              tr: 'Sesle ya da yazıyla yapılan her değişiklik burada ve her biri geri alınabiliyor.',
+              en: 'Every change made by voice or text is listed here, and each one can be undone.',
+            },
+            alt: {
+              tr: 'Geçmiş: eklenen üç görev ve alt görevleri, her birinin yanında Geri Al düğmesi.',
+              en: 'History: three added tasks and their subtasks, each with an Undo button.',
+            },
+          },
+          {
+            key: 'warbly/app/settings',
+            caption: { tr: 'Ayarlar', en: 'Settings' },
+            note: {
+              tr: 'Hesap, koyu mod ve altı vurgu rengi; etiketler, çöp kutusu ve geçmiş de buradan açılıyor.',
+              en: 'Account, dark mode and six accent colours; tags, the trash and history open from here too.',
+            },
+            alt: {
+              tr: 'Ayarlar: demo hesap, Çıkış yap, Hesabı Sil, Koyu Mod anahtarı, altı vurgu rengi, Etiketler, Çöp Kutusu ve Geçmiş.',
+              en: 'Settings: a demo account, Sign out, Delete account, the Dark mode switch, six accent colours, Tags, Trash and History.',
+            },
+          },
+        ],
+      },
+    ],
+    galleryNote: {
+      tr: 'Demo hesapla gerçek ekran görüntüleri, Türkçe; açık temada lacivert, koyu temada varsayılan yeşil vurgu',
+      en: 'Real screenshots with a demo account, in Turkish; navy accent in the light theme, the default green in the dark',
+    },
+    sections: [
+      {
+        title: { tr: 'Bir cümlede birden fazla şey', en: 'More than one thing in a sentence' },
+        body: {
+          tr: '“Bu akşam saat 9’da anneanneme ziyarete gideceğim, gitmeden önce çiçek alacağım” dediğinde Warbly bugün 21.00 için “Anneanneme ziyaret et” görevini açıyor ve “Çiçek al”ı altına ekliyor. Aynı yoldan görev tamamlanıyor, erteleniyor, tekrar eden göreve çevriliyor ya da siliniyor.',
+          en: 'Say “tonight at 9 I’m visiting my grandmother, I’ll buy flowers before I go” and Warbly opens “Visit grandmother” for 21:00 today with “Buy flowers” under it. The same way you can complete a task, postpone it, make it repeat or delete it.',
+        },
+      },
+      {
+        title: { tr: 'LLM listeye dokunmuyor', en: 'The LLM never touches the list' },
+        body: {
+          tr: 'Modelden gelen cevap sadece bir niyet; listeyi değiştiren kısım test edilebilir, sade bir fonksiyon. Tarihleri de model hesaplamıyor, kod çözüyor. Hiçbir sağlayıcı cevap vermezse uygulama görev uydurmak yerine hatayı açıkça söylüyor.',
+          en: 'What comes back from the model is only an intent; the part that changes the list is a plain, testable function. Dates are not calculated by the model either, they are resolved in code. If no provider answers, the app says so instead of making up a task.',
+        },
+      },
+      {
+        title: { tr: 'Emin olmadığında soruyor', en: 'When unsure, it asks' },
+        body: {
+          tr: '“Spor görevini tamamla” birden fazla göreve uyuyorsa Warbly körlemesine birini seçmiyor, seçenekleri gösterip soruyor. Yapılan her işlem geçmişte duruyor ve tek dokunuşla geri alınabiliyor; silinenler çöp kutusunda bekliyor.',
+          en: 'If “complete the gym task” matches more than one task, Warbly doesn’t pick one blindly; it shows the options and asks. Every action is kept in the history and can be undone with one tap; deleted tasks wait in the trash.',
+        },
+      },
+      {
+        title: { tr: 'Mağazaya hazır bir uygulama', en: 'An app ready for the store' },
+        body: {
+          tr: 'Google ve Apple ile giriş, uygulama içinden hesap silme, hatırlatma bildirimleri, açık ve koyu tema, vurgu rengi seçimi ve internet yokken kendi ekranı. Android’de ana ekrana konan widget’a dokununca uygulama doğrudan dinlemeye başlıyor.',
+          en: 'Google and Apple sign-in, account deletion from inside the app, reminder notifications, light and dark themes, a choice of accent colour and its own screen when the connection drops. On Android, tapping the home screen widget opens the app straight into listening.',
+        },
+      },
+    ],
+  },
+
+  meetnal: {
+    claim: {
+      tr: 'Toplantıyı kaydet; özet, kararlar ve puanlar cebine gelsin.',
+      en: 'Record the meeting; the summary, decisions and scores land in your pocket.',
+    },
+    role: { tr: 'Ürün, mobil uygulama', en: 'Product, mobile app' },
+    demo: 'meetnal',
+    layers: [
+      {
+        title: { tr: 'Kayıt', en: 'Recording' },
+        detail: {
+          tr: 'Tek dokunuşla başlar, ekran kapalıyken de sürer. Telefondaki bir ses dosyası da içe aktarılabilir.',
+          en: 'Starts with one tap and keeps going with the screen off. An audio file from the phone can be imported too.',
+        },
+      },
+      {
+        title: { tr: 'Cihazda saklama', en: 'On-device storage' },
+        detail: {
+          tr: 'Kayıt önce telefonda durur: dinlenir, yeniden adlandırılır, hazır olunca gönderilir. Biten raporlar internetsiz de açılır.',
+          en: 'A recording stays on the phone first: play it, rename it, send it when ready. Finished reports open offline too.',
+        },
+      },
+      {
+        title: { tr: 'Eşleştirme ve giriş', en: 'Pairing and sign-in' },
+        detail: {
+          tr: 'QR, kısa kod, Google ya da Apple. Dört yol da aynı şirket anahtarına çıkar ve güvenli depoda saklanır.',
+          en: 'QR, a short code, Google or Apple. All four lead to the same company key, kept in secure storage.',
+        },
+      },
+      {
+        title: { tr: 'Analiz servisi', en: 'Analysis service' },
+        detail: {
+          tr: 'Yüklenen kayıt metne çevrilir, konuşmacılar ayrılır ve rapor çıkar. Uygulama durumu izler, rapor hazır olunca gösterir.',
+          en: 'The uploaded recording is transcribed, speakers are separated and a report is produced. The app follows the status and shows the report when it is ready.',
+        },
+      },
+    ],
+    gallery: [
+      {
+        id: 'app',
+        label: { tr: 'Uygulama', en: 'App' },
+        device: 'phone',
+        shots: [
+          {
+            key: 'meetnal/app/record',
+            caption: { tr: 'Kayıt', en: 'Record' },
+            note: {
+              tr: 'Tek dokunuşla kayıt başlıyor; telefondaki bir ses dosyası da içe aktarılabiliyor.',
+              en: 'Recording starts with one tap; an audio file from the phone can be imported too.',
+            },
+            alt: {
+              tr: 'Kayıt ekranı: 0:00 sayacı, turuncu mikrofon düğmesi ve İçe Aktar.',
+              en: 'The record screen: a 0:00 timer, the orange microphone button and Import.',
+            },
+          },
+          {
+            key: 'meetnal/app/recordings',
+            caption: { tr: 'Kayıtlar', en: 'Recordings' },
+            note: {
+              tr: 'Kayıtlar önce cihazda duruyor; analiz edilenlerin raporu bir dokunuş uzakta.',
+              en: 'Recordings stay on the device first; the report of an analysed one is a tap away.',
+            },
+            alt: {
+              tr: 'Kayıtlar: Sprint planlama cihazda ve Analize Gönder düğmesiyle; Haftalık ürün toplantısı ve Müşteri görüşmesi Analiz Edildi ve Raporu Gör ile.',
+              en: 'Recordings: Sprint planning on the device with Send for Analysis; the weekly product meeting and a client call Analyzed, with View Report.',
+            },
+          },
+          {
+            key: 'meetnal/app/reports',
+            caption: { tr: 'Raporlar', en: 'Reports' },
+            note: {
+              tr: 'Biten raporlar telefonda duruyor ve internetsiz de açılıyor.',
+              en: 'Finished reports stay on the phone and open offline too.',
+            },
+            alt: {
+              tr: 'Raporlar: Haftalık ürün toplantısı ve Müşteri görüşmesi, kısa özetleri ve etiketleriyle.',
+              en: 'Reports: the weekly product meeting and a client call, with short summaries and tags.',
+            },
+          },
+          {
+            key: 'meetnal/app/summary',
+            caption: { tr: 'Özet', en: 'Summary' },
+            note: {
+              tr: 'Toplantının özeti ve zaman damgalı konu bölümleri.',
+              en: 'The meeting summary and time-stamped topic sections.',
+            },
+            alt: {
+              tr: 'Haftalık ürün toplantısı raporu: özet ve 0:00–9:00, 9:00–28:00, 28:00–47:12 aralıklarındaki konu bölümleri.',
+              en: 'The weekly product meeting report: the summary and topic sections at 0:00–9:00, 9:00–28:00 and 28:00–47:12.',
+            },
+          },
+          {
+            key: 'meetnal/app/scores',
+            caption: { tr: 'Skorlar', en: 'Scores' },
+            note: {
+              tr: 'Genel, netlik, verimlilik, iletişim ve sonuç netliği puanları; katılımcılar ve ana konular.',
+              en: 'Overall, clarity, efficiency, communication and outcome clarity scores; participants and main topics.',
+            },
+            alt: {
+              tr: 'Skorlar: Genel 8, Netlik 8, Verimlilik 8, İletişim Kalitesi 7, Sonuç Netliği 7; altında katılımcılar, ana konular ve kararlar.',
+              en: 'Scores: Overall 8, Clarity 8, Efficiency 8, Communication 7, Outcome Clarity 7; participants, main topics and decisions below.',
+            },
+          },
+          {
+            key: 'meetnal/app/actions',
+            caption: { tr: 'Aksiyonlar', en: 'Actions' },
+            note: {
+              tr: 'Aksiyonlar, önemli sorular, sonraki adımlar ve konuşmacı bazında katkı.',
+              en: 'Action items, key questions, next steps and each speaker’s contribution.',
+            },
+            alt: {
+              tr: 'Rapor: aksiyonlar, önemli sorular, sonraki adımlar ve üç konuşmacının katkı düzeyi.',
+              en: 'A report: action items, key questions, next steps and the contribution of three speakers.',
+            },
+          },
+          {
+            key: 'meetnal/app/settings',
+            caption: { tr: 'Ayarlar', en: 'Settings' },
+            note: {
+              tr: 'Altı renk teması, koyu mod ve dil seçimi.',
+              en: 'Six colour themes, dark mode and language.',
+            },
+            alt: {
+              tr: 'Ayarlar: koyu tema anahtarı, altı renk teması (Grafit + turuncu seçili), dil, demo hesap ve şirket.',
+              en: 'Settings: the dark theme switch, six colour themes (Graphite + orange selected), language, a demo account and company.',
+            },
+          },
+        ],
+      },
+    ],
+    galleryNote: {
+      tr: 'Demo hesap ve örnek toplantılarla gerçek ekran görüntüleri, Türkçe; temaya göre değişir',
+      en: 'Real screenshots with a demo account and sample meetings, in Turkish; matched to theme',
+    },
+    sections: [
+      {
+        title: { tr: 'Kaydet, gönder, oku', en: 'Record, send, read' },
+        body: {
+          tr: 'Toplantı başında kayda basıp telefonu masaya bırakmak yetiyor. Kayıt bitince “Analize gönder” deniyor; durum Gönderiliyor, Analiz ediliyor ve Analiz edildi olarak ilerliyor. Rapor özet, konu bölümleri, kararlar, aksiyonlar, önemli sorular ve konuşmacı bazında katkıyla dönüyor.',
+          en: 'Press record when the meeting starts and leave the phone on the table. When it ends, tap “Send for analysis”; the status moves through Sending, Analyzing and Analyzed. The report comes back with a summary, topic sections, decisions, action items, key questions and each speaker’s contribution.',
+        },
+      },
+      {
+        title: { tr: 'Web panelden telefona bir QR ile', en: 'From the web panel to the phone with one QR' },
+        body: {
+          tr: 'Ekipler Meetnal’ı web panelinden yönetiyor. Telefonu bağlamak için panelde gösterilen QR’ı okutmak ya da kısa bir kodu başka bir cihazdan onaylamak yetiyor; Google ve Apple ile de girilebiliyor. Hangi yoldan gelinirse gelinsin sonuç aynı: şirkete bağlı tek bir anahtar.',
+          en: 'Teams manage Meetnal from a web panel. To connect a phone you scan the QR shown in the panel, or approve a short code from another device; Google and Apple sign-in work too. Whichever way you come in, the result is the same: a single key tied to the company.',
+        },
+      },
+      {
+        title: { tr: 'Markası da uygulamayla birlikte', en: 'The brand came with the app' },
+        body: {
+          tr: 'Adı, eğik M amblemi, ikonları ve açılış ekranı uygulamayla birlikte çıktı. Uygulama yedi dilde, Arapça için sağdan sola düzenle çalışıyor; açık ve koyu modun yanında altı renk teması var.',
+          en: 'The name, the slanted M mark, the icons and the splash screen were made alongside the app. It runs in seven languages, with a right-to-left layout for Arabic, and has six colour themes besides light and dark mode.',
         },
       },
     ],
