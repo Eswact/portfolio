@@ -1,4 +1,4 @@
-import type { L10n } from '../i18n/ui';
+import type { L10n, Lang } from '../i18n/ui';
 
 export interface Project {
   slug: string;
@@ -276,3 +276,18 @@ export const projects: Project[] = [
 export type FeaturedProject = Project & { title: string; card: NonNullable<Project['card']> };
 
 export const featured = projects.filter((p): p is FeaturedProject => !!p.featured && !!p.card && typeof p.title === 'string');
+
+export type Status = 'live' | 'source' | 'apk';
+
+export const nameOf = (p: Project, lang: Lang) => (typeof p.title === 'string' ? p.title : p.title[lang]);
+
+/** The rest of the catalogue, numbered after the featured cards (ES-06…). */
+export const others = projects
+  .filter((p) => !p.featured)
+  .map((p, i) => ({
+    ...p,
+    code: `ES-${String(featured.length + i + 1).padStart(2, '0')}`,
+    status: (p.status ?? (p.live ? 'live' : 'source')) as Status,
+    // Open-source parts (e.g. Scale POS) lead to their code, even when a demo is online.
+    href: p.status === 'source' ? (p.source?.[0] ?? p.live) : (p.live ?? p.release ?? p.source?.[0]),
+  }));

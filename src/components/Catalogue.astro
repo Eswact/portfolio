@@ -1,0 +1,344 @@
+---
+// The whole catalogue (Karar 19 B). The five selected projects lead to their case studies; the rest keep a short
+// note and their own links. Rows sit on the 12-column grid; the name is the link and its ::before covers the row.
+import SectionHead from './SectionHead.astro';
+import { featured, nameOf, others, type Project, type Status } from '../data/projects';
+import { localePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+interface Row {
+  /** Anchor of the row (/work#slug), e.g. from a role in Experience. */
+  slug: string;
+  code: string;
+  name: string;
+  href?: string;
+  /** Case-study path, so the name can travel to the case page's title. */
+  vt?: string;
+  summary: string;
+  type: string;
+  stack: string[];
+  status: Status;
+  links: { label: string; href: string }[];
+}
+
+const linksOf = (p: Project) => [
+  ...(p.store ? [{ label: p.store.name, href: p.store.href }] : []),
+  ...(p.live ? [{ label: t('work.live'), href: p.live }] : []),
+  ...(p.release ? [{ label: t('work.app'), href: p.release }] : []),
+  ...(p.source ?? []).map((href) => ({ label: t('work.source'), href })),
+];
+
+const selected: Row[] = featured.map((p) => {
+  const path = localePath(lang, `/work/${p.slug}`);
+  return {
+    slug: p.slug,
+    code: p.card.code,
+    name: p.title,
+    href: path,
+    vt: path,
+    summary: p.summary[lang],
+    type: p.type[lang],
+    stack: p.stack,
+    status: p.card.status,
+    links: linksOf(p),
+  };
+});
+
+const rest: Row[] = others.map((p) => ({
+  slug: p.slug,
+  code: p.code,
+  name: nameOf(p, lang),
+  // A group of sites has no single destination; each site is its own link.
+  href: p.sites ? undefined : p.href,
+  summary: p.summary[lang],
+  type: p.type[lang],
+  stack: p.stack,
+  status: p.status,
+  links: p.sites ? p.sites.flatMap((s) => (s.href ? [{ label: s.name, href: s.href }] : [])) : linksOf(p),
+}));
+
+const groups = [
+  { id: 'selected', title: t('section.work'), rows: selected },
+  { id: 'more', title: t('catalogue.more'), rows: rest },
+];
+---
+
+<div class="catalogue">
+  <nav class="container crumbs mono" aria-label={t('section.index')}>
+    <a class="link" href={localePath(lang, '/')}>← {t('catalogue.home')}</a>
+    <span class="muted num">{selected.length + rest.length} {t('catalogue.projects')}</span>
+  </nav>
+
+  <header class="container head">
+    <h1><span class="name" data-vt={localePath(lang, '/work')}>{t('section.index')}</span></h1>
+    <p class="lede muted">{t('catalogue.lede')}</p>
+  </header>
+
+  {
+    groups.map((g) => (
+      <section class="container group" aria-labelledby={g.id}>
+        <SectionHead id={g.id} title={g.title}>
+          <span class="muted mono num range">
+            {g.rows[0].code} → {g.rows[g.rows.length - 1].code}
+          </span>
+        </SectionHead>
+        <ol class="rows" role="list">
+          {g.rows.map((r) => (
+            <li class="item" id={r.slug}>
+              <span class="mono num code">{r.code}</span>
+              <div class="main">
+                <h3>
+                  {r.href ? (
+                    <a class="row-link" href={r.href}>
+                      <span class="name" data-vt={r.vt}>
+                        {r.name}
+                      </span>
+                    </a>
+                  ) : (
+                    r.name
+                  )}
+                </h3>
+                <p class="muted">{r.summary}</p>
+              </div>
+              <p class="meta">
+                <span>{r.type}</span>
+                <span class="mono muted">{r.stack.join(' · ')}</span>
+              </p>
+              <div class="side">
+                <span class:list={['mono status', r.status]}>{t(`status.${r.status}`)}</span>
+                {r.links.length > 0 && (
+                  <ul class="links" role="list">
+                    {r.links.map((l) => (
+                      <li>
+                        <a class="link arrow" href={l.href}>
+                          {l.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))
+  }
+</div>
+
+<style>
+  .catalogue {
+    padding-bottom: clamp(64px, 8vw, 112px);
+  }
+
+  .crumbs {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 8px 0;
+    font-size: 0.75rem;
+  }
+
+  .crumbs a {
+    text-decoration: none;
+  }
+
+  /* Name on the left, one sentence on the right, as on a case study. */
+  .head {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 20px 16px;
+    align-items: end;
+    padding-block: clamp(40px, 7vw, 96px) clamp(40px, 5vw, 64px);
+  }
+
+  h1 {
+    grid-column: 1 / span 7;
+    font-size: clamp(3.25rem, 1.6rem + 6vw, 6rem);
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+
+  .lede {
+    grid-column: 8 / -1;
+    max-width: 44ch;
+    padding-bottom: 6px;
+  }
+
+  .group + .group {
+    padding-top: clamp(56px, 7vw, 96px);
+  }
+
+  .range {
+    font-size: 0.8125rem;
+  }
+
+  .item {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 8px 16px;
+    padding-block: 20px;
+    border-bottom: 1px solid var(--line);
+    transition: background-color 0.2s;
+  }
+
+  .item:first-child {
+    padding-top: 4px;
+  }
+
+  .item:has(.row-link):hover,
+  .item:target {
+    background: var(--surface);
+  }
+
+  .code {
+    grid-column: span 1;
+    padding-top: 4px;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .main {
+    grid-column: 2 / span 5;
+    display: grid;
+    gap: 6px;
+    align-content: start;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+
+  .main p {
+    max-width: 56ch;
+    font-size: 0.9375rem;
+  }
+
+  .row-link {
+    text-decoration: none;
+  }
+
+  /* The whole row is the link's hit area; the other links sit above it. */
+  .row-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .row-link:focus-visible {
+    outline: none;
+  }
+
+  .item:has(.row-link:focus-visible) {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+  }
+
+  .meta {
+    grid-column: 7 / span 3;
+    display: grid;
+    gap: 4px;
+    align-content: start;
+    padding-top: 3px;
+    font-size: 0.9375rem;
+  }
+
+  .meta .mono {
+    font-size: 0.8125rem;
+  }
+
+  .side {
+    grid-column: 10 / -1;
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    justify-items: start;
+    padding-top: 3px;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.8125rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1px solid var(--fg);
+  }
+
+  .status.live::before {
+    background: var(--fg);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    font-size: 0.875rem;
+  }
+
+  .links a {
+    position: relative;
+    z-index: 1;
+    text-decoration: none;
+  }
+
+  @media (max-width: 1023px) {
+    .main {
+      grid-column: 2 / span 6;
+    }
+
+    .meta {
+      grid-column: 8 / -1;
+    }
+
+    .side {
+      grid-column: 2 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 6px 24px;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .head {
+      align-items: start;
+    }
+
+    h1,
+    .lede {
+      grid-column: 1 / -1;
+    }
+
+    .code,
+    .main,
+    .meta,
+    .side {
+      grid-column: 1 / -1;
+    }
+
+    .code {
+      padding-top: 0;
+    }
+  }
+</style>

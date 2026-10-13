@@ -1,0 +1,11 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Catalogue from '../../../components/Catalogue.astro';
+import { useTranslations } from '../../../i18n/ui';
+
+const t = useTranslations('tr');
+---
+
+<Base lang="tr" path="/work" title={t('section.index')} description={t('catalogue.lede')}>
+  <Catalogue lang="tr" />
+</Base>

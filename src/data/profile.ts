@@ -18,6 +18,8 @@ export interface Experience {
   company: string;
   /** A sentence, or a list of points for a longer role. */
   summary: L10n | L10n[];
+  /** Slugs of projects made in this role; each is linked under the summary. */
+  projects?: string[];
 }
 
 export const experience: Experience[] = [
@@ -62,6 +64,7 @@ export const experience: Experience[] = [
       tr: 'Three.js ile sahne, ışık ve animasyon içeren etkileşimli bir 3D gardırop geliştirdim.',
       en: 'I built an interactive 3D wardrobe in Three.js with scene setup, lighting and animation.',
     },
+    projects: ['wardrobe-3d'],
   },
   {
     period: { tr: '2019 — 2024', en: '2019 — 2024' },

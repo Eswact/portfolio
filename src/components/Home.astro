@@ -2,7 +2,7 @@
 import SectionHead from './SectionHead.astro';
 import WorkCard from './WorkCard.astro';
 import { experience, profile } from '../data/profile';
-import { featured, projects } from '../data/projects';
+import { featured, nameOf, projects } from '../data/projects';
 import { localePath, useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -11,17 +11,14 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-const others = projects
-  .filter((p) => !p.featured)
-  .map((p, i) => ({
-    ...p,
-    name: typeof p.title === 'string' ? p.title : p.title[lang],
-    code: `ES-${String(featured.length + i + 1).padStart(2, '0')}`,
-    status: p.status ?? (p.live ? ('live' as const) : ('source' as const)),
-    // Open-source parts (e.g. Scale POS) lead to their code, even when a demo is online.
-    href: p.status === 'source' ? (p.source?.[0] ?? p.live) : (p.live ?? p.release ?? p.source?.[0]),
-  }));
 
+// A project from a role: its case study, else its live site, else its row in the full catalogue.
+const projectLink = (slug: string) => {
+  const p = projects.find((x) => x.slug === slug)!;
+  if (p.featured) return { name: nameOf(p, lang), href: localePath(lang, `/work/${slug}`) };
+  if (p.live) return { name: nameOf(p, lang), href: p.live, external: true };
+  return { name: nameOf(p, lang), href: `${localePath(lang, '/work')}#${slug}` };
+};
 ---
 
 <section class="container intro">
@@ -31,7 +28,7 @@ const others = projects
 
 <section class="container block" aria-labelledby="work">
   <SectionHead id="work" title={t('section.work')}>
-    <a class="link muted all" href="#index">{t('work.all')} ({projects.length})</a>
+    <a class="link muted all" href={localePath(lang, '/work')}>{t('work.all')} ({projects.length})</a>
   </SectionHead>
   <ul class="cards" role="list">
     {
@@ -41,64 +38,10 @@ const others = projects
         </li>
       ))
     }
+    <li>
+      <WorkCard lang={lang} />
+    </li>
   </ul>
-</section>
-
-<section class="container block" aria-labelledby="index">
-  <SectionHead id="index" title={t('section.index')} />
-  <table class="index">
-    <thead class="mono muted">
-      <tr>
-        <th scope="col" class="code">{t('index.code')}</th>
-        <th scope="col">{t('index.project')}</th>
-        <th scope="col" class="type-col">{t('index.type')}</th>
-        <th scope="col" class="hide-md">{t('index.stack')}</th>
-        <th scope="col" class="hide-sm">{t('index.status')}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {
-        others.map((p) => (
-          <tr>
-            <td class="mono code">{p.code}</td>
-            <th scope="row">
-              {p.sites ? (
-                <>
-                  {p.name}
-                  <ul class="sites" role="list">
-                    {p.sites.map((site) => (
-                      <li>
-                        {site.href ? (
-                          <a class="link arrow" href={site.href}>
-                            {site.name}
-                          </a>
-                        ) : (
-                          <span class="muted">{site.name}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : p.href ? (
-                <a class="row-link arrow" href={p.href}>
-                  {p.name}
-                </a>
-              ) : (
-                p.name
-              )}
-              {/* Narrow screens show the type under the name; the column stays the one screen readers hear. */}
-              <span class="type-sm muted" aria-hidden="true">{p.type[lang]}</span>
-            </th>
-            <td class="muted type-col">{p.type[lang]}</td>
-            <td class="muted mono hide-md">{p.stack.slice(0, 3).join(' · ')}</td>
-            <td class="mono hide-sm">
-              <span class:list={['status', p.status]}>{t(`status.${p.status}`)}</span>
-            </td>
-          </tr>
-        ))
-      }
-    </tbody>
-  </table>
 </section>
 
 <section class="container block" aria-labelledby="experience">
@@ -112,15 +55,25 @@ const others = projects
             <h3>{e.company}</h3>
             <p class="muted">{e.role[lang]}</p>
           </div>
-          {Array.isArray(e.summary) ? (
-            <ul class="summary points" role="list">
-              {e.summary.map((point) => (
-                <li>{point[lang]}</li>
-              ))}
-            </ul>
-          ) : (
-            <p class="summary">{e.summary[lang]}</p>
-          )}
+          <div class="summary">
+            {Array.isArray(e.summary) ? (
+              <ul class="points" role="list">
+                {e.summary.map((point) => (
+                  <li>{point[lang]}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{e.summary[lang]}</p>
+            )}
+            {e.projects?.map(projectLink).map((r) => (
+              <p class="related">
+                <span class="mono muted">{t('experience.project')}</span>
+                <a class:list={['link', { arrow: r.external }]} href={r.href}>
+                  {r.external ? r.name : `${r.name} →`}
+                </a>
+              </p>
+            ))}
+          </div>
         </li>
       ))
     }
@@ -218,132 +171,6 @@ const others = projects
     }
   }
 
-  /* Index: the rest of the catalogue. */
-  .index {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .index th,
-  .index td {
-    text-align: left;
-    font-weight: 400;
-    padding: 14px 16px 14px 0;
-    border-bottom: 1px solid var(--line);
-    vertical-align: baseline;
-  }
-
-  .index thead th {
-    padding-top: 0;
-    font-size: 0.8125rem;
-  }
-
-  .index tbody tr {
-    position: relative;
-    transition: background-color 0.2s;
-  }
-
-  .index tbody tr:hover {
-    background: var(--surface);
-  }
-
-  .index tbody th {
-    font-weight: 600;
-  }
-
-  .index .code {
-    width: 9ch;
-    white-space: nowrap;
-    font-size: 0.8125rem;
-    color: var(--muted);
-    padding-left: 4px;
-  }
-
-  .row-link {
-    text-decoration: none;
-  }
-
-  /* The whole row is the link's hit area. */
-  .row-link::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-  }
-
-  .row-link::after {
-    color: var(--muted);
-  }
-
-  .sites {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 16px;
-    margin-top: 6px;
-    font-weight: 400;
-    font-size: 0.875rem;
-  }
-
-  .sites a {
-    position: relative;
-    z-index: 1;
-    text-decoration: none;
-  }
-
-  .type-sm {
-    display: none;
-    font-weight: 400;
-    font-size: 0.875rem;
-  }
-
-  .status {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 0.8125rem;
-    color: var(--muted);
-    white-space: nowrap;
-  }
-
-  .status::before {
-    content: '';
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    border: 1px solid var(--fg);
-  }
-
-  .status.live::before {
-    background: var(--fg);
-  }
-
-  @media (max-width: 1023px) {
-    .hide-md {
-      display: none;
-    }
-  }
-
-  @media (max-width: 639px) {
-    .hide-sm {
-      display: none;
-    }
-
-    /* Out of sight, still read: the type is shown under the name instead. */
-    .type-col {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    .type-sm {
-      display: block;
-    }
-  }
-
   /* Experience */
   .row {
     display: grid;
@@ -366,6 +193,21 @@ const others = projects
   .summary {
     grid-column: span 7;
     max-width: 64ch;
+  }
+
+  .related {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .related .mono {
+    font-size: 0.8125rem;
+  }
+
+  .related a {
+    text-decoration: none;
   }
 
   .points {
