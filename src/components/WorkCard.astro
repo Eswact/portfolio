@@ -2,7 +2,7 @@
 // A catalogue card (Karar 07): model number, status, an object that shows the product's mechanism on hover,
 // and spec rows in the same order on every card.
 //  phone  (Fibi)            Karar 18 A: rests open in its layers with a note on each; on hover it closes into the
-//                           phone and the app's screens come off it like a deck, then it opens again
+//                           phone, whose one screen (Karar 20 B) listens, shows the review card and saves it to the list
 //  api    (Barcode API)     eight marketplaces are queried at once and merge into the cheapest price
 //  screen (Digital Signage) the panel sends an update and the screens on the wall follow
 //  voice  (Warbly)          Karar 14 C: tap the widget, speak, the task lands at the top of the list
@@ -30,26 +30,10 @@ const counts = (['live', 'source', 'apk'] as const)
   .map(([s, c]) => `${c} ${t(`status.${s}`).toLocaleLowerCase(lang)}`)
   .join(' · ');
 
-// Fibi diagram (Karar 18 A): what each layer does, then the app's own flow (texts from the case-study demo).
+// Fibi diagram (Karar 18 A): what each layer does, then the app's flow as three steps beside the phone.
 const fibi = tr
   ? {
       notes: ['dinler, onay kartı gösterir', 'net cümleyi telefonda anlar', 'yalnızca belirsiz cümlelerde', 'gider ve envanter cihazda'],
-      ask: 'Ne aldın?',
-      said: ['“3700 liraya', 'kulaklık aldım”'],
-      listening: 'dinliyor',
-      review: 'Kontrol et',
-      what: 'Ne aldın?',
-      item: 'kulaklık',
-      amountLabel: 'Tutar',
-      amount: '₺3.700',
-      category: 'Kategori',
-      categoryValue: 'Teknoloji › Ses',
-      inventory: 'Envantere ekle',
-      save: 'Kaydet',
-      spent: 'Bu ay harcama',
-      total: '₺27.712',
-      recent: 'Son harcamalar',
-      rows: [['ChatGPT Plus', '₺700'], ['YouTube', '₺79,99']],
       steps: [
         ['Söyle', '“3700 liraya kulaklık aldım”'],
         ['Kontrol et', '₺3.700 · Teknoloji › Ses'],
@@ -58,22 +42,6 @@ const fibi = tr
     }
   : {
       notes: ['voice in, review card out', 'clear sentences, on-device', 'only for unclear sentences', 'stores expenses and items'],
-      ask: 'What did you buy?',
-      said: ['“bought', 'headphones for', '3700 lira”'],
-      listening: 'listening',
-      review: 'Review',
-      what: 'Item',
-      item: 'headphones',
-      amountLabel: 'Amount',
-      amount: '₺3,700',
-      category: 'Category',
-      categoryValue: 'Tech › Audio',
-      inventory: 'Add to inventory',
-      save: 'Save',
-      spent: 'Spent this month',
-      total: '₺27,712',
-      recent: 'Recent spending',
-      rows: [['ChatGPT Plus', '₺700'], ['YouTube', '₺79.99']],
       steps: [
         ['Say', '“bought headphones for 3700 lira”'],
         ['Review', '₺3,700 · Tech › Audio'],
@@ -157,48 +125,39 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
                 {card.layers.map((_, i) => (
                   <b class:list={['fb-pl', 'fb-ly', { 'fb-bar': i === 0, 'fb-base': i === n - 1 }]} style={`--i:${n - 1 - i}`} />
                 ))}
-                <b class="fb-pl fb-scr fb-s3" style="--z:12.5">
-                  <span class="fb-lb" style="--x:9;--y:10">{fibi.spent}</span>
-                  <span class="fb-tot">{fibi.total}</span>
-                  <span class="fb-lb" style="--x:9;--y:38">{fibi.recent}</span>
-                  <span class="fb-rows">
-                    <span class="fb-r fb-new">
-                      <span>{fibi.item}</span>
-                      <span>{fibi.amount}</span>
+                <b class="fb-pl fb-scr">
+                  <span class="fb-home">
+                    <i class="fb-sk" style="--x:9;--y:10;--w:30" />
+                    <i class="fb-blk" style="--x:9;--y:19;--w:46;--h:12" />
+                    <i class="fb-sk" style="--x:9;--y:38;--w:24" />
+                    <span class="fb-rows">
+                      <i class="fb-r" />
+                      <i class="fb-r" />
                     </span>
-                    {fibi.rows.map(([name, value]) => (
-                      <span class="fb-r">
-                        <span>{name}</span>
-                        <span>{value}</span>
-                      </span>
-                    ))}
                   </span>
-                  <i class="fb-tab" />
-                </b>
-                <b class="fb-pl fb-scr fb-s2" style="--z:13">
-                  <span class="fb-h">{fibi.review}</span>
+                  <span class="fb-voice">
+                    <i class="fb-sk" style="--x:9;--y:12;--w:36" />
+                    <i class="fb-ring" />
+                    <i class="fb-ring" style="--d:0.4s" />
+                    <i class="fb-ring" style="--d:0.8s" />
+                    <i class="fb-mic" />
+                    <span class="fb-wave">
+                      {Array.from({ length: 7 }, () => (
+                        <i />
+                      ))}
+                    </span>
+                  </span>
                   <span class="fb-sheet">
-                    <span class="fb-lb" style="--x:6;--y:6">{fibi.what}</span>
-                    <span class="fb-it">{fibi.item}</span>
-                    <span class="fb-lb" style="--x:6;--y:26">{fibi.amountLabel}</span>
-                    <span class="fb-am">{fibi.amount}</span>
-                    <span class="fb-lb" style="--x:6;--y:52">{fibi.category}</span>
-                    <span class="fb-ct">{fibi.categoryValue}</span>
-                    <span class="fb-lb" style="--x:6;--y:72">{fibi.inventory}</span>
-                    <i class="fb-tog" />
+                    <span class="fb-in">
+                      <i class="fb-sk" style="--x:7;--y:9;--w:28" />
+                      <i class="fb-blk" style="--x:7;--y:18;--w:44;--h:11" />
+                      <i class="fb-sk" style="--x:7;--y:38;--w:22" />
+                      <i class="fb-chip" style="--x:7;--y:46;--w:38" />
+                      <i class="fb-sk" style="--x:7;--y:66;--w:32" />
+                      <i class="fb-tog" />
+                      <i class="fb-btn" />
+                    </span>
                   </span>
-                  <span class="fb-save">✓ {fibi.save}</span>
-                </b>
-                <b class="fb-pl fb-scr fb-s1" style="--z:13.5">
-                  <span class="fb-h">{fibi.ask}</span>
-                  <i class="fb-ring" />
-                  <i class="fb-mic" />
-                  <span class="fb-said">
-                    {fibi.said.map((line) => (
-                      <span>{line}</span>
-                    ))}
-                  </span>
-                  <span class="fb-lb fb-listen">{fibi.listening}</span>
                 </b>
               </div>
             </div>
@@ -626,11 +585,11 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
     opacity: var(--spot);
   }
 
-  /* ---------- phone (Karar 18 A) ----------
+  /* ---------- phone (Karar 18 A, screen Karar 20 B) ----------
      A 360×225 stage that scales with the card: every length is a multiple of --u.
      Plates sit in isometric view; one lifted by translateZ(d) rises 0.829·d on screen, so the notes follow --fb-g.
-     At rest the phone stands open with a note per layer. On hover (8 s): close 0–9 %, listen 13–33 %,
-     review 41–60 %, saved 68–84 %, open again 88–96 %. */
+     At rest the phone stands open with a note per layer. On hover (8 s): close 0–8 %, listen 14–36 %,
+     review 40–60 %, saved 64–84 %, open again 86–96 %. */
   .obj {
     container-type: inline-size;
   }
@@ -683,8 +642,7 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
     background: var(--fg);
   }
 
-  .fb-bar::after,
-  .fb-tab {
+  .fb-bar::after {
     content: '';
     position: absolute;
     left: calc(10 * var(--u));
@@ -695,168 +653,194 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
     background: var(--product-fibi);
   }
 
-  /* The app's three screens lie on the closed phone, the first one on top. */
+  /* Karar 20 B: one screen on the closed phone, drawn without text (it would not read at this angle). The mic
+     listens, the review card rises from the bottom, and once saved it shrinks into the lime row on top of the list. */
   .fb-scr {
+    --sk: color-mix(in srgb, var(--fg) 20%, transparent);
     overflow: hidden;
     opacity: 0;
-    transform: translateZ(calc(var(--z) * var(--u)));
+    transform: translateZ(calc(13 * var(--u)));
   }
 
-  .fb-scr > * {
+  .fb-scr * {
     position: absolute;
   }
 
-  .fb-h {
-    left: calc(9 * var(--u));
-    top: calc(10 * var(--u));
-    max-width: calc(66 * var(--u));
-    font-size: calc(10.5 * var(--u));
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    line-height: 1.15;
+  .fb-home,
+  .fb-voice,
+  .fb-in {
+    inset: 0;
   }
 
-  .fb-lb {
-    position: absolute;
-    left: calc(var(--x, 0) * var(--u));
-    top: calc(var(--y, 0) * var(--u));
-    font-family: var(--font-mono);
-    font-size: calc(6.5 * var(--u));
-    line-height: 1;
-    color: var(--muted);
-    white-space: nowrap;
+  .fb-home {
+    opacity: 0;
+  }
+
+  .fb-sk,
+  .fb-blk,
+  .fb-chip {
+    left: calc(var(--x) * var(--u));
+    top: calc(var(--y) * var(--u));
+    width: calc(var(--w) * var(--u));
+  }
+
+  .fb-sk {
+    height: calc(4.5 * var(--u));
+    border-radius: calc(2.25 * var(--u));
+    background: var(--sk);
+  }
+
+  .fb-blk {
+    height: calc(var(--h) * var(--u));
+    border-radius: calc(2 * var(--u));
+    background: var(--fg);
+  }
+
+  .fb-chip {
+    height: calc(9 * var(--u));
+    border-radius: calc(4.5 * var(--u));
+    border: calc(0.8 * var(--u)) solid var(--fg);
+    background: var(--product-fibi);
   }
 
   .fb-mic,
   .fb-ring {
+    left: calc(25 * var(--u));
+    top: calc(42 * var(--u));
+    width: calc(34 * var(--u));
+    height: calc(34 * var(--u));
     border-radius: 50%;
   }
 
   .fb-mic {
-    left: calc(27 * var(--u));
-    top: calc(46 * var(--u));
-    width: calc(28 * var(--u));
-    height: calc(28 * var(--u));
-    background: var(--product-fibi);
     border: calc(1.5 * var(--u)) solid var(--fg);
+    background: var(--product-fibi);
+  }
+
+  .fb-mic::before,
+  .fb-mic::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    background: #151517;
+  }
+
+  .fb-mic::before {
+    top: 22%;
+    width: calc(8 * var(--u));
+    height: calc(13 * var(--u));
+    margin-left: calc(-4 * var(--u));
+    border-radius: calc(4 * var(--u));
+  }
+
+  .fb-mic::after {
+    bottom: 20%;
+    width: calc(1.5 * var(--u));
+    height: calc(4 * var(--u));
+    margin-left: calc(-0.75 * var(--u));
   }
 
   .fb-ring {
-    left: calc(19 * var(--u));
-    top: calc(38 * var(--u));
-    width: calc(44 * var(--u));
-    height: calc(44 * var(--u));
     border: calc(1 * var(--u)) solid var(--fg);
-    opacity: 0.45;
+    opacity: 0;
   }
 
-  .fb-said {
-    left: 0;
-    right: 0;
-    top: calc(86 * var(--u));
-    display: grid;
-    text-align: center;
-    font-size: calc(8 * var(--u));
-    line-height: 1.25;
+  .fb-wave {
+    left: calc(20 * var(--u));
+    right: calc(20 * var(--u));
+    top: calc(92 * var(--u));
+    height: calc(16 * var(--u));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
-  .fb-scr .fb-listen {
-    left: 0;
-    right: 0;
-    top: calc(122 * var(--u));
-    text-align: center;
+  .fb-wave i {
+    position: static;
+    width: calc(3 * var(--u));
+    height: 100%;
+    border-radius: calc(1.5 * var(--u));
+    background: var(--fg);
+    transform: scaleY(0.25);
   }
 
   .fb-sheet {
     left: calc(6 * var(--u));
     right: calc(6 * var(--u));
-    top: calc(29 * var(--u));
-    height: calc(86 * var(--u));
+    top: calc(150 * var(--u));
+    height: calc(116 * var(--u));
+    overflow: hidden;
     border: calc(1 * var(--u)) solid var(--fg);
     border-radius: calc(6 * var(--u));
+    background: var(--card);
   }
 
-  .fb-sheet > * {
-    position: absolute;
-    left: calc(6 * var(--u));
-  }
-
-  .fb-it {
-    top: calc(12 * var(--u));
-    font-size: calc(9 * var(--u));
-  }
-
-  .fb-am {
-    top: calc(32 * var(--u));
-    font-size: calc(14 * var(--u));
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-
-  .fb-ct {
-    top: calc(58 * var(--u));
-    font-size: calc(7.5 * var(--u));
-  }
-
-  .fb-sheet .fb-tog {
-    left: auto;
-    right: calc(6 * var(--u));
-    top: calc(70 * var(--u));
+  .fb-tog {
+    right: calc(7 * var(--u));
+    top: calc(64 * var(--u));
     width: calc(15 * var(--u));
     height: calc(8 * var(--u));
     border-radius: calc(4 * var(--u));
     border: calc(1 * var(--u)) solid var(--fg);
-    background: var(--product-fibi);
+    background: var(--card);
   }
 
-  .fb-save {
-    left: calc(6 * var(--u));
-    right: calc(6 * var(--u));
-    top: calc(121 * var(--u));
+  .fb-btn {
+    left: calc(5 * var(--u));
+    right: calc(5 * var(--u));
+    top: calc(98 * var(--u));
     height: calc(14 * var(--u));
     border-radius: calc(7 * var(--u));
     background: var(--fg);
-    color: var(--card);
-    font-size: calc(7.5 * var(--u));
-    font-weight: 600;
-    line-height: calc(14 * var(--u));
-    text-align: center;
   }
 
-  .fb-tot {
-    left: calc(9 * var(--u));
-    top: calc(17 * var(--u));
-    font-size: calc(14 * var(--u));
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
+  /* the tick */
+  .fb-btn::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(6 * var(--u));
+    height: calc(3.2 * var(--u));
+    border-left: calc(1.4 * var(--u)) solid var(--card);
+    border-bottom: calc(1.4 * var(--u)) solid var(--card);
+    transform: translate(-50%, -70%) rotate(-45deg);
   }
 
   .fb-rows {
     left: calc(6 * var(--u));
     right: calc(6 * var(--u));
-    top: calc(47 * var(--u));
+    top: calc(67 * var(--u));
     display: grid;
     gap: calc(3 * var(--u));
   }
 
-  .fb-r {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .fb-rows .fb-r {
+    position: relative;
     height: calc(16 * var(--u));
-    padding-inline: calc(5 * var(--u));
     border: calc(1 * var(--u)) solid var(--line);
     border-radius: calc(4 * var(--u));
-    font-size: calc(7.5 * var(--u));
-    font-weight: 500;
   }
 
-  .fb-new {
-    border-color: var(--fg);
-    background: var(--product-fibi);
-    color: #151517;
+  .fb-r::before,
+  .fb-r::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    height: calc(4 * var(--u));
+    margin-top: calc(-2 * var(--u));
+    border-radius: calc(2 * var(--u));
+    background: var(--sk);
+  }
+
+  .fb-r::before {
+    left: calc(5 * var(--u));
+    width: calc(28 * var(--u));
+  }
+
+  .fb-r::after {
+    right: calc(5 * var(--u));
+    width: calc(14 * var(--u));
   }
 
   /* Notes beside each plate (resting frame). */
@@ -908,7 +892,7 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
   .fb-steps {
     position: absolute;
     left: calc(222 * var(--u));
-    top: calc(40 * var(--u));
+    top: calc(48 * var(--u));
     width: calc(118 * var(--u));
     display: grid;
     gap: calc(12 * var(--u));
@@ -949,57 +933,62 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
   :is(.card:hover, .card:has(:focus-visible)) .fb-ph {
     animation: fb-g 8s var(--ease) both;
   }
-
   :is(.card:hover, .card:has(:focus-visible)) .fb-lift {
     animation: fb-lift 8s var(--ease) both;
   }
-
   :is(.card:hover, .card:has(:focus-visible)) .fb-layers {
     animation: fb-notes 8s var(--ease) both;
   }
-
-  :is(.card:hover, .card:has(:focus-visible)) .fb-s1 {
-    animation: fb-s1 8s var(--ease) both;
+  :is(.card:hover, .card:has(:focus-visible)) .fb-scr {
+    animation: fb-scr 8s var(--ease) both;
   }
-
-  :is(.card:hover, .card:has(:focus-visible)) .fb-s2 {
-    animation: fb-s2 8s var(--ease) both;
+  :is(.card:hover, .card:has(:focus-visible)) .fb-voice {
+    animation: fb-voice 8s var(--ease) both;
   }
-
-  :is(.card:hover, .card:has(:focus-visible)) .fb-s3 {
-    animation: fb-s3 8s var(--ease) both;
-  }
-
   :is(.card:hover, .card:has(:focus-visible)) .fb-ring {
-    animation: fb-ring 8s linear both;
+    animation: fb-ring 1.2s var(--ease) calc(1.3s + var(--d, 0s)) 2;
   }
-
+  :is(.card:hover, .card:has(:focus-visible)) .fb-wave i {
+    animation: fb-wave 0.9s ease-in-out var(--d, 0s) 4 alternate;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-sheet {
+    animation: fb-rise 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-in {
+    animation: fb-in 8s var(--ease) both;
+  }
   :is(.card:hover, .card:has(:focus-visible)) .fb-tog {
     animation: fb-tog 8s var(--ease) both;
   }
-
-  :is(.card:hover, .card:has(:focus-visible)) .fb-save {
-    animation: fb-save 8s var(--ease) both;
+  :is(.card:hover, .card:has(:focus-visible)) .fb-btn {
+    animation: fb-press 8s var(--ease) both;
   }
-
-  :is(.card:hover, .card:has(:focus-visible)) .fb-new {
-    animation: fb-new 8s var(--ease) both;
+  :is(.card:hover, .card:has(:focus-visible)) .fb-home {
+    animation: fb-home 8s var(--ease) both;
   }
-
   :is(.card:hover, .card:has(:focus-visible)) .fb-steps {
     animation: fb-steps 8s var(--ease) both;
   }
-
   :is(.card:hover, .card:has(:focus-visible)) .fb-steps li:nth-child(1) {
     animation: fb-st1 8s var(--ease) both;
   }
-
   :is(.card:hover, .card:has(:focus-visible)) .fb-steps li:nth-child(2) {
     animation: fb-st2 8s var(--ease) both;
   }
-
   :is(.card:hover, .card:has(:focus-visible)) .fb-steps li:nth-child(3) {
     animation: fb-st3 8s var(--ease) both;
+  }
+
+  .fb-wave i:nth-child(2n) {
+    --d: -0.3s;
+  }
+
+  .fb-wave i:nth-child(3n) {
+    --d: -0.6s;
+  }
+
+  .fb-wave i:nth-child(4) {
+    --d: -0.45s;
   }
 
   @property --fb-g {
@@ -1012,14 +1001,14 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
     0% {
       --fb-g: calc(36 * var(--u));
     }
-    9%,
-    87% {
+    8%,
+    86% {
       --fb-g: calc(4 * var(--u));
     }
-    95% {
+    94% {
       --fb-g: calc(38 * var(--u));
     }
-    98%,
+    97%,
     100% {
       --fb-g: calc(36 * var(--u));
     }
@@ -1029,11 +1018,11 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
     0% {
       transform: none;
     }
-    9%,
-    87% {
+    8%,
+    86% {
       transform: translateY(calc(-34 * var(--u)));
     }
-    95%,
+    94%,
     100% {
       transform: none;
     }
@@ -1044,136 +1033,141 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
       opacity: 1;
     }
     4%,
-    91% {
+    90% {
       opacity: 0;
     }
-    98%,
+    97%,
     100% {
       opacity: 1;
     }
   }
 
-  /* Each screen comes off the deck up and to the left, uncovering the next. */
-  @keyframes fb-s1 {
+  /* The screen lights up while the plates close, then the mic grows in. */
+  @keyframes fb-scr {
     0%,
-    8% {
+    4% {
       opacity: 0;
-      transform: translateZ(calc(70 * var(--u)));
     }
-    13%,
-    33% {
+    12%,
+    86% {
       opacity: 1;
-      transform: translateZ(calc(13.5 * var(--u)));
     }
-    41%,
+    90%,
     100% {
       opacity: 0;
-      transform: translate3d(calc(-10 * var(--u)), calc(-170 * var(--u)), calc(80 * var(--u))) rotateX(-22deg);
     }
   }
 
-  @keyframes fb-s2 {
+  @keyframes fb-voice {
     0%,
     9% {
       opacity: 0;
-      transform: translateZ(calc(13 * var(--u)));
+      transform: scale(0.92);
     }
-    10%,
-    60% {
+    16%,
+    36% {
       opacity: 1;
-      transform: translateZ(calc(13 * var(--u)));
+      transform: none;
     }
-    68%,
+    40%,
     100% {
       opacity: 0;
-      transform: translate3d(calc(-10 * var(--u)), calc(-170 * var(--u)), calc(80 * var(--u))) rotateX(-22deg);
-    }
-  }
-
-  @keyframes fb-s3 {
-    0%,
-    9% {
-      opacity: 0;
-    }
-    10%,
-    84% {
-      opacity: 1;
-    }
-    88%,
-    100% {
-      opacity: 0;
+      transform: translateY(calc(-14 * var(--u))) scale(0.8);
     }
   }
 
   @keyframes fb-ring {
+    from {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    to {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+
+  @keyframes fb-wave {
+    from {
+      transform: scaleY(0.2);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  /* The review card rises, and once saved it becomes the top row of the list. */
+  @keyframes fb-rise {
     0%,
-    13% {
-      transform: scale(1);
-      opacity: 0.45;
+    35% {
+      top: calc(150 * var(--u));
+      height: calc(116 * var(--u));
+      background: var(--card);
+      border-radius: calc(6 * var(--u));
     }
-    18% {
-      transform: scale(1.45);
-      opacity: 0;
+    41%,
+    60% {
+      top: calc(24 * var(--u));
+      height: calc(116 * var(--u));
+      background: var(--card);
+      border-radius: calc(6 * var(--u));
     }
-    18.1% {
-      transform: scale(1);
-      opacity: 0.45;
+    63% {
+      background: var(--card);
     }
-    23% {
-      transform: scale(1.45);
-      opacity: 0;
-    }
-    23.1% {
-      transform: scale(1);
-      opacity: 0.45;
-    }
-    28% {
-      transform: scale(1.45);
-      opacity: 0;
-    }
-    28.1%,
+    68%,
     100% {
-      transform: scale(1);
-      opacity: 0.45;
+      top: calc(48 * var(--u));
+      height: calc(16 * var(--u));
+      background: var(--product-fibi);
+      border-radius: calc(4 * var(--u));
+    }
+  }
+
+  @keyframes fb-in {
+    0%,
+    60% {
+      opacity: 1;
+    }
+    63%,
+    100% {
+      opacity: 0;
     }
   }
 
   @keyframes fb-tog {
     0%,
-    46% {
+    48% {
       background: var(--card);
     }
-    50%,
+    51%,
     100% {
       background: var(--product-fibi);
     }
   }
 
-  @keyframes fb-save {
+  @keyframes fb-press {
     0%,
-    54% {
+    53% {
       transform: scale(1);
     }
-    56% {
-      transform: scale(0.9);
+    55.5% {
+      transform: scale(0.88);
     }
-    59%,
+    58%,
     100% {
       transform: scale(1);
     }
   }
 
-  /* The headphones land on top of the list; the rows below make room. */
-  @keyframes fb-new {
+  @keyframes fb-home {
     0%,
-    68% {
+    62% {
       opacity: 0;
-      margin-top: calc(-19 * var(--u));
     }
-    73%,
+    70%,
     100% {
       opacity: 1;
-      margin-top: 0;
     }
   }
 
@@ -1199,11 +1193,11 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
       border-color: var(--line);
     }
     14%,
-    34% {
+    36% {
       opacity: 1;
       border-color: var(--product-fibi);
     }
-    38%,
+    39%,
     100% {
       opacity: 0.35;
       border-color: var(--line);
@@ -1212,16 +1206,16 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
 
   @keyframes fb-st2 {
     0%,
-    37% {
+    38% {
       opacity: 0.35;
       border-color: var(--line);
     }
-    41%,
-    62% {
+    40%,
+    60% {
       opacity: 1;
       border-color: var(--product-fibi);
     }
-    66%,
+    63%,
     100% {
       opacity: 0.35;
       border-color: var(--line);
@@ -1230,11 +1224,11 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
 
   @keyframes fb-st3 {
     0%,
-    65% {
+    62% {
       opacity: 0.35;
       border-color: var(--line);
     }
-    69%,
+    64%,
     100% {
       opacity: 1;
       border-color: var(--product-fibi);
