@@ -24,8 +24,10 @@ export interface Project {
   live?: string;
   /** Download page for an installable build (GitHub Releases). */
   release?: string;
-  /** Store listing of a published app; the link is named after the store. */
-  store?: { name: 'App Store' | 'Google Play'; href: string };
+  /** Direct download of an installable Android build (.apk). */
+  apk?: string;
+  /** Store listings of a published app; each link is named after its store. */
+  stores?: { name: 'App Store' | 'Google Play'; href: string }[];
   /** Overrides the status derived from links (an index row with a live demo that is still only a part). */
   status?: 'live' | 'source' | 'apk';
   source?: string[];
@@ -42,7 +44,7 @@ export const projects: Project[] = [
       code: 'ES-01',
       year: 2026,
       status: 'apk',
-      platform: { tr: 'Android (APK)', en: 'Android (APK)' },
+      platform: { tr: 'Android · iOS', en: 'Android · iOS' },
       object: 'phone',
       layers: [
         { tr: 'Arayüz', en: 'Interface' },
@@ -72,8 +74,8 @@ export const projects: Project[] = [
       },
     ],
     live: 'https://fibi-app.vercel.app',
-    release: 'https://github.com/Eswact/fibi/releases',
-    source: ['https://github.com/Eswact/fibi'],
+    // The code is private now; the APK is published as a release asset of a public, download-only repo.
+    apk: 'https://github.com/Eswact/fibi-releases/releases/latest/download/fibi.apk',
   },
   {
     slug: 'barcode-api',
@@ -137,7 +139,7 @@ export const projects: Project[] = [
       tr: 'NSA Teknoloji’de çalışırken geliştirdiğim, toplantıyı kaydedip analize gönderen ve özet, karar ve puanlarla dönen raporu telefonda gösteren mobil uygulama.',
       en: 'A mobile app I built while working at NSA Teknoloji that records a meeting, sends it for analysis and shows the report, with its summary, decisions and scores, on the phone.',
     },
-    store: { name: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.nsasoft.meetnal' },
+    stores: [{ name: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.nsasoft.meetnal' }],
   },
   {
     slug: 'digital-signage',
@@ -201,7 +203,10 @@ export const projects: Project[] = [
       tr: 'NSA Teknoloji’de çalışırken geliştirdiğim, konuşarak ya da yazarak söyleneni tarihi, saati ve alt görevleriyle bir göreve çeviren mobil uygulama.',
       en: 'A mobile app I built while working at NSA Teknoloji that turns what you say or type into a task, with its date, time and subtasks.',
     },
-    store: { name: 'App Store', href: 'https://apps.apple.com/tr/app/warbly-sesli-g%C3%B6revler/id6818455214' },
+    stores: [
+      { name: 'App Store', href: 'https://apps.apple.com/tr/app/warbly-sesli-g%C3%B6revler/id6818455214' },
+      { name: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.nsasoft.warbly' },
+    ],
   },
   {
     slug: 'promo-sites',

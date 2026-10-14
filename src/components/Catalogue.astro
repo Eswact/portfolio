@@ -24,12 +24,13 @@ interface Row {
   type: string;
   stack: string[];
   status: Status;
-  links: { label: string; href: string }[];
+  links: { label: string; href: string; download?: boolean }[];
 }
 
 const linksOf = (p: Project) => [
-  ...(p.store ? [{ label: p.store.name, href: p.store.href }] : []),
+  ...(p.stores ?? []).map((s) => ({ label: s.name, href: s.href })),
   ...(p.live ? [{ label: t('work.live'), href: p.live }] : []),
+  ...(p.apk ? [{ label: t('work.apk'), href: p.apk, download: true }] : []),
   ...(p.release ? [{ label: t('work.app'), href: p.release }] : []),
   ...(p.source ?? []).map((href) => ({ label: t('work.source'), href })),
 ];
@@ -116,7 +117,7 @@ const groups = [
                   <ul class="links" role="list">
                     {r.links.map((l) => (
                       <li>
-                        <a class="link arrow" href={l.href}>
+                        <a class:list={['link', l.download ? 'down' : 'arrow']} href={l.href} download={l.download}>
                           {l.label}
                         </a>
                       </li>

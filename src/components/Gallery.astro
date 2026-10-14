@@ -67,7 +67,7 @@ const widths = {
                 decoding: 'async' as const,
               };
               return (
-                <span class:list={['shot', { 'show on': i === 0 }]} data-shot={i}>
+                <span class:list={['shot', { 'show on': i === 0 }]} data-shot={i} data-caption={shot.caption[lang]}>
                   <Picture src={img.light} {...common} pictureAttributes={{ class: themed ? 'v v-light' : img.dark ? 'v' : 'v dim' }} />
                   {themed && <Picture src={img.dark!} {...common} pictureAttributes={{ class: 'v v-dark' }} />}
                 </span>
@@ -113,8 +113,22 @@ const widths = {
   <p class="note mono muted">{note ?? t('work.real')}</p>
 
   <dialog class="lightbox" data-lightbox aria-label={t('work.screens')}>
-    <div class="big" data-big></div>
-    <button type="button" class="close mono" data-close>{t('work.close')}</button>
+    <div class="lb-top">
+      <p class="lb-caption">
+        <span class="mono" data-lb-count></span>
+        <span data-lb-title></span>
+      </p>
+      <button type="button" class="lb-btn" data-close aria-label={t('work.close')}>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" /></svg>
+      </button>
+    </div>
+    <div class="lb-stage" data-big></div>
+    <button type="button" class="lb-btn lb-step lb-prev" data-step="-1" aria-label={t('work.prev')}>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5L7 10l5.5 5.5" /></svg>
+    </button>
+    <button type="button" class="lb-btn lb-step lb-next" data-step="1" aria-label={t('work.nextShot')}>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5L13 10l-5.5 5.5" /></svg>
+    </button>
   </dialog>
 </div>
 
@@ -170,21 +184,74 @@ const widths = {
       );
     });
 
+    // Lightbox: the chosen screen at full size; arrows, keys and swipes step through the surface's screens.
     const dialog = root.querySelector<HTMLDialogElement>('[data-lightbox]')!;
     const big = dialog.querySelector<HTMLElement>('[data-big]')!;
+    const lbCount = dialog.querySelector<HTMLElement>('[data-lb-count]')!;
+    const lbTitle = dialog.querySelector<HTMLElement>('[data-lb-title]')!;
+    const stepButtons = [...dialog.querySelectorAll<HTMLButtonElement>('[data-step]')];
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const isDark = () => {
+      const theme = document.documentElement.dataset.theme;
+      return theme ? theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    };
+    const pictureOf = (shot: HTMLElement) =>
+      ((isDark() && shot.querySelector('.v-dark')) || shot.querySelector('picture')) as HTMLPictureElement;
+
+    let stage: HTMLElement;
+    let shots: HTMLElement[] = [];
+    let index = 0;
+
+    const show = (i: number) => {
+      index = (i + shots.length) % shots.length;
+      const shot = shots[index];
+      const picture = pictureOf(shot);
+      lbCount.textContent = shots.length > 1 ? `${pad(index + 1)} / ${pad(shots.length)}` : '';
+      lbTitle.textContent = shot.dataset.caption ?? '';
+      const img = new Image();
+      img.src = largest(picture);
+      img.alt = picture.querySelector('img')!.alt;
+      // Swap only once the pixels are ready, so stepping never flashes an empty frame.
+      img
+        .decode()
+        .catch(() => {})
+        .then(() => shots[index] === shot && big.replaceChildren(img));
+      // The page follows along, so closing lands on the same screen.
+      stage.querySelector<HTMLButtonElement>(`[data-pick="${index}"]`)?.click();
+      if (shots.length > 1) [index + 1, index - 1].forEach((j) => (new Image().src = largest(pictureOf(shots[(j + shots.length) % shots.length]))));
+    };
+
     root.querySelectorAll<HTMLButtonElement>('[data-zoom]').forEach((button) =>
       button.addEventListener('click', () => {
-        const visible = [...button.querySelectorAll<HTMLPictureElement>('.on picture')].find((p) => p.offsetParent !== null);
-        if (!visible) return;
-        const img = new Image();
-        img.src = largest(visible);
-        img.alt = visible.querySelector('img')!.alt;
-        big.replaceChildren(img);
+        stage = button.closest<HTMLElement>('[data-surface]')!;
+        shots = [...stage.querySelectorAll<HTMLElement>('[data-shot]')];
+        stepButtons.forEach((b) => (b.hidden = shots.length < 2));
+        big.replaceChildren();
+        show(Math.max(0, shots.findIndex((s) => s.classList.contains('on'))));
         dialog.showModal();
       }),
     );
+
+    stepButtons.forEach((b) => b.addEventListener('click', () => show(index + Number(b.dataset.step))));
     dialog.querySelector('[data-close]')!.addEventListener('click', () => dialog.close());
-    dialog.addEventListener('click', (e) => e.target === dialog && dialog.close());
+    // Clicking anywhere but the image or a control (the dark around it) closes.
+    dialog.addEventListener('click', (e) => !(e.target as Element).closest('img, button') && dialog.close());
+    dialog.addEventListener('keydown', (e) => {
+      if (shots.length < 2 || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+      e.preventDefault();
+      show(index + (e.key === 'ArrowRight' ? 1 : -1));
+    });
+
+    let startX = 0;
+    let startY = 0;
+    dialog.addEventListener('pointerdown', (e) => {
+      startX = e.clientX;
+      startY = e.clientY;
+    });
+    dialog.addEventListener('pointerup', (e) => {
+      const dx = e.clientX - startX;
+      if (e.pointerType !== 'mouse' && shots.length > 1 && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(e.clientY - startY)) show(index + (dx < 0 ? 1 : -1));
+    });
   });
 </script>
 
@@ -523,38 +590,177 @@ const widths = {
     }
   }
 
+  /* Lightbox: always dark, the screen centred, close top right, arrows at the sides (at the bottom on phones). */
   .lightbox {
-    width: min(96vw, 1600px);
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     max-width: none;
-    max-height: 94vh;
+    max-height: none;
+    margin: 0;
     padding: 0;
     border: 0;
     background: transparent;
-    overflow: visible;
+    color: #ededea;
+    overflow: hidden;
+  }
+
+  .lightbox[open] {
+    display: grid;
+    animation: lb-in 0.24s var(--ease);
   }
 
   .lightbox::backdrop {
-    background: rgb(10 10 11 / 0.86);
+    background: rgb(10 10 11 / 0.96);
+    backdrop-filter: blur(12px);
   }
 
-  .big :global(img) {
+  .lightbox[open]::backdrop {
+    animation: lb-in 0.24s var(--ease);
+  }
+
+  :global(html:has(.lightbox[open])) {
+    overflow: hidden;
+  }
+
+  .lb-top {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 12px 12px clamp(16px, 3vw, 28px);
+  }
+
+  .lb-caption {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    min-width: 0;
+    font-size: 0.9375rem;
+    white-space: nowrap;
+  }
+
+  .lb-caption span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lb-caption .mono {
+    font-size: 0.75rem;
+    color: rgb(237 237 234 / 0.66);
+  }
+
+  .lb-stage {
+    display: grid;
+    place-items: center;
+    min-height: 0;
+    padding: 68px clamp(16px, 9vw, 112px) 32px;
+  }
+
+  .lb-stage :global(img) {
     display: block;
     width: auto;
+    height: auto;
     max-width: 100%;
-    max-height: 86vh;
-    margin-inline: auto;
+    max-height: calc(100dvh - 100px);
+    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.8);
+    animation: lb-in 0.25s var(--ease);
   }
 
-  .close {
-    display: block;
-    margin: 12px auto 0;
-    height: 36px;
-    padding-inline: 16px;
-    border: 1px solid #ededea;
-    border-radius: 99px;
-    background: transparent;
-    color: #ededea;
-    font-size: 0.75rem;
+  .lb-btn {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgb(237 237 234 / 0.22);
+    border-radius: 50%;
+    background: rgb(10 10 11 / 0.4);
+    color: inherit;
     cursor: pointer;
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
+  }
+
+  .lb-btn:hover {
+    border-color: rgb(237 237 234 / 0.6);
+    background: rgb(237 237 234 / 0.08);
+  }
+
+  .lb-btn:focus-visible {
+    outline: 2px solid #ededea;
+    outline-offset: 2px;
+  }
+
+  .lb-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .lb-step {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+  }
+
+  .lb-step[hidden] {
+    display: none;
+  }
+
+  .lb-prev {
+    left: clamp(12px, 2.5vw, 32px);
+  }
+
+  .lb-next {
+    right: clamp(12px, 2.5vw, 32px);
+  }
+
+  @media (max-width: 699px) {
+    .lb-stage {
+      padding-bottom: 80px;
+    }
+
+    .lb-stage :global(img) {
+      max-height: calc(100dvh - 148px);
+    }
+
+    .lb-step {
+      top: auto;
+      bottom: 20px;
+      translate: none;
+    }
+
+    .lb-prev {
+      left: calc(50% - 56px);
+    }
+
+    .lb-next {
+      right: calc(50% - 56px);
+    }
+  }
+
+  @keyframes lb-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox[open],
+    .lightbox[open]::backdrop,
+    .lb-stage :global(img) {
+      animation: none;
+    }
   }
 </style>

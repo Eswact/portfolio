@@ -197,6 +197,19 @@ ol[role='list'] {
   transform: translate(2px, -2px);
 }
 
+/* A file that downloads instead of opening a page. */
+.down::after {
+  content: '↓' / '';
+  display: inline-block;
+  margin-left: 0.25em;
+  transition: transform 0.3s var(--ease);
+}
+
+.down:hover::after,
+.down:focus-visible::after {
+  transform: translateY(2px);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

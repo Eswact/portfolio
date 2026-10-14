@@ -18,8 +18,8 @@ export interface Experience {
   company: string;
   /** A sentence, or a list of points for a longer role. */
   summary: L10n | L10n[];
-  /** Slugs of projects made in this role; each is linked under the summary. */
-  projects?: string[];
+  /** Projects made in this role, linked under the summary: a project slug, or a plain external link. */
+  projects?: (string | { name: string; href: string })[];
 }
 
 export const experience: Experience[] = [
@@ -46,6 +46,7 @@ export const experience: Experience[] = [
         en: 'I built mobile apps for kiosk/POS devices and AI-powered products.',
       },
     ],
+    projects: ['meetnal', 'warbly', { name: 'nsasoft.com.tr', href: 'https://www.nsasoft.com.tr' }],
   },
   {
     period: { tr: '2022', en: '2022' },

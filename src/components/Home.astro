@@ -13,7 +13,8 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 
 // A project from a role: its case study, else its live site, else its row in the full catalogue.
-const projectLink = (slug: string) => {
+const projectLink = (slug: string | { name: string; href: string }) => {
+  if (typeof slug !== 'string') return { ...slug, external: true };
   const p = projects.find((x) => x.slug === slug)!;
   if (p.featured) return { name: nameOf(p, lang), href: localePath(lang, `/work/${slug}`) };
   if (p.live) return { name: nameOf(p, lang), href: p.live, external: true };
@@ -65,14 +66,18 @@ const projectLink = (slug: string) => {
             ) : (
               <p>{e.summary[lang]}</p>
             )}
-            {e.projects?.map(projectLink).map((r) => (
+            {e.projects && (
               <p class="related">
-                <span class="mono muted">{t('experience.project')}</span>
-                <a class:list={['link', { arrow: r.external }]} href={r.href}>
-                  {r.external ? r.name : `${r.name} →`}
-                </a>
+                <span class="mono muted">{t(e.projects.length > 1 ? 'experience.projects' : 'experience.project')}</span>
+                <span class="names">
+                  {e.projects.map(projectLink).map((r) => (
+                    <a class:list={['link', { arrow: r.external }]} href={r.href}>
+                      {r.external ? r.name : `${r.name} →`}
+                    </a>
+                  ))}
+                </span>
               </p>
-            ))}
+            )}
           </div>
         </li>
       ))
@@ -205,6 +210,12 @@ const projectLink = (slug: string) => {
 
   .related .mono {
     font-size: 0.8125rem;
+  }
+
+  .related .names {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
   }
 
   .related a {
