@@ -139,7 +139,10 @@ export const projects: Project[] = [
       tr: 'NSA Teknoloji’de çalışırken geliştirdiğim, toplantıyı kaydedip analize gönderen ve özet, karar ve puanlarla dönen raporu telefonda gösteren mobil uygulama.',
       en: 'A mobile app I built while working at NSA Teknoloji that records a meeting, sends it for analysis and shows the report, with its summary, decisions and scores, on the phone.',
     },
-    stores: [{ name: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.nsasoft.meetnal' }],
+    stores: [
+      { name: 'App Store', href: 'https://apps.apple.com/us/app/meetnal-ai-meeting-analysis/id6819583198' },
+      { name: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.nsasoft.meetnal' },
+    ],
   },
   {
     slug: 'digital-signage',
