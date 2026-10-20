@@ -1,0 +1,89 @@
+---
+import type { Case } from '../data/cases';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  layers: Case['layers'];
+  lang: Lang;
+}
+
+const { layers, lang } = Astro.props;
+---
+
+<div class="arch">
+  <div class="demo">
+    <slot />
+  </div>
+  <ol class="list" role="list">
+    {
+      layers.map((l, i) => (
+        <li>
+          <span class="mono idx num">{String(i + 1).padStart(2, '0')}</span>
+          <div>
+            <h3>{l.title[lang]}</h3>
+            <p class="muted">{l.detail[lang]}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .arch {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 32px 16px;
+    align-items: center;
+  }
+
+  .demo {
+    grid-column: 1 / span 7;
+    min-width: 0;
+  }
+
+  .list {
+    grid-column: 9 / -1;
+    display: grid;
+  }
+
+  .list li {
+    display: grid;
+    grid-template-columns: 3ch minmax(0, 1fr);
+    gap: 16px;
+    padding-block: 16px;
+    border-top: 1px solid var(--line);
+  }
+
+  .list li:first-child {
+    border-top-color: var(--fg);
+  }
+
+  .list li:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .idx {
+    font-size: 0.75rem;
+    padding-top: 3px;
+    color: var(--muted);
+  }
+
+  h3 {
+    font-size: var(--step-0);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .list p {
+    font-size: 0.9375rem;
+    max-width: 52ch;
+  }
+
+  @media (max-width: 899px) {
+    .demo,
+    .list {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

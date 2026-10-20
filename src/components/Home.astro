@@ -1,0 +1,308 @@
+---
+import SectionHead from './SectionHead.astro';
+import WorkCard from './WorkCard.astro';
+import { experience, profile } from '../data/profile';
+import { featured, nameOf, projects } from '../data/projects';
+import { localePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const projectLink = (slug: string | { name: string; href: string }) => {
+  if (typeof slug !== 'string') return { ...slug, external: true };
+  const p = projects.find((x) => x.slug === slug)!;
+  if (p.featured) return { name: nameOf(p, lang), href: localePath(lang, `/work/${slug}`) };
+  if (p.live) return { name: nameOf(p, lang), href: p.live, external: true };
+  return { name: nameOf(p, lang), href: `${localePath(lang, '/work')}#${slug}` };
+};
+---
+
+<section class="container intro">
+  <h1>{t('hero.title')}</h1>
+  <p class="muted">{t('hero.role')} · {t('hero.location')} · {t('hero.now')}</p>
+</section>
+
+<section class="container block" aria-labelledby="work">
+  <SectionHead id="work" title={t('section.work')}>
+    <a class="link muted all" href={localePath(lang, '/work')}>{t('work.all')} ({projects.length})</a>
+  </SectionHead>
+  <ul class="cards" role="list">
+    {
+      featured.map((p) => (
+        <li>
+          <WorkCard project={p} lang={lang} />
+        </li>
+      ))
+    }
+    <li>
+      <WorkCard lang={lang} />
+    </li>
+  </ul>
+</section>
+
+<section class="container block" aria-labelledby="experience">
+  <SectionHead id="experience" title={t('section.experience')} />
+  <ol class="rows" role="list">
+    {
+      experience.map((e) => (
+        <li class="row">
+          <span class="mono period">{e.period[lang]}</span>
+          <div class="who">
+            <h3>{e.company}</h3>
+            <p class="muted">{e.role[lang]}</p>
+          </div>
+          <div class="summary">
+            {Array.isArray(e.summary) ? (
+              <ul class="points" role="list">
+                {e.summary.map((point) => (
+                  <li>{point[lang]}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{e.summary[lang]}</p>
+            )}
+            {e.projects && (
+              <p class="related">
+                <span class="mono muted">{t(e.projects.length > 1 ? 'experience.projects' : 'experience.project')}</span>
+                <span class="names">
+                  {e.projects.map(projectLink).map((r) => (
+                    <a class:list={['link', { arrow: r.external }]} href={r.href}>
+                      {r.external ? r.name : `${r.name} →`}
+                    </a>
+                  ))}
+                </span>
+              </p>
+            )}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<section class="container contact" aria-labelledby="contact">
+  <SectionHead id="contact" title={t('section.contact')} />
+  <p class="big">{t('contact.title')}</p>
+  <div class="mail">
+    <a class="email" href={`mailto:${profile.email}`}>{profile.email}</a>
+    <button class="copy mono" type="button" data-copy={profile.email} data-done={t('contact.copied')}>
+      {t('contact.copy')}
+    </button>
+  </div>
+  <ul class="links" role="list">
+    <li><a class="link arrow" href={profile.github}>GitHub</a></li>
+    <li><a class="link arrow" href={profile.linkedin}>LinkedIn</a></li>
+    <li><a class="link" href={profile.cv[lang]} download>{t('contact.cv')} (PDF)</a></li>
+  </ul>
+</section>
+
+<script>
+  const copy = document.querySelector<HTMLButtonElement>('[data-copy]');
+  copy?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(copy.dataset.copy!);
+      const label = copy.textContent;
+      copy.textContent = copy.dataset.done!;
+      copy.toggleAttribute('data-ok', true);
+      setTimeout(() => {
+        copy.textContent = label;
+        copy.toggleAttribute('data-ok', false);
+      }, 1600);
+    } catch {
+    }
+  });
+</script>
+
+<style>
+  .block {
+    padding-bottom: clamp(80px, 10vw, 140px);
+  }
+
+  .intro {
+    padding-block: clamp(24px, 5vw, 56px) clamp(40px, 5vw, 64px);
+  }
+
+  .intro h1 {
+    max-width: 16em;
+    font-size: var(--step-3);
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+  }
+
+  .intro p {
+    margin-top: 16px;
+  }
+
+  h3 {
+    font-size: var(--step-0);
+    font-weight: 600;
+  }
+
+  .all {
+    font-size: var(--step--1);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .cards > li {
+    display: grid;
+  }
+
+  @media (hover: hover) {
+    .cards:has(> li:hover) > li:not(:hover) {
+      opacity: var(--dim);
+    }
+
+    .cards > li {
+      transition: opacity 0.45s var(--ease);
+    }
+  }
+
+  @media (max-width: 899px) {
+    .cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 8px 16px;
+    padding-block: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .period {
+    grid-column: span 2;
+    font-size: 0.8125rem;
+    padding-top: 3px;
+  }
+
+  .who {
+    grid-column: span 3;
+  }
+
+  .summary {
+    grid-column: span 7;
+    max-width: 64ch;
+  }
+
+  .related {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .related .mono {
+    font-size: 0.8125rem;
+  }
+
+  .related .names {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+
+  .related a {
+    text-decoration: none;
+  }
+
+  .points {
+    display: grid;
+    gap: 8px;
+  }
+
+  .points li {
+    position: relative;
+    padding-left: 20px;
+  }
+
+  .points li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.75em;
+    width: 10px;
+    height: 1px;
+    background: var(--muted);
+  }
+
+  @media (max-width: 899px) {
+    .period,
+    .who,
+    .summary {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .contact {
+    padding-bottom: clamp(64px, 8vw, 112px);
+  }
+
+  .big {
+    font-size: var(--step-3);
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    max-width: 14em;
+  }
+
+  .mail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    margin-top: clamp(20px, 3vw, 32px);
+  }
+
+  .email {
+    font-size: var(--step-2);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    overflow-wrap: anywhere;
+  }
+
+  .email:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .copy {
+    height: 32px;
+    padding-inline: 14px;
+    border: 1px solid var(--fg);
+    border-radius: 99px;
+    background: transparent;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .copy:hover,
+  .copy[data-ok] {
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+    margin-top: clamp(32px, 4vw, 48px);
+  }
+
+  .links a {
+    text-decoration: none;
+  }
+</style>

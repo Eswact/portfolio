@@ -1,0 +1,750 @@
+---
+import { Picture } from 'astro:assets';
+import type { GallerySurface } from '../data/cases';
+import { resolveShot } from '../data/shots';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  surfaces: GallerySurface[];
+  lang: Lang;
+  note?: string;
+}
+
+const { surfaces, lang, note } = Astro.props;
+const t = useTranslations(lang);
+const pad = (n: number) => String(n).padStart(2, '0');
+
+const sizes = {
+  phone: '(min-width: 900px) 284px, 214px',
+  browser: '(min-width: 1360px) 1060px, 84vw',
+  screen: '(min-width: 1360px) 1040px, 82vw',
+};
+const widths = {
+  phone: [214, 320, 400, 568, 852],
+  browser: [480, 720, 1060, 1280, 1590, 2120],
+  screen: [480, 720, 1040, 1280, 1560, 2080],
+};
+---
+
+<div class="vitrin" data-vitrin>
+  {
+    surfaces.length > 1 && (
+      <div class="surfaces" role="group" aria-label={t('work.screens')}>
+        {surfaces.map((s, i) => (
+          <button type="button" aria-pressed={i === 0 ? 'true' : 'false'} data-surface-btn={s.id}>
+            {s.label[lang]}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    surfaces.map((s, si) => (
+      <div class:list={['stage', s.device]} data-surface={s.id} hidden={si > 0}>
+        <div class="device">
+          {s.device === 'browser' && (
+            <span class="bar mono" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <span>{s.address}</span>
+            </span>
+          )}
+          <button class="view" type="button" data-zoom aria-label={t('work.zoom')}>
+            {s.shots.map((shot, i) => {
+              const img = resolveShot(shot.key, lang);
+              const themed = img.dark && img.dark !== img.light;
+              const common = {
+                alt: shot.alt[lang],
+                formats: ['avif', 'webp'] as ('avif' | 'webp')[],
+                fallbackFormat: 'webp' as const,
+                widths: widths[s.device],
+                sizes: sizes[s.device],
+                loading: 'lazy' as const,
+                decoding: 'async' as const,
+              };
+              return (
+                <span class:list={['shot', { 'show on': i === 0 }]} data-shot={i} data-caption={shot.caption[lang]}>
+                  <Picture src={img.light} {...common} pictureAttributes={{ class: themed ? 'v v-light' : img.dark ? 'v' : 'v dim' }} />
+                  {themed && <Picture src={img.dark!} {...common} pictureAttributes={{ class: 'v v-dark' }} />}
+                </span>
+              );
+            })}
+          </button>
+        </div>
+
+        <div class="copy">
+          <div class="now" aria-live="polite">
+            <span class="mono muted num" data-count>
+              {pad(1)} / {pad(s.shots.length)}
+            </span>
+            <h3 data-title>{s.shots[0].caption[lang]}</h3>
+            <p class="muted" data-note>
+              {s.shots[0].note[lang]}
+            </p>
+          </div>
+          {s.shots.length > 1 && (
+            <ul class="list" role="list">
+              {s.shots.map((shot, i) => (
+                <li>
+                  <button
+                    type="button"
+                    aria-pressed={i === 0 ? 'true' : 'false'}
+                    data-pick={i}
+                    data-caption={shot.caption[lang]}
+                    data-note={shot.note[lang]}
+                  >
+                    <span class="mono num">{pad(i + 1)}</span>
+                    <span>{shot.caption[lang]}</span>
+                    <span class="tick" aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    ))
+  }
+
+  <p class="note mono muted">{note ?? t('work.real')}</p>
+
+  <dialog class="lightbox" data-lightbox aria-label={t('work.screens')}>
+    <div class="lb-top">
+      <p class="lb-caption">
+        <span class="mono" data-lb-count></span>
+        <span data-lb-title></span>
+      </p>
+      <button type="button" class="lb-btn" data-close aria-label={t('work.close')}>
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" /></svg>
+      </button>
+    </div>
+    <div class="lb-stage" data-big></div>
+    <button type="button" class="lb-btn lb-step lb-prev" data-step="-1" aria-label={t('work.prev')}>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5L7 10l5.5 5.5" /></svg>
+    </button>
+    <button type="button" class="lb-btn lb-step lb-next" data-step="1" aria-label={t('work.nextShot')}>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5L13 10l-5.5 5.5" /></svg>
+    </button>
+  </dialog>
+</div>
+
+<script>
+  function largest(picture: HTMLPictureElement) {
+    const set = picture.querySelector('source')?.srcset ?? picture.querySelector('img')?.srcset ?? '';
+    return set.split(',').pop()?.trim().split(' ')[0] || picture.querySelector('img')!.currentSrc;
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-vitrin]').forEach((root) => {
+    const stages = [...root.querySelectorAll<HTMLElement>('[data-surface]')];
+    const surfaceButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-surface-btn]')];
+
+    surfaceButtons.forEach((button) =>
+      button.addEventListener('click', () => {
+        surfaceButtons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+        stages.forEach((stage) => (stage.hidden = stage.dataset.surface !== button.dataset.surfaceBtn));
+      }),
+    );
+
+    stages.forEach((stage) => {
+      const shots = [...stage.querySelectorAll<HTMLElement>('[data-shot]')];
+      const picks = [...stage.querySelectorAll<HTMLButtonElement>('[data-pick]')];
+      const count = stage.querySelector('[data-count]')!;
+      const title = stage.querySelector('[data-title]')!;
+      const note = stage.querySelector('[data-note]')!;
+      const total = String(shots.length).padStart(2, '0');
+
+      let current = 0;
+      picks.forEach((pick) =>
+        pick.addEventListener('click', async () => {
+          const i = Number(pick.dataset.pick);
+          if (i === current) return;
+          const prev = shots[current];
+          const next = shots[i];
+          current = i;
+          picks.forEach((p, j) => p.setAttribute('aria-pressed', String(i === j)));
+          count.textContent = `${String(i + 1).padStart(2, '0')} / ${total}`;
+          title.textContent = pick.dataset.caption!;
+          note.textContent = pick.dataset.note!;
+          next.classList.add('show');
+          const img = [...next.querySelectorAll('img')].find((el) => el.offsetParent !== null);
+          await img?.decode().catch(() => {});
+          if (current !== i) return;
+          requestAnimationFrame(() => {
+            next.classList.add('on');
+            prev.classList.remove('on');
+            setTimeout(() => !prev.classList.contains('on') && prev.classList.remove('show'), 600);
+          });
+        }),
+      );
+    });
+
+    const dialog = root.querySelector<HTMLDialogElement>('[data-lightbox]')!;
+    const big = dialog.querySelector<HTMLElement>('[data-big]')!;
+    const lbCount = dialog.querySelector<HTMLElement>('[data-lb-count]')!;
+    const lbTitle = dialog.querySelector<HTMLElement>('[data-lb-title]')!;
+    const stepButtons = [...dialog.querySelectorAll<HTMLButtonElement>('[data-step]')];
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const isDark = () => {
+      const theme = document.documentElement.dataset.theme;
+      return theme ? theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    };
+    const pictureOf = (shot: HTMLElement) =>
+      ((isDark() && shot.querySelector('.v-dark')) || shot.querySelector('picture')) as HTMLPictureElement;
+
+    let stage: HTMLElement;
+    let shots: HTMLElement[] = [];
+    let index = 0;
+
+    const show = (i: number) => {
+      index = (i + shots.length) % shots.length;
+      const shot = shots[index];
+      const picture = pictureOf(shot);
+      lbCount.textContent = shots.length > 1 ? `${pad(index + 1)} / ${pad(shots.length)}` : '';
+      lbTitle.textContent = shot.dataset.caption ?? '';
+      const img = new Image();
+      img.src = largest(picture);
+      img.alt = picture.querySelector('img')!.alt;
+      img
+        .decode()
+        .catch(() => {})
+        .then(() => shots[index] === shot && big.replaceChildren(img));
+      stage.querySelector<HTMLButtonElement>(`[data-pick="${index}"]`)?.click();
+      if (shots.length > 1) [index + 1, index - 1].forEach((j) => (new Image().src = largest(pictureOf(shots[(j + shots.length) % shots.length]))));
+    };
+
+    root.querySelectorAll<HTMLButtonElement>('[data-zoom]').forEach((button) =>
+      button.addEventListener('click', () => {
+        stage = button.closest<HTMLElement>('[data-surface]')!;
+        shots = [...stage.querySelectorAll<HTMLElement>('[data-shot]')];
+        stepButtons.forEach((b) => (b.hidden = shots.length < 2));
+        big.replaceChildren();
+        show(Math.max(0, shots.findIndex((s) => s.classList.contains('on'))));
+        dialog.showModal();
+      }),
+    );
+
+    stepButtons.forEach((b) => b.addEventListener('click', () => show(index + Number(b.dataset.step))));
+    dialog.querySelector('[data-close]')!.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => !(e.target as Element).closest('img, button') && dialog.close());
+    dialog.addEventListener('keydown', (e) => {
+      if (shots.length < 2 || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+      e.preventDefault();
+      show(index + (e.key === 'ArrowRight' ? 1 : -1));
+    });
+
+    let startX = 0;
+    let startY = 0;
+    dialog.addEventListener('pointerdown', (e) => {
+      startX = e.clientX;
+      startY = e.clientY;
+    });
+    dialog.addEventListener('pointerup', (e) => {
+      const dx = e.clientX - startX;
+      if (e.pointerType !== 'mouse' && shots.length > 1 && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(e.clientY - startY)) show(index + (dx < 0 ? 1 : -1));
+    });
+  });
+</script>
+
+<style>
+  .vitrin {
+    position: relative;
+    display: grid;
+    gap: 16px;
+  }
+
+  .surfaces {
+    position: absolute;
+    top: clamp(16px, 2.4vw, 24px);
+    right: clamp(20px, 3vw, 32px);
+    z-index: 2;
+    display: flex;
+    gap: 20px;
+  }
+
+  .surfaces button {
+    padding: 4px 0;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    cursor: pointer;
+    text-underline-offset: 7px;
+    transition: color 0.2s;
+  }
+
+  .surfaces button:hover,
+  .surfaces button[aria-pressed='true'] {
+    color: var(--fg);
+  }
+
+  .surfaces button[aria-pressed='true'] {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
+  .stage {
+    position: relative;
+    display: grid;
+    gap: clamp(28px, 5vw, 72px);
+    align-items: center;
+    padding: clamp(64px, 7vw, 96px) clamp(20px, 6vw, 88px) clamp(48px, 6vw, 80px);
+    background: var(--surface);
+    overflow: hidden;
+    transition: background-color 0.6s var(--ease);
+  }
+
+  .stage[hidden] {
+    display: none;
+  }
+
+  .stage::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    height: 80%;
+    pointer-events: none;
+    background: radial-gradient(ellipse 50% 60% at 50% 0%, var(--glow), transparent 70%);
+  }
+
+  .phone {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+
+  .phone::before {
+    left: 4%;
+    width: 44%;
+  }
+
+  .browser,
+  .screen {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .browser::before,
+  .screen::before {
+    left: 15%;
+    right: 15%;
+  }
+
+  .device {
+    position: relative;
+    justify-self: center;
+    width: 100%;
+  }
+
+  .device::after {
+    content: '';
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    bottom: -30px;
+    height: 26px;
+    background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.26), transparent 70%);
+    filter: blur(4px);
+    pointer-events: none;
+  }
+
+  .view {
+    position: relative;
+    display: grid;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+    overflow: hidden;
+  }
+
+  .shot {
+    grid-area: 1 / 1;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.55s var(--ease);
+  }
+
+  .shot.show {
+    display: block;
+  }
+
+  .shot.on {
+    opacity: 1;
+  }
+
+  .shot :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .phone .device {
+    max-width: 300px;
+    padding: 8px;
+    border-radius: 42px;
+    background: #0c0c0d;
+    box-shadow:
+      0 50px 80px -44px rgb(0 0 0 / 0.55),
+      inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  }
+
+  .phone .view {
+    border-radius: 34px;
+  }
+
+  .browser .device {
+    border: 1px solid var(--line);
+    background: var(--card);
+    box-shadow: 0 50px 90px -56px rgb(0 0 0 / 0.5);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding-inline: 14px;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.6875rem;
+    color: var(--muted);
+  }
+
+  .bar i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+  }
+
+  .bar span {
+    margin-left: 10px;
+  }
+
+  .screen .device {
+    padding: clamp(6px, 1vw, 12px);
+    border-radius: 8px;
+    background: #0c0c0d;
+    box-shadow: 0 50px 90px -50px rgb(0 0 0 / 0.55);
+  }
+
+  .copy {
+    display: grid;
+    gap: 28px;
+    align-content: center;
+    min-width: 0;
+  }
+
+  .now {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+  }
+
+  .phone .now {
+    min-height: 9.5em;
+  }
+
+  [data-count] {
+    font-size: 0.75rem;
+  }
+
+  .now h3 {
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+  }
+
+  .now p {
+    max-width: 42ch;
+  }
+
+  .browser .copy,
+  .screen .copy {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    align-items: start;
+    gap: 16px clamp(24px, 4vw, 56px);
+  }
+
+  .browser .now h3,
+  .screen .now h3 {
+    font-size: var(--step-1);
+  }
+
+  .list {
+    display: grid;
+    border-top: 1px solid var(--fg);
+  }
+
+  .list button {
+    display: grid;
+    grid-template-columns: 3ch minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: baseline;
+    width: 100%;
+    padding: 12px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: none;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .list button:hover,
+  .list button[aria-pressed='true'] {
+    color: var(--fg);
+  }
+
+  .list .num {
+    font-size: 0.75rem;
+  }
+
+  .tick {
+    align-self: center;
+    width: 0;
+    height: 1px;
+    background: var(--fg);
+    transition: width 0.5s var(--ease);
+  }
+
+  [aria-pressed='true'] .tick {
+    width: 40px;
+  }
+
+  .note {
+    font-size: 0.6875rem;
+  }
+
+  :global(.v-dark) {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .shot :global(.v-light) {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .shot :global(.v-dark) {
+    display: block;
+  }
+
+  :global(:root[data-theme='dark']) .shot :global(.dim img) {
+    filter: brightness(0.8) contrast(1.04);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .shot :global(.v-light) {
+      display: none;
+    }
+
+    :global(:root:not([data-theme='light'])) .shot :global(.v-dark) {
+      display: block;
+    }
+
+    :global(:root:not([data-theme='light'])) .shot :global(.dim img) {
+      filter: brightness(0.8) contrast(1.04);
+    }
+  }
+
+  @media (max-width: 899px) {
+    .phone,
+    .browser .copy,
+    .screen .copy {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .phone .device {
+      max-width: 230px;
+    }
+
+    .phone .now {
+      min-height: 0;
+    }
+
+    .phone::before {
+      left: 10%;
+      width: 80%;
+      height: 50%;
+    }
+
+    .surfaces {
+      position: static;
+      justify-self: start;
+    }
+  }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #ededea;
+    overflow: hidden;
+  }
+
+  .lightbox[open] {
+    display: grid;
+    animation: lb-in 0.24s var(--ease);
+  }
+
+  .lightbox::backdrop {
+    background: rgb(10 10 11 / 0.96);
+    backdrop-filter: blur(12px);
+  }
+
+  .lightbox[open]::backdrop {
+    animation: lb-in 0.24s var(--ease);
+  }
+
+  :global(html:has(.lightbox[open])) {
+    overflow: hidden;
+  }
+
+  .lb-top {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 12px 12px clamp(16px, 3vw, 28px);
+  }
+
+  .lb-caption {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    min-width: 0;
+    font-size: 0.9375rem;
+    white-space: nowrap;
+  }
+
+  .lb-caption span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lb-caption .mono {
+    font-size: 0.75rem;
+    color: rgb(237 237 234 / 0.66);
+  }
+
+  .lb-stage {
+    display: grid;
+    place-items: center;
+    min-height: 0;
+    padding: 68px clamp(16px, 9vw, 112px) 32px;
+  }
+
+  .lb-stage :global(img) {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: calc(100dvh - 100px);
+    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.8);
+    animation: lb-in 0.25s var(--ease);
+  }
+
+  .lb-btn {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgb(237 237 234 / 0.22);
+    border-radius: 50%;
+    background: rgb(10 10 11 / 0.4);
+    color: inherit;
+    cursor: pointer;
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
+  }
+
+  .lb-btn:hover {
+    border-color: rgb(237 237 234 / 0.6);
+    background: rgb(237 237 234 / 0.08);
+  }
+
+  .lb-btn:focus-visible {
+    outline: 2px solid #ededea;
+    outline-offset: 2px;
+  }
+
+  .lb-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .lb-step {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+  }
+
+  .lb-step[hidden] {
+    display: none;
+  }
+
+  .lb-prev {
+    left: clamp(12px, 2.5vw, 32px);
+  }
+
+  .lb-next {
+    right: clamp(12px, 2.5vw, 32px);
+  }
+
+  @media (max-width: 699px) {
+    .lb-stage {
+      padding-bottom: 80px;
+    }
+
+    .lb-stage :global(img) {
+      max-height: calc(100dvh - 148px);
+    }
+
+    .lb-step {
+      top: auto;
+      bottom: 20px;
+      translate: none;
+    }
+
+    .lb-prev {
+      left: calc(50% - 56px);
+    }
+
+    .lb-next {
+      right: calc(50% - 56px);
+    }
+  }
+
+  @keyframes lb-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox[open],
+    .lightbox[open]::backdrop,
+    .lb-stage :global(img) {
+      animation: none;
+    }
+  }
+</style>

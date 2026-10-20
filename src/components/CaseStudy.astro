@@ -1,0 +1,301 @@
+---
+import Architecture from './Architecture.astro';
+import CaseDemo from './CaseDemo.astro';
+import Gallery from './Gallery.astro';
+import { cases } from '../data/cases';
+import { featured, type FeaturedProject } from '../data/projects';
+import { localePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  project: FeaturedProject;
+}
+
+const { lang, project: p } = Astro.props;
+const t = useTranslations(lang);
+const c = cases[p.slug];
+const index = featured.findIndex((f) => f.slug === p.slug);
+const next = featured[(index + 1) % featured.length];
+---
+
+<article class="case">
+  <nav class="container crumbs mono" aria-label={t('work.caseStudy')}>
+    <a class="link" href={`${localePath(lang, '/')}#work`}>← {t('work.back')}</a>
+    <span class="muted num">{p.card.code} · {index + 1} / {featured.length}</span>
+  </nav>
+
+  <header class="container head">
+    <h1><span class="name" data-vt={localePath(lang, `/work/${p.slug}`)}>{p.title}</span></h1>
+    <div class="promise">
+      <p class="claim">{c.claim[lang]}</p>
+      <p class="muted">{p.summary[lang]}</p>
+    </div>
+  </header>
+
+  <dl class="container facts">
+    <div>
+      <dt class="mono muted">{t('work.role')}</dt>
+      <dd>{c.role[lang]}</dd>
+    </div>
+    <div>
+      <dt class="mono muted">{t('spec.year')}</dt>
+      <dd class="num">{p.card.year}</dd>
+    </div>
+    <div>
+      <dt class="mono muted">{t('index.status')}</dt>
+      <dd><span class:list={['status', p.card.status]}>{t(`status.${p.card.status}`)}</span></dd>
+    </div>
+    <div>
+      <dt class="mono muted">{t('spec.stack')}</dt>
+      <dd>{p.stack.join('\u00a0· ')}</dd>
+    </div>
+    <div>
+      <dt class="mono muted">{t('work.links')}</dt>
+      <dd class="links">
+        {p.stores?.map((s) => <a class="link arrow" href={s.href}>{s.name}</a>)}
+        {p.live && <a class="link arrow" href={p.live}>{t(p.demo ? 'work.demoLink' : 'work.live')}</a>}
+        {p.apk && <a class="link down" href={p.apk} download>{t('work.apk')}</a>}
+        {p.release && <a class="link arrow" href={p.release}>{t('work.app')}</a>}
+        {p.source?.map((href) => <a class="link arrow" href={href}>{t('work.source')}</a>)}
+      </dd>
+    </div>
+  </dl>
+
+  <section class="container stage" aria-labelledby="architecture">
+    <div class="rule">
+      <h2 id="architecture">{t('work.architecture')}</h2>
+    </div>
+    <Architecture layers={c.layers} lang={lang}>
+      <CaseDemo kind={c.demo} lang={lang} />
+    </Architecture>
+  </section>
+
+  {
+    c.gallery.length > 0 && (
+      <section class="container block" aria-labelledby="screens">
+        <div class="rule">
+          <h2 id="screens">{t('work.screens')}</h2>
+        </div>
+        <Gallery surfaces={c.gallery} lang={lang} note={c.galleryNote?.[lang]} />
+      </section>
+    )
+  }
+
+  <section class="container block" aria-labelledby="how">
+    <div class="rule">
+      <h2 id="how">{t('work.how')}</h2>
+    </div>
+    <div class="sections">
+      {
+        c.sections.map((s) => (
+          <section class="row">
+            <h3>{s.title[lang]}</h3>
+            <p>{s.body[lang]}</p>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+
+  <div class="container">
+    <a class="next" href={localePath(lang, `/work/${next.slug}`)}>
+      <span class="label mono muted">{t('work.next')} · {next.card.code}</span>
+      <span class="next-title"><span class="name" data-vt={localePath(lang, `/work/${next.slug}`)}>{next.title}</span></span>
+      <span class="muted next-type">{next.type[lang]}</span>
+    </a>
+  </div>
+</article>
+
+<style>
+  .case {
+    padding-bottom: clamp(64px, 8vw, 112px);
+  }
+
+  .crumbs {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 8px 0;
+    font-size: 0.75rem;
+  }
+
+  .crumbs a {
+    text-decoration: none;
+  }
+
+  .head {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 20px 16px;
+    align-items: end;
+    padding-block: clamp(40px, 7vw, 96px) clamp(32px, 4vw, 48px);
+  }
+
+  h1 {
+    grid-column: 1 / span 6;
+    font-size: clamp(3.25rem, 1.6rem + 6vw, 6rem);
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    overflow-wrap: anywhere;
+  }
+
+  .promise {
+    grid-column: 7 / -1;
+    display: grid;
+    gap: 14px;
+    padding-bottom: 6px;
+  }
+
+  .claim {
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  .promise .muted {
+    max-width: 52ch;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.3fr 4fr 2.4fr;
+    gap: 16px;
+  }
+
+  .facts > div {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    padding-top: 12px;
+    border-top: 1px solid var(--fg);
+    min-width: 0;
+  }
+
+  .facts dt {
+    font-size: 0.75rem;
+  }
+
+  .facts dd {
+    margin: 0;
+    font-size: 0.9375rem;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+  }
+
+  .status {
+    color: var(--muted);
+  }
+
+  .status::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 6px;
+    border-radius: 50%;
+    border: 1px solid var(--fg);
+    vertical-align: 1px;
+  }
+
+  .status.live::before {
+    background: var(--fg);
+  }
+
+  .stage {
+    padding-block: clamp(32px, 5vw, 56px) 0;
+  }
+
+  .block {
+    padding-top: clamp(72px, 9vw, 128px);
+  }
+
+  .rule {
+    padding-top: 12px;
+    border-top: 1px solid var(--fg);
+    margin-bottom: clamp(24px, 3vw, 40px);
+  }
+
+  h2 {
+    font-size: var(--step-0);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 8px 16px;
+    padding-block: 20px 28px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .row:first-child {
+    padding-top: 0;
+  }
+
+  .row h3 {
+    grid-column: 1 / span 4;
+    font-size: var(--step-1);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .row p {
+    grid-column: 6 / -1;
+    max-width: 64ch;
+  }
+
+  .next {
+    display: grid;
+    gap: 8px;
+    margin-top: clamp(72px, 9vw, 128px);
+    padding-top: 12px;
+    border-top: 1px solid var(--fg);
+    text-decoration: none;
+  }
+
+  .next .label {
+    font-size: 0.75rem;
+  }
+
+  .name {
+    display: inline-block;
+  }
+
+  .next-title {
+    font-size: var(--step-3);
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    transition: transform 0.5s var(--ease);
+  }
+
+  .next:hover .next-title,
+  .next:focus-visible .next-title {
+    transform: translateX(12px);
+  }
+
+  @media (max-width: 899px) {
+    h1,
+    .promise {
+      grid-column: 1 / -1;
+    }
+
+    .facts {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .row h3,
+    .row p {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

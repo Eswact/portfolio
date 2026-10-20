@@ -1,0 +1,2022 @@
+---
+import { nameOf, others, type FeaturedProject } from '../data/projects';
+import { localePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  project?: FeaturedProject;
+  lang: Lang;
+}
+
+const { project: p, lang } = Astro.props;
+const t = useTranslations(lang);
+const tr = lang === 'tr';
+const card = p?.card;
+const n = card?.layers.length ?? 0;
+
+const last = others[others.length - 1];
+
+const fibi = tr
+  ? {
+      notes: ['dinler, onay kartı gösterir', 'net cümleyi telefonda anlar', 'yalnızca belirsiz cümlelerde', 'gider ve envanter cihazda'],
+      steps: [
+        ['Söyle', '“3700 liraya kulaklık aldım”'],
+        ['Kontrol et', '₺3.700 · Teknoloji › Ses'],
+        ['Kaydet', 'gider + envanter'],
+      ],
+    }
+  : {
+      notes: ['voice in, review card out', 'clear sentences, on-device', 'only for unclear sentences', 'stores expenses and items'],
+      steps: [
+        ['Say', '“bought headphones for 3700 lira”'],
+        ['Review', '₺3,700 · Tech › Audio'],
+        ['Save', 'expense + inventory'],
+      ],
+    };
+
+const markets = [
+  { name: 'Trendyol', found: true },
+  { name: 'Hepsiburada', found: false },
+  { name: 'Pazarama', found: false },
+  { name: 'CarrefourSA', found: true },
+  { name: 'Mopaş', found: true },
+  { name: 'Afta Market', found: false },
+  { name: 'Şok Market', found: true },
+  { name: 'Market Karşılaştır', found: true, best: true },
+];
+const rowY = (i: number) => 22 + i * 25;
+
+const voice = tr
+  ? {
+      said: [['“Bu', 'akşam', '9’da'], ['anneanneme', 'gideceğim,'], ['önce', 'çiçek', 'alacağım”']],
+      state: 'dinliyor',
+      title: 'Görevler',
+      today: 'BUGÜN',
+      task: 'Anneanneme ziyaret et',
+      when: 'Bugün · 21:00',
+      sub: 'Çiçek al',
+      others: [['Faturayı öde', 'Bugün · 18:00'], ['Spora git', 'Bugün · 19:30']],
+      toast: 'Görev eklendi',
+      undo: 'Geri al',
+      steps: [
+        ['Widget’a dokun', ['Ana ekrandan tek dokunuş']],
+        ['Konuş', ['“Bu akşam 9’da anneanneme', 'gideceğim, önce çiçek alacağım”']],
+        ['Listede', ['Bugün 21:00 · alt görev:', 'Çiçek al']],
+      ],
+    }
+  : {
+      said: [['“Tonight', 'at', '9', 'I’m'], ['visiting', 'grandma,'], ['buying', 'flowers', 'first”']],
+      state: 'listening',
+      title: 'Tasks',
+      today: 'TODAY',
+      task: 'Visit grandma',
+      when: 'Today · 21:00',
+      sub: 'Buy flowers',
+      others: [['Pay the bill', 'Today · 18:00'], ['Go to the gym', 'Today · 19:30']],
+      toast: 'Task added',
+      undo: 'Undo',
+      steps: [
+        ['Tap the widget', ['One tap from the home screen']],
+        ['Speak', ['“Tonight at 9 I’m visiting', 'grandma, buying flowers first”']],
+        ['On the list', ['Today 21:00 · subtask:', 'Buy flowers']],
+      ],
+    };
+const appGrid = [38, 68, 98].flatMap((y) => [52, 75, 98, 121].map((x) => ({ x, y })));
+
+const meeting = tr
+  ? { title: 'Haftalık toplantı', overall: 'Genel', upload: 'analize gönder', kinds: ['Netlik', 'Verimlilik', 'İletişim', 'Sonuç'] }
+  : { title: 'Weekly meeting', overall: 'Overall', upload: 'send for analysis', kinds: ['Clarity', 'Efficiency', 'Communication', 'Outcome'] };
+const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
+---
+
+<article class="card" data-object={card?.object ?? 'catalogue'}>
+  {p && card ? (
+  <>
+  <div class="top mono">
+    <span>{card.code}</span>
+    <span class:list={['status', card.status]}>{t(`status.${card.status}`)}</span>
+  </div>
+
+  <div class="obj" aria-hidden="true">
+    {
+      card.object === 'phone' && (
+        <div class="fb">
+          <div class="fb-lift">
+            <div class="fb-world">
+              <div class="fb-ph">
+                {card.layers.map((_, i) => (
+                  <b class:list={['fb-pl', 'fb-ly', { 'fb-bar': i === 0, 'fb-base': i === n - 1 }]} style={`--i:${n - 1 - i}`} />
+                ))}
+                <b class="fb-pl fb-scr">
+                  <span class="fb-home">
+                    <i class="fb-sk" style="--x:9;--y:10;--w:30" />
+                    <i class="fb-blk" style="--x:9;--y:19;--w:46;--h:12" />
+                    <i class="fb-sk" style="--x:9;--y:38;--w:24" />
+                    <span class="fb-rows">
+                      <i class="fb-r" />
+                      <i class="fb-r" />
+                    </span>
+                  </span>
+                  <span class="fb-voice">
+                    <i class="fb-sk" style="--x:9;--y:12;--w:36" />
+                    <i class="fb-ring" />
+                    <i class="fb-ring" style="--d:0.4s" />
+                    <i class="fb-ring" style="--d:0.8s" />
+                    <i class="fb-mic" />
+                    <span class="fb-wave">
+                      {Array.from({ length: 7 }, () => (
+                        <i />
+                      ))}
+                    </span>
+                  </span>
+                  <span class="fb-sheet">
+                    <span class="fb-in">
+                      <i class="fb-sk" style="--x:7;--y:9;--w:28" />
+                      <i class="fb-blk" style="--x:7;--y:18;--w:44;--h:11" />
+                      <i class="fb-sk" style="--x:7;--y:38;--w:22" />
+                      <i class="fb-chip" style="--x:7;--y:46;--w:38" />
+                      <i class="fb-sk" style="--x:7;--y:66;--w:32" />
+                      <i class="fb-tog" />
+                      <i class="fb-btn" />
+                    </span>
+                  </span>
+                </b>
+              </div>
+            </div>
+          </div>
+          <ul class="fb-layers" role="list">
+            {card.layers.map((l, i) => (
+              <li style={`--i:${n - 1 - i}`}>
+                <span>
+                  <b>{l[lang]}</b>
+                  <span>{fibi.notes[i]}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <ol class="fb-steps" role="list">
+            {fibi.steps.map(([title, detail], i) => (
+              <li>
+                <b>
+                  <span>{String(i + 1).padStart(2, '0')}</span>
+                  {title}
+                </b>
+                <small>{detail}</small>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )
+    }
+
+    {
+      card.object === 'api' && (
+        <svg class="diagram api" viewBox="0 0 360 224">
+          {markets.map((m, i) => (
+            <g class:list={['src', { miss: !m.found }]} style={`--d:${(i % 4) * 90 + Math.floor(i / 4) * 45}ms`}>
+              <rect x="12" y={rowY(i) - 9} width="108" height="18" rx="3" />
+              <text x="19" y={rowY(i) + 3.5}>
+                {m.name}
+              </text>
+              <path class="wire" d={`M120 ${rowY(i)} C 166 ${rowY(i)}, 174 112, 214 112`} pathLength="100" />
+              {m.found && <path class="pk" d={`M120 ${rowY(i)} C 166 ${rowY(i)}, 174 112, 214 112`} pathLength="100" />}
+            </g>
+          ))}
+          <circle class="node" cx="214" cy="112" r="3.5" />
+          <g class="result">
+            <rect x="226" y="80" width="122" height="64" rx="5" />
+            <text class="r-k" x="238" y="99">
+              {tr ? 'En ucuz · 5/8 market' : 'Cheapest · 5/8 markets'}
+            </text>
+            <text class="r-v" x="238" y="122">
+              ₺16,00
+            </text>
+            <text class="r-k" x="238" y="136">
+              Market Karşılaştır
+            </text>
+          </g>
+        </svg>
+      )
+    }
+
+    {
+      card.object === 'screen' && (
+        <svg class="diagram signage" viewBox="0 0 360 224">
+          <g class="panel">
+            <rect class="win" x="14" y="62" width="124" height="96" rx="4" />
+            <line class="sep" x1="14" y1="74" x2="138" y2="74" />
+            <circle class="dot" cx="21" cy="68" r="1.6" />
+            <circle class="dot" cx="27" cy="68" r="1.6" />
+            <circle class="dot" cx="33" cy="68" r="1.6" />
+            <rect class="side" x="14" y="74" width="26" height="84" />
+            <rect class="ln" x="48" y="84" width="60" height="5" rx="1" />
+            <rect class="ln" x="48" y="96" width="80" height="12" rx="2" />
+            <rect class="ln" x="48" y="112" width="80" height="12" rx="2" />
+            <rect class="ln new" x="48" y="128" width="80" height="12" rx="2" />
+            <text class="tag" x="54" y="137">
+              49 · Latte
+            </text>
+          </g>
+          {[
+            'M138 110 C 168 110, 170 62, 196 62',
+            'M138 110 C 168 110, 176 150, 196 152',
+            'M138 110 C 200 110, 250 150, 276 152',
+          ].map((d, i) => (
+            <>
+              <path class="wire" d={d} pathLength="100" />
+              <path class="pk" d={d} pathLength="100" style={`--d:${i * 70}ms`} />
+            </>
+          ))}
+          <g class="tv big">
+            <rect class="case" x="196" y="22" width="150" height="86" rx="4" />
+            <rect class="glass" x="200" y="26" width="142" height="78" rx="1.5" />
+            <text class="h" x="206" y="38">
+              {tr ? 'Siparişler' : 'Orders'}
+            </text>
+            <rect class="colA" x="206" y="43" width="62" height="56" rx="1.5" />
+            <rect class="colB" x="273" y="43" width="62" height="56" rx="1.5" />
+            <text class="num" x="211" y="58">
+              41
+            </text>
+            <text class="num" x="211" y="74">
+              42
+            </text>
+            <text class="num fresh" x="211" y="90">
+              49
+            </text>
+            <text class="num" x="278" y="58">
+              46
+            </text>
+            <text class="num" x="278" y="74">
+              47
+            </text>
+          </g>
+          <g class="tv">
+            <rect class="case" x="196" y="128" width="70" height="46" rx="3" />
+            <rect class="glass dark" x="199" y="131" width="64" height="40" rx="1" />
+            <text class="q old" x="231" y="157" text-anchor="middle">
+              A042
+            </text>
+            <text class="q fresh" x="231" y="157" text-anchor="middle">
+              A043
+            </text>
+          </g>
+          <g class="tv">
+            <rect class="case" x="276" y="128" width="70" height="46" rx="3" />
+            <rect class="glass dark" x="279" y="131" width="64" height="40" rx="1" />
+            <rect class="ln-tv" x="285" y="138" width="34" height="4" rx="1" />
+            <rect class="ln-tv soft" x="285" y="147" width="46" height="3" rx="1" />
+            <rect class="ln-tv soft" x="285" y="154" width="40" height="3" rx="1" />
+            <rect class="band" x="279" y="163" width="64" height="8" />
+          </g>
+        </svg>
+      )
+    }
+
+    {
+      card.object === 'voice' && (
+        <svg class="diagram voice" viewBox="0 0 360 224">
+          <rect class="body-p" x="40" y="12" width="112" height="200" rx="16" />
+          <line class="ear" x1="86" y1="21" x2="106" y2="21" />
+
+          <g class="wb-s1">
+            {appGrid.map(({ x, y }) =>
+              x === 75 && y === 98 ? (
+                <>
+                  <rect class="mic" x={x} y={y} width="16" height="16" rx="4" />
+                  <rect class="mic-g" x="81.4" y="101.5" width="3.2" height="6" rx="1.6" />
+                  <path class="mic-s thin" d="M79.6 106a3.4 3.4 0 0 0 6.8 0M83 109.6v1.6" />
+                </>
+              ) : (
+                <rect class="app-i" x={x} y={y} width="16" height="16" rx="4" />
+              ),
+            )}
+            <text class="r-k tiny" x="83" y="122" text-anchor="middle">
+              Warbly
+            </text>
+            <circle class="wb-ripple" cx="83" cy="106" r="14" />
+            {[52, 75, 98, 121].map((x) => (
+              <rect class="app-i" x={x} y="180" width="16" height="16" rx="4" />
+            ))}
+          </g>
+
+          <g class="wb-s2">
+            <circle class="ring" cx="96" cy="80" r="17" />
+            <circle class="ring r2" cx="96" cy="80" r="17" />
+            <circle class="mic" cx="96" cy="80" r="17" />
+            <rect class="mic-g" x="92.2" y="70.5" width="7.6" height="12.5" rx="3.8" />
+            <path class="mic-s" d="M87.8 79.5a8.2 8.2 0 0 0 16.4 0M96 87.7v3.8" />
+            <text class="r-k small" x="96" y="116" text-anchor="middle">
+              {voice.state}
+            </text>
+            {voice.said.map((line, li) => (
+              <text class="sans said" x="96" y={138 + li * 11} text-anchor="middle">
+                {line.map((w, wi) => (
+                  <tspan class="wb-w" style={`--d:${(voice.said.slice(0, li).flat().length + wi) * 110}ms`}>
+                    {w}{' '}
+                  </tspan>
+                ))}
+              </text>
+            ))}
+          </g>
+
+          <g class="wb-s3">
+            <text class="sans list-h" x="52" y="44">
+              {voice.title}
+            </text>
+            <text class="r-k tiny" x="52" y="58">
+              {voice.today}
+            </text>
+            <g class="wb-new">
+              <rect class="row hot" x="50" y="64" width="92" height="40" rx="5" />
+              <rect class="box" x="55" y="70" width="6" height="6" rx="1.5" />
+              <text class="sans row-t" x="65" y="75.5">
+                {voice.task}
+              </text>
+              <text class="tiny when" x="65" y="84">
+                {voice.when}
+              </text>
+              <line class="div" x1="65" y1="89" x2="137" y2="89" />
+              <rect class="box" x="65" y="93" width="5" height="5" rx="1.2" />
+              <text class="r-k tiny" x="74" y="97.6">
+                {voice.sub}
+              </text>
+            </g>
+            <g class="wb-others">
+              {voice.others.map(([title, when], i) => (
+                <>
+                  <rect class="row" x="50" y={64 + i * 30} width="92" height="26" rx="5" />
+                  <rect class="box" x="55" y={70 + i * 30} width="6" height="6" rx="1.5" />
+                  <text class="sans row-t" x="65" y={75.5 + i * 30}>
+                    {title}
+                  </text>
+                  <text class="r-k tiny" x="65" y={84 + i * 30}>
+                    {when}
+                  </text>
+                </>
+              ))}
+            </g>
+            <g class="wb-toast">
+              <rect x="50" y="184" width="92" height="17" rx="5" />
+              <text x="56" y="194.6">
+                {voice.toast}
+              </text>
+              <text class="undo" x="136" y="194.6" text-anchor="end">
+                {voice.undo}
+              </text>
+            </g>
+          </g>
+
+          {voice.steps.map(([title, lines], i) => (
+            <g class:list={['wb-step', `wb-step${i + 1}`]}>
+              <text x="176" y={56 + i * 50}>
+                {String(i + 1).padStart(2, '0')}
+              </text>
+              <text class="sans step-t" x="196" y={56 + i * 50}>
+                {title}
+              </text>
+              {(lines as string[]).map((line, li) => (
+                <text class="r-k" x="196" y={69 + i * 50 + li * 11}>
+                  {line}
+                </text>
+              ))}
+            </g>
+          ))}
+        </svg>
+      )
+    }
+
+    {
+      card.object === 'meeting' && (
+        <svg class="diagram meeting" viewBox="14 0 360 224">
+          <g class="handset">
+            <rect class="body-p" x="40" y="30" width="84" height="164" rx="14" />
+            <line class="ear" x1="72" y1="39" x2="92" y2="39" />
+            <circle class="dot-rec" cx="56" cy="58" r="3" />
+            <text class="r-k" x="63" y="61">
+              REC
+            </text>
+            <text class="clock" x="82" y="90" text-anchor="middle">
+              47:12
+            </text>
+            {bars.map((h, i) => (
+              <rect class="lvl" x={52 + i * 5} y={118 - h / 2} width="2.5" height={h} rx="1.25" style={`--d:${(i % 5) * 90}ms`} />
+            ))}
+            <circle class="rec-btn" cx="82" cy="160" r="13" />
+            <rect class="rec-stop" x="78" y="156" width="8" height="8" rx="2" />
+          </g>
+          <path class="wire" d="M124 112 L 206 112" pathLength="100" />
+          <path class="pk" d="M124 112 L 206 112" pathLength="100" />
+          <text class="r-k up" x="165" y="104" text-anchor="middle">
+            {meeting.upload}
+          </text>
+          <g class="report">
+            <rect class="sheet" x="206" y="38" width="142" height="148" rx="8" />
+            <text x="216" y="56">
+              {meeting.title}
+            </text>
+            <line class="div" x1="216" y1="64" x2="338" y2="64" />
+            <g class="fresh">
+              <text class="big-n" x="216" y="92">
+                8
+              </text>
+              <text class="r-k" x="234" y="91">
+                {meeting.overall}
+              </text>
+            </g>
+            {meeting.kinds.map((k, i) => (
+              <>
+                <text class="r-k" x="216" y={114 + i * 18}>
+                  {k}
+                </text>
+                <rect class="track" x="290" y={109 + i * 18} width="48" height="4" rx="2" />
+                <rect class="fill" x="290" y={109 + i * 18} width={i < 2 ? 38 : 34} height="4" rx="2" style={`--d:${700 + i * 120}ms`} />
+              </>
+            ))}
+          </g>
+        </svg>
+      )
+    }
+  </div>
+
+  <div class="body">
+    <h3>
+      <a class="go" href={localePath(lang, `/work/${p.slug}`)}>
+        <span class="name" data-vt={localePath(lang, `/work/${p.slug}`)}>{p.title}</span>
+      </a>
+      <span class="type">{p.type[lang]}</span>
+    </h3>
+    <dl class="mono">
+      <dt>{t('spec.platform')}</dt>
+      <dd>{card.platform[lang]}</dd>
+      <dt>{t('spec.stack')}</dt>
+      <dd>{p.stack.join('\u00a0· ')}</dd>
+      <dt>{t('spec.year')}</dt>
+      <dd class="num">{card.year}</dd>
+    </dl>
+  </div>
+  </>
+  ) : (
+  <>
+  <div class="top mono">
+    <span>{others[0].code}–{last.code.slice(3)}</span>
+    <span class="status">{others.length} {t('catalogue.projects')}</span>
+  </div>
+
+  <div class="obj" aria-hidden="true">
+    <div class="cat">
+      <ol class="cat-rows" role="list">
+        {others.map((o, i) => (
+          <li style={`--d:${i * 45}ms`}>
+            <span class="cat-code">{o.code}</span>
+            <span class="cat-name">{nameOf(o, lang)}</span>
+            <i class:list={['cat-dot', o.status]} />
+          </li>
+        ))}
+      </ol>
+      <span class="cat-open">{t('catalogue.open')}</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <h3>
+      <a class="go" href={localePath(lang, '/work')}>
+        <span class="name" data-vt={localePath(lang, '/work')}>{t('section.index')}</span>
+      </a>
+      <span class="type">{t('catalogue.type')}</span>
+    </h3>
+    <dl class="mono">
+      <dt>{t('index.type')}</dt>
+      <dd>{t('catalogue.kinds')}</dd>
+      <dt>{t('index.code')}</dt>
+      <dd class="num">{others[0].code} → {last.code}</dd>
+    </dl>
+  </div>
+  </>
+  )}
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    background: var(--card);
+    border: 1px solid var(--line);
+    text-decoration: none;
+    transition:
+      opacity 0.45s var(--ease),
+      border-color 0.3s,
+      background-color 0.6s var(--ease);
+  }
+
+  .card:hover,
+  .card:has(:focus-visible) {
+    border-color: var(--fg);
+  }
+
+  .top {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 14px;
+    font-size: 0.8125rem;
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--muted);
+  }
+
+  .status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1px solid var(--fg);
+  }
+
+  .status.live::before {
+    background: var(--fg);
+  }
+
+  .obj {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--surface);
+    transition: background-color 0.6s var(--ease);
+  }
+
+  .obj::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 70% at 50% 12%, rgb(255 250 235 / 0.16), transparent 72%);
+    transition: opacity 0.45s var(--ease);
+  }
+
+  .card:hover .obj::after,
+  .card:has(:focus-visible) .obj::after {
+    opacity: var(--spot);
+  }
+
+  .obj {
+    container-type: inline-size;
+  }
+
+  .fb {
+    --u: calc(100cqw / 360);
+    position: absolute;
+    inset: 0;
+  }
+
+  .fb-lift {
+    position: absolute;
+    inset: 0;
+  }
+
+  .fb-world {
+    position: absolute;
+    left: calc(104 * var(--u));
+    top: calc(162 * var(--u));
+    transform-style: preserve-3d;
+    transform: rotateX(56deg) rotateZ(-36deg);
+  }
+
+  .fb-ph {
+    --fb-g: calc(36 * var(--u));
+    position: absolute;
+    left: calc(-42 * var(--u));
+    top: calc(-74 * var(--u));
+    width: calc(84 * var(--u));
+    height: calc(148 * var(--u));
+    transform-style: preserve-3d;
+  }
+
+  .fb-pl {
+    position: absolute;
+    inset: 0;
+    border: calc(1.5 * var(--u)) solid var(--fg);
+    border-radius: calc(15 * var(--u));
+    background: var(--card);
+    transition:
+      background-color 0.6s var(--ease),
+      border-color 0.6s var(--ease);
+  }
+
+  .fb-ly {
+    transform: translateZ(calc(var(--i) * var(--fb-g)));
+  }
+
+  .fb-base {
+    background: var(--fg);
+  }
+
+  .fb-bar::after {
+    content: '';
+    position: absolute;
+    left: calc(10 * var(--u));
+    right: calc(10 * var(--u));
+    bottom: calc(12 * var(--u));
+    height: calc(14 * var(--u));
+    border-radius: calc(7 * var(--u));
+    background: var(--product-fibi);
+  }
+
+  .fb-scr {
+    --sk: color-mix(in srgb, var(--fg) 20%, transparent);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateZ(calc(13 * var(--u)));
+  }
+
+  .fb-scr * {
+    position: absolute;
+  }
+
+  .fb-home,
+  .fb-voice,
+  .fb-in {
+    inset: 0;
+  }
+
+  .fb-home {
+    opacity: 0;
+  }
+
+  .fb-sk,
+  .fb-blk,
+  .fb-chip {
+    left: calc(var(--x) * var(--u));
+    top: calc(var(--y) * var(--u));
+    width: calc(var(--w) * var(--u));
+  }
+
+  .fb-sk {
+    height: calc(4.5 * var(--u));
+    border-radius: calc(2.25 * var(--u));
+    background: var(--sk);
+  }
+
+  .fb-blk {
+    height: calc(var(--h) * var(--u));
+    border-radius: calc(2 * var(--u));
+    background: var(--fg);
+  }
+
+  .fb-chip {
+    height: calc(9 * var(--u));
+    border-radius: calc(4.5 * var(--u));
+    border: calc(0.8 * var(--u)) solid var(--fg);
+    background: var(--product-fibi);
+  }
+
+  .fb-mic,
+  .fb-ring {
+    left: calc(25 * var(--u));
+    top: calc(42 * var(--u));
+    width: calc(34 * var(--u));
+    height: calc(34 * var(--u));
+    border-radius: 50%;
+  }
+
+  .fb-mic {
+    border: calc(1.5 * var(--u)) solid var(--fg);
+    background: var(--product-fibi);
+  }
+
+  .fb-mic::before,
+  .fb-mic::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    background: #151517;
+  }
+
+  .fb-mic::before {
+    top: 22%;
+    width: calc(8 * var(--u));
+    height: calc(13 * var(--u));
+    margin-left: calc(-4 * var(--u));
+    border-radius: calc(4 * var(--u));
+  }
+
+  .fb-mic::after {
+    bottom: 20%;
+    width: calc(1.5 * var(--u));
+    height: calc(4 * var(--u));
+    margin-left: calc(-0.75 * var(--u));
+  }
+
+  .fb-ring {
+    border: calc(1 * var(--u)) solid var(--fg);
+    opacity: 0;
+  }
+
+  .fb-wave {
+    left: calc(20 * var(--u));
+    right: calc(20 * var(--u));
+    top: calc(92 * var(--u));
+    height: calc(16 * var(--u));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .fb-wave i {
+    position: static;
+    width: calc(3 * var(--u));
+    height: 100%;
+    border-radius: calc(1.5 * var(--u));
+    background: var(--fg);
+    transform: scaleY(0.25);
+  }
+
+  .fb-sheet {
+    left: calc(6 * var(--u));
+    right: calc(6 * var(--u));
+    top: calc(150 * var(--u));
+    height: calc(116 * var(--u));
+    overflow: hidden;
+    border: calc(1 * var(--u)) solid var(--fg);
+    border-radius: calc(6 * var(--u));
+    background: var(--card);
+  }
+
+  .fb-tog {
+    right: calc(7 * var(--u));
+    top: calc(64 * var(--u));
+    width: calc(15 * var(--u));
+    height: calc(8 * var(--u));
+    border-radius: calc(4 * var(--u));
+    border: calc(1 * var(--u)) solid var(--fg);
+    background: var(--card);
+  }
+
+  .fb-btn {
+    left: calc(5 * var(--u));
+    right: calc(5 * var(--u));
+    top: calc(98 * var(--u));
+    height: calc(14 * var(--u));
+    border-radius: calc(7 * var(--u));
+    background: var(--fg);
+  }
+
+  .fb-btn::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(6 * var(--u));
+    height: calc(3.2 * var(--u));
+    border-left: calc(1.4 * var(--u)) solid var(--card);
+    border-bottom: calc(1.4 * var(--u)) solid var(--card);
+    transform: translate(-50%, -70%) rotate(-45deg);
+  }
+
+  .fb-rows {
+    left: calc(6 * var(--u));
+    right: calc(6 * var(--u));
+    top: calc(67 * var(--u));
+    display: grid;
+    gap: calc(3 * var(--u));
+  }
+
+  .fb-rows .fb-r {
+    position: relative;
+    height: calc(16 * var(--u));
+    border: calc(1 * var(--u)) solid var(--line);
+    border-radius: calc(4 * var(--u));
+  }
+
+  .fb-r::before,
+  .fb-r::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    height: calc(4 * var(--u));
+    margin-top: calc(-2 * var(--u));
+    border-radius: calc(2 * var(--u));
+    background: var(--sk);
+  }
+
+  .fb-r::before {
+    left: calc(5 * var(--u));
+    width: calc(28 * var(--u));
+  }
+
+  .fb-r::after {
+    right: calc(5 * var(--u));
+    width: calc(14 * var(--u));
+  }
+
+  .fb-layers {
+    --fb-g: calc(36 * var(--u));
+    position: absolute;
+    left: calc(188 * var(--u));
+    right: calc(6 * var(--u));
+    top: calc(162 * var(--u));
+    height: 0;
+  }
+
+  .fb-layers li {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: calc(8 * var(--u));
+    white-space: nowrap;
+    transform: translateY(calc(-50% - var(--i) * var(--fb-g) * 0.829));
+  }
+
+  .fb-layers li::before {
+    content: '';
+    flex: none;
+    width: calc(22 * var(--u));
+    height: 1px;
+    background: var(--muted);
+  }
+
+  .fb-layers li > span {
+    display: grid;
+    line-height: 1.25;
+  }
+
+  .fb-layers b {
+    font-size: calc(11.5 * var(--u));
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .fb-layers li > span > span {
+    font-size: calc(10 * var(--u));
+    color: var(--muted);
+  }
+
+  .fb-steps {
+    position: absolute;
+    left: calc(222 * var(--u));
+    top: calc(48 * var(--u));
+    width: calc(118 * var(--u));
+    display: grid;
+    gap: calc(12 * var(--u));
+    opacity: 0;
+  }
+
+  .fb-steps li {
+    display: grid;
+    gap: calc(2 * var(--u));
+    padding-left: calc(8 * var(--u));
+    border-left: calc(2 * var(--u)) solid var(--line);
+    opacity: 0.35;
+  }
+
+  .fb-steps b {
+    font-size: calc(12.5 * var(--u));
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .fb-steps b span,
+  .fb-steps small {
+    font-family: var(--font-mono);
+    font-size: calc(9.5 * var(--u));
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .fb-steps b span {
+    margin-right: calc(5 * var(--u));
+  }
+
+  .fb-steps small {
+    line-height: 1.4;
+  }
+
+  :is(.card:hover, .card:has(:focus-visible)) .fb-ph {
+    animation: fb-g 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-lift {
+    animation: fb-lift 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-layers {
+    animation: fb-notes 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-scr {
+    animation: fb-scr 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-voice {
+    animation: fb-voice 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-ring {
+    animation: fb-ring 1.2s var(--ease) calc(1.3s + var(--d, 0s)) 2;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-wave i {
+    animation: fb-wave 0.9s ease-in-out var(--d, 0s) 4 alternate;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-sheet {
+    animation: fb-rise 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-in {
+    animation: fb-in 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-tog {
+    animation: fb-tog 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-btn {
+    animation: fb-press 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-home {
+    animation: fb-home 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-steps {
+    animation: fb-steps 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-steps li:nth-child(1) {
+    animation: fb-st1 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-steps li:nth-child(2) {
+    animation: fb-st2 8s var(--ease) both;
+  }
+  :is(.card:hover, .card:has(:focus-visible)) .fb-steps li:nth-child(3) {
+    animation: fb-st3 8s var(--ease) both;
+  }
+
+  .fb-wave i:nth-child(2n) {
+    --d: -0.3s;
+  }
+
+  .fb-wave i:nth-child(3n) {
+    --d: -0.6s;
+  }
+
+  .fb-wave i:nth-child(4) {
+    --d: -0.45s;
+  }
+
+  @property --fb-g {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+  }
+
+  @keyframes fb-g {
+    0% {
+      --fb-g: calc(36 * var(--u));
+    }
+    8%,
+    86% {
+      --fb-g: calc(4 * var(--u));
+    }
+    94% {
+      --fb-g: calc(38 * var(--u));
+    }
+    97%,
+    100% {
+      --fb-g: calc(36 * var(--u));
+    }
+  }
+
+  @keyframes fb-lift {
+    0% {
+      transform: none;
+    }
+    8%,
+    86% {
+      transform: translateY(calc(-34 * var(--u)));
+    }
+    94%,
+    100% {
+      transform: none;
+    }
+  }
+
+  @keyframes fb-notes {
+    0% {
+      opacity: 1;
+    }
+    4%,
+    90% {
+      opacity: 0;
+    }
+    97%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fb-scr {
+    0%,
+    4% {
+      opacity: 0;
+    }
+    12%,
+    86% {
+      opacity: 1;
+    }
+    90%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fb-voice {
+    0%,
+    9% {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+    16%,
+    36% {
+      opacity: 1;
+      transform: none;
+    }
+    40%,
+    100% {
+      opacity: 0;
+      transform: translateY(calc(-14 * var(--u))) scale(0.8);
+    }
+  }
+
+  @keyframes fb-ring {
+    from {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    to {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+
+  @keyframes fb-wave {
+    from {
+      transform: scaleY(0.2);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes fb-rise {
+    0%,
+    35% {
+      top: calc(150 * var(--u));
+      height: calc(116 * var(--u));
+      background: var(--card);
+      border-radius: calc(6 * var(--u));
+    }
+    41%,
+    60% {
+      top: calc(24 * var(--u));
+      height: calc(116 * var(--u));
+      background: var(--card);
+      border-radius: calc(6 * var(--u));
+    }
+    63% {
+      background: var(--card);
+    }
+    68%,
+    100% {
+      top: calc(48 * var(--u));
+      height: calc(16 * var(--u));
+      background: var(--product-fibi);
+      border-radius: calc(4 * var(--u));
+    }
+  }
+
+  @keyframes fb-in {
+    0%,
+    60% {
+      opacity: 1;
+    }
+    63%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fb-tog {
+    0%,
+    48% {
+      background: var(--card);
+    }
+    51%,
+    100% {
+      background: var(--product-fibi);
+    }
+  }
+
+  @keyframes fb-press {
+    0%,
+    53% {
+      transform: scale(1);
+    }
+    55.5% {
+      transform: scale(0.88);
+    }
+    58%,
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes fb-home {
+    0%,
+    62% {
+      opacity: 0;
+    }
+    70%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fb-steps {
+    0%,
+    6% {
+      opacity: 0;
+    }
+    11%,
+    84% {
+      opacity: 1;
+    }
+    88%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fb-st1 {
+    0%,
+    12% {
+      opacity: 0.35;
+      border-color: var(--line);
+    }
+    14%,
+    36% {
+      opacity: 1;
+      border-color: var(--product-fibi);
+    }
+    39%,
+    100% {
+      opacity: 0.35;
+      border-color: var(--line);
+    }
+  }
+
+  @keyframes fb-st2 {
+    0%,
+    38% {
+      opacity: 0.35;
+      border-color: var(--line);
+    }
+    40%,
+    60% {
+      opacity: 1;
+      border-color: var(--product-fibi);
+    }
+    63%,
+    100% {
+      opacity: 0.35;
+      border-color: var(--line);
+    }
+  }
+
+  @keyframes fb-st3 {
+    0%,
+    62% {
+      opacity: 0.35;
+      border-color: var(--line);
+    }
+    64%,
+    100% {
+      opacity: 1;
+      border-color: var(--product-fibi);
+    }
+  }
+
+  .cat {
+    --u: calc(100cqw / 360);
+    position: absolute;
+    inset: 0;
+  }
+
+  .cat-rows {
+    position: absolute;
+    left: calc(26 * var(--u));
+    right: calc(26 * var(--u));
+    top: calc(18 * var(--u));
+    border-top: 1px solid var(--fg);
+  }
+
+  .cat-rows li {
+    display: grid;
+    grid-template-columns: calc(48 * var(--u)) minmax(0, 1fr) calc(7 * var(--u));
+    align-items: center;
+    gap: calc(8 * var(--u));
+    height: calc(28 * var(--u));
+    border-bottom: 1px solid var(--line);
+    font-size: calc(13 * var(--u));
+    transition: transform 0.45s var(--spring) var(--d);
+  }
+
+  .cat-code {
+    font-family: var(--font-mono);
+    font-size: calc(10.5 * var(--u));
+    color: var(--muted);
+  }
+
+  .cat-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cat-dot {
+    width: calc(7 * var(--u));
+    height: calc(7 * var(--u));
+    border-radius: 50%;
+    border: 1px solid var(--fg);
+  }
+
+  .cat-dot.live {
+    background: var(--fg);
+  }
+
+  .cat-open {
+    position: absolute;
+    right: calc(26 * var(--u));
+    bottom: calc(13 * var(--u));
+    font-family: var(--font-mono);
+    font-size: calc(10.5 * var(--u));
+    color: var(--muted);
+    opacity: 0;
+    transform: translateX(calc(-6 * var(--u)));
+    transition:
+      opacity 0.3s,
+      transform 0.45s var(--spring);
+  }
+
+  :is(.card:hover, .card:has(:focus-visible)) .cat-rows li {
+    transform: translateX(calc(8 * var(--u)));
+  }
+
+  :is(.card:hover, .card:has(:focus-visible)) .cat-open {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.25s;
+  }
+
+  .diagram {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-mono);
+  }
+
+  .diagram text {
+    fill: var(--fg);
+    font-size: 8.5px;
+  }
+
+  .wire {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+
+  .pk {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 4 120;
+    stroke-dashoffset: 4;
+    opacity: 0;
+  }
+
+  .card:hover .pk,
+  .card:has(:focus-visible) .pk {
+    animation: travel 1.15s var(--ease) var(--d, 0ms) 2 both;
+  }
+
+  @keyframes travel {
+    0% {
+      stroke-dashoffset: 4;
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      stroke-dashoffset: -100;
+      opacity: 0;
+    }
+  }
+
+  .src rect {
+    fill: var(--card);
+    stroke: var(--fg);
+    stroke-width: 1;
+    transition:
+      fill 0.3s,
+      stroke 0.3s;
+  }
+
+  .src.miss {
+    opacity: 0.42;
+  }
+
+  .src.miss rect {
+    stroke: var(--muted);
+    stroke-dasharray: 2 2;
+  }
+
+  .node {
+    fill: var(--fg);
+  }
+
+  .result rect {
+    fill: var(--fg);
+  }
+
+  .result text {
+    fill: var(--card);
+  }
+
+  .diagram .r-k {
+    font-size: 7.5px;
+    opacity: 0.7;
+  }
+
+  .diagram .r-v {
+    font-family: var(--font-sans);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .result {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.5s var(--spring);
+  }
+
+  .card:hover .result,
+  .card:has(:focus-visible) .result {
+    animation: land 2.4s var(--ease) both;
+  }
+
+  @keyframes land {
+    0%,
+    45% {
+      transform: scale(0.94);
+      opacity: 0.35;
+    }
+    60%,
+    100% {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  .win {
+    fill: var(--card);
+    stroke: var(--fg);
+    stroke-width: 1;
+  }
+
+  .sep,
+  .side {
+    stroke: var(--line);
+    fill: var(--surface);
+  }
+
+  .dot {
+    fill: var(--line);
+  }
+
+  .ln {
+    fill: var(--surface);
+  }
+
+  .ln.new {
+    fill: color-mix(in srgb, var(--fg) 12%, transparent);
+  }
+
+  .diagram .tag {
+    font-size: 6.5px;
+  }
+
+  .case {
+    fill: #0c0c0d;
+  }
+
+  .glass {
+    fill: #f5f5f3;
+  }
+
+  .glass.dark {
+    fill: #17171a;
+  }
+
+  .diagram .tv .h {
+    fill: #151517;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 7px;
+  }
+
+  .colA,
+  .colB {
+    fill: #e7e7e4;
+  }
+
+  .diagram .num {
+    fill: #151517;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .diagram .q {
+    fill: #f5f5f3;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .ln-tv {
+    fill: #e7c84a;
+  }
+
+  .ln-tv.soft {
+    fill: #5d5d62;
+  }
+
+  .band {
+    fill: #e7c84a;
+  }
+
+  .q.old {
+    opacity: 0;
+  }
+
+  .card:hover .q.old,
+  .card:has(:focus-visible) .q.old {
+    animation: leave 2.4s var(--ease) both;
+  }
+
+  .card:hover .fresh,
+  .card:has(:focus-visible) .fresh {
+    animation: arrive 2.4s var(--ease) both;
+  }
+
+  .card:hover .ln.new,
+  .card:has(:focus-visible) .ln.new {
+    animation: arrive 2.4s var(--ease) both;
+    animation-duration: 1.2s;
+  }
+
+  @keyframes arrive {
+    0%,
+    48% {
+      opacity: 0;
+    }
+    62%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes leave {
+    0%,
+    48% {
+      opacity: 1;
+    }
+    62%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .body-p {
+    fill: var(--card);
+    stroke: var(--fg);
+    stroke-width: 1.5;
+  }
+
+  .ear {
+    stroke: var(--fg);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .ph-ln {
+    fill: var(--fg);
+    opacity: 0.8;
+  }
+
+  .ph-ln.soft {
+    opacity: 0.25;
+  }
+
+  .mic-g {
+    fill: #fff;
+  }
+
+  .mic-s {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  .ring {
+    fill: none;
+    stroke: var(--product-warbly);
+    stroke-width: 1.2;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .card:hover .ring,
+  .card:has(:focus-visible) .ring {
+    animation: ring-out 1.4s var(--ease) 2;
+  }
+
+  .card:hover .r2,
+  .card:has(:focus-visible) .r2 {
+    animation-delay: 0.7s;
+  }
+
+  @keyframes ring-out {
+    0% {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+    100% {
+      transform: scale(1.8);
+      opacity: 0;
+    }
+  }
+
+  .diagram .clock {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  .rec-btn {
+    fill: var(--product-meetnal);
+  }
+
+  .rec-stop {
+    fill: #fff;
+  }
+
+  .diagram .up {
+    fill: var(--muted);
+  }
+
+  .bubble rect,
+  .sheet {
+    fill: var(--card);
+    stroke: var(--fg);
+    stroke-width: 1;
+  }
+
+  .mic {
+    fill: var(--product-warbly);
+  }
+
+  .mic-s.thin {
+    stroke-width: 1;
+  }
+
+  .box {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 1;
+  }
+
+  .div {
+    stroke: var(--line);
+  }
+
+  .app-i {
+    fill: var(--line);
+  }
+
+  .diagram .tiny {
+    font-size: 5.5px;
+  }
+
+  .diagram .small {
+    font-size: 6.5px;
+  }
+
+  .diagram .sans {
+    font-family: var(--font-sans);
+  }
+
+  .diagram .said {
+    font-size: 7px;
+    font-weight: 500;
+  }
+
+  .diagram .list-h {
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .diagram .row-t {
+    font-size: 6.5px;
+    font-weight: 600;
+  }
+
+  .diagram .when {
+    fill: var(--product-warbly);
+  }
+
+  .diagram .step-t {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .row {
+    fill: var(--surface);
+  }
+
+  .row.hot {
+    stroke: var(--product-warbly);
+    stroke-width: 1;
+  }
+
+  .wb-s1,
+  .wb-s2,
+  .wb-toast,
+  .wb-ripple {
+    opacity: 0;
+  }
+
+  .wb-others {
+    transform: translateY(44px);
+  }
+
+  .wb-ripple {
+    fill: var(--fg);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .wb-toast rect {
+    fill: var(--fg);
+  }
+
+  .diagram .wb-toast text {
+    fill: var(--card);
+    font-size: 6px;
+  }
+
+  .diagram .wb-toast .undo {
+    fill: #3db87a;
+  }
+
+  .wb-step1,
+  .wb-step2 {
+    opacity: 0.38;
+  }
+
+  .card:hover .wb-s1,
+  .card:has(:focus-visible) .wb-s1 {
+    animation: wb-s1 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-s2,
+  .card:has(:focus-visible) .wb-s2 {
+    animation: wb-s2 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-s2 .ring,
+  .card:has(:focus-visible) .wb-s2 .ring {
+    animation: ring-out 1.3s var(--ease) 1.6s 2;
+  }
+
+  .card:hover .wb-s2 .r2,
+  .card:has(:focus-visible) .wb-s2 .r2 {
+    animation-delay: 2.25s;
+  }
+
+  .card:hover .wb-w,
+  .card:has(:focus-visible) .wb-w {
+    animation: wb-word 6.4s linear var(--d) both;
+  }
+
+  .card:hover .wb-s3,
+  .card:has(:focus-visible) .wb-s3 {
+    animation: wb-s3 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-new,
+  .card:has(:focus-visible) .wb-new {
+    animation: wb-new 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-others,
+  .card:has(:focus-visible) .wb-others {
+    animation: wb-others 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-toast,
+  .card:has(:focus-visible) .wb-toast {
+    animation: wb-toast 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-ripple,
+  .card:has(:focus-visible) .wb-ripple {
+    animation: wb-ripple 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-step1,
+  .card:has(:focus-visible) .wb-step1 {
+    animation: wb-step1 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-step2,
+  .card:has(:focus-visible) .wb-step2 {
+    animation: wb-step2 6.4s var(--ease) both;
+  }
+
+  .card:hover .wb-step3,
+  .card:has(:focus-visible) .wb-step3 {
+    animation: wb-step3 6.4s var(--ease) both;
+  }
+
+  @keyframes wb-s1 {
+    0%,
+    22% {
+      opacity: 1;
+    }
+    25%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes wb-s2 {
+    0%,
+    23% {
+      opacity: 0;
+    }
+    26%,
+    54% {
+      opacity: 1;
+    }
+    57%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes wb-s3 {
+    0%,
+    56% {
+      opacity: 0;
+    }
+    59%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes wb-word {
+    0%,
+    29% {
+      fill-opacity: 0.14;
+    }
+    32%,
+    100% {
+      fill-opacity: 1;
+    }
+  }
+
+  @keyframes wb-new {
+    0%,
+    61% {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    67%,
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes wb-others {
+    0%,
+    61% {
+      transform: none;
+    }
+    67%,
+    100% {
+      transform: translateY(44px);
+    }
+  }
+
+  @keyframes wb-toast {
+    0%,
+    66% {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    70%,
+    90% {
+      opacity: 1;
+      transform: none;
+    }
+    94%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes wb-ripple {
+    0%,
+    10% {
+      opacity: 0;
+      transform: scale(0.2);
+    }
+    11% {
+      opacity: 0.35;
+      transform: scale(0.2);
+    }
+    19%,
+    100% {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+  }
+
+  @keyframes wb-step1 {
+    0%,
+    22% {
+      opacity: 1;
+    }
+    25%,
+    100% {
+      opacity: 0.38;
+    }
+  }
+
+  @keyframes wb-step2 {
+    0%,
+    22% {
+      opacity: 0.38;
+    }
+    25%,
+    54% {
+      opacity: 1;
+    }
+    57%,
+    100% {
+      opacity: 0.38;
+    }
+  }
+
+  @keyframes wb-step3 {
+    0%,
+    54% {
+      opacity: 0.38;
+    }
+    57%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .dot-rec {
+    fill: var(--product-meetnal);
+  }
+
+  .lvl {
+    fill: var(--fg);
+  }
+
+  .lvl {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .card:hover .lvl,
+  .card:has(:focus-visible) .lvl {
+    animation: level 0.45s ease-in-out var(--d) 4 alternate;
+  }
+
+  @keyframes level {
+    to {
+      transform: scaleY(0.4);
+    }
+  }
+
+  .diagram .big-n {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  .track {
+    fill: var(--surface);
+    stroke: var(--line);
+    stroke-width: 0.5;
+  }
+
+  .fill {
+    fill: var(--fg);
+    transform-box: fill-box;
+    transform-origin: left;
+  }
+
+  .card:hover .fill,
+  .card:has(:focus-visible) .fill {
+    animation: grow 0.9s var(--ease) var(--d) both;
+  }
+
+  @keyframes grow {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card:hover *,
+    .card:has(:focus-visible) * {
+      animation: none !important;
+    }
+  }
+
+  .body {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    padding: 16px 14px 18px;
+    border-top: 1px solid var(--line);
+  }
+
+  h3 {
+    font-size: 1.375rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .name {
+    display: inline-block;
+  }
+
+  .go {
+    text-decoration: none;
+  }
+
+  .go::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .go:focus-visible {
+    outline: none;
+  }
+
+  .type {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--muted);
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 5px 10px;
+    font-size: 0.8125rem;
+  }
+
+  dt {
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+</style>

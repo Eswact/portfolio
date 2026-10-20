@@ -1,0 +1,532 @@
+---
+import Base from '../layouts/Base.astro';
+import { featured, nameOf, others } from '../data/projects';
+import { useTranslations, type UIKey } from '../i18n/ui';
+
+const en = useTranslations('en');
+const tr = useTranslations('tr');
+const keys: UIKey[] = [
+  '404.title',
+  '404.back',
+  '404.drag',
+  '404.lookingBefore',
+  '404.lookingAfter',
+  'section.index',
+  'nav.work',
+  'nav.about',
+  'nav.contact',
+  'nav.label',
+  'nav.skip',
+  'theme.label',
+  'footer.updated',
+];
+const strings = {
+  en: Object.fromEntries(keys.map((k) => [k, en(k)])),
+  tr: Object.fromEntries(keys.map((k) => [k, tr(k)])),
+};
+
+const pieces = [
+  'M30 18H5.75A28 28 0 0 0 5.75 46H30Z',
+  'M5.75 18A28 28 0 0 1 54.25 18Z',
+  'M30 27H57.55A28 28 0 0 1 57.55 37H30Z',
+  'M5.75 46A28 28 0 0 0 54.25 46Z',
+  'M62 52h16v7H62Z',
+];
+
+const places = [
+  ...featured.map((p) => ({ key: p.slug, name: { en: p.title, tr: p.title }, path: `/work/${p.slug}` })),
+  ...others.map((p) => ({ key: p.slug, name: { en: nameOf(p, 'en'), tr: nameOf(p, 'tr') }, path: `/work#${p.slug}` })),
+  { key: 'work', alias: ['projects', 'projeler', 'index'], name: { en: en('section.index'), tr: tr('section.index') }, path: '/work' },
+  { key: 'experience', alias: ['deneyim', 'about'], name: { en: en('nav.about'), tr: tr('nav.about') }, path: '/#experience' },
+  { key: 'contact', alias: ['iletisim', 'mail'], name: { en: en('nav.contact'), tr: tr('nav.contact') }, path: '/#contact' },
+];
+---
+
+<Base lang="en" path="/404" title="404" noindex>
+  <section class="container nf" data-nf data-strings={JSON.stringify(strings)} data-places={JSON.stringify(places)}>
+    <div class="stage">
+      <p class="tip mono muted" aria-hidden="true" data-t="404.drag">{en('404.drag')}</p>
+      <svg class="mark" viewBox="0 0 80 64" aria-hidden="true">
+        {pieces.map((d) => <path d={d} />)}
+      </svg>
+      <svg class="pieces" aria-hidden="true">
+        {pieces.map((d, i) => <path d={d} class={i === 4 ? 'caret' : undefined} />)}
+      </svg>
+    </div>
+
+    <div class="copy">
+      <div class="say">
+        <p class="mono muted">404 · <span data-path>/404</span></p>
+        <h1 data-t="404.title">{en('404.title')}</h1>
+        <p class="hint" data-hint hidden></p>
+      </div>
+      <p class="ways">
+        <a class="link to" href="/" data-home data-t="404.back">{en('404.back')}</a>
+        <a class="link to" href="/work" data-index data-t="section.index">{en('section.index')}</a>
+      </p>
+    </div>
+  </section>
+
+  <script is:inline>
+    (() => {
+      const section = document.querySelector('[data-nf]');
+      const strings = JSON.parse(section.dataset.strings);
+      const places = JSON.parse(section.dataset.places);
+      const isTr = /^\/tr(\/|$)/.test(location.pathname);
+      const lang = isTr ? 'tr' : 'en';
+      const S = strings[lang];
+      const lp = (p) => (!isTr ? p : p === '/' ? '/tr' : p.startsWith('/#') ? '/tr' + p.slice(1) : '/tr' + p);
+
+      if (isTr) {
+        document.documentElement.lang = 'tr';
+        section.querySelectorAll('[data-t]').forEach((el) => (el.textContent = S[el.dataset.t]));
+        const header = document.querySelector('.site-header');
+        header.querySelector('.brand').setAttribute('href', '/tr');
+        header.querySelector('nav').setAttribute('aria-label', S['nav.label']);
+        const navKeys = ['nav.work', 'nav.about', 'nav.contact'];
+        header.querySelectorAll('.links a').forEach((a, i) => {
+          a.textContent = S[navKeys[i]];
+          a.href = '/tr' + a.getAttribute('href').replace(/^\//, '');
+        });
+        const cord = header.querySelector('[data-theme-switch]');
+        cord.title = S['theme.label'];
+        cord.querySelector('.sr-only').textContent = S['theme.label'];
+        document.querySelector('.skip').textContent = S['nav.skip'];
+      }
+      const switcher = document.querySelector('.site-header .lang');
+      switcher.dataset.cur = lang;
+      switcher.querySelectorAll('a').forEach((a) => {
+        a.href = a.hreflang === 'tr' ? '/tr' : '/';
+        if (a.hreflang === lang) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+      section.querySelector('[data-home]').href = lp('/');
+      section.querySelector('[data-index]').href = lp('/work');
+
+      let path = location.pathname;
+      try {
+        path = decodeURI(path);
+      } catch {}
+      section.querySelector('[data-path]').textContent = path.length > 48 ? path.slice(0, 47) + '…' : path;
+
+      const norm = (s) =>
+        s.toLowerCase().replace(/ı/g, 'i').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const lev = (a, b) => {
+        const d = Array.from({ length: b.length + 1 }, (_, i) => i);
+        for (let i = 1; i <= a.length; i++) {
+          let prev = d[0];
+          d[0] = i;
+          for (let j = 1; j <= b.length; j++) {
+            const t = d[j];
+            d[j] = Math.min(d[j] + 1, d[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+            prev = t;
+          }
+        }
+        return d[b.length];
+      };
+      const segs = path.split('/').filter((s) => s && s !== 'tr');
+      const seg = norm(segs[segs.length - 1] || '');
+      let best = null;
+      let bestD = Infinity;
+      if (seg && seg !== '404')
+        for (const place of places)
+          for (const key of [place.key, ...(place.alias || []), norm(place.name.en), norm(place.name.tr)]) {
+            let d = lev(seg, key);
+            if (seg.length >= 4 && (key.includes(seg) || seg.includes(key))) d = Math.min(d, 1);
+            if (d < bestD) {
+              bestD = d;
+              best = place;
+            }
+          }
+      if (best && bestD <= Math.max(1, Math.floor(seg.length / 3))) {
+        const hint = section.querySelector('[data-hint]');
+        const a = document.createElement('a');
+        a.className = 'link';
+        a.href = lp(best.path);
+        a.textContent = best.name[lang];
+        hint.append(S['404.lookingBefore'], a, S['404.lookingAfter']);
+        hint.hidden = false;
+      }
+    })();
+  </script>
+</Base>
+
+<style>
+  .nf {
+    display: grid;
+    gap: clamp(24px, 4vw, 40px);
+    padding-block: clamp(16px, 3vw, 32px) clamp(56px, 9vw, 112px);
+  }
+
+  .stage {
+    position: relative;
+    height: clamp(300px, 50vh, 500px);
+    border-bottom: 1px solid var(--line);
+    transition: border-color 0.6s var(--ease);
+  }
+
+  .tip {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .mark {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    width: clamp(150px, 22%, 300px);
+    height: auto;
+    translate: -50% -50%;
+    fill: var(--fg);
+  }
+
+  .pieces {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: var(--fg);
+    visibility: hidden;
+  }
+
+  .stage.live .mark {
+    visibility: hidden;
+  }
+
+  .stage.live .pieces {
+    visibility: visible;
+  }
+
+  .mark path,
+  .pieces path {
+    transition: fill 0.6s var(--ease);
+  }
+
+  .pieces.hands path {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .pieces.held path {
+    cursor: grabbing;
+  }
+
+  .caret.blink {
+    animation: nf-blink 0.45s steps(1) both;
+  }
+
+  @keyframes nf-blink {
+    25% {
+      opacity: 0;
+    }
+    70% {
+      opacity: 1;
+    }
+  }
+
+  .copy {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px 48px;
+  }
+
+  .say {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .say span {
+    overflow-wrap: anywhere;
+  }
+
+  h1 {
+    font-size: var(--step-3);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+
+  .hint {
+    color: var(--muted);
+  }
+
+  .hint :global(a) {
+    color: var(--fg);
+    background-size: 100% 1px;
+  }
+
+  .ways {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 32px;
+  }
+
+  .ways a {
+    background-size: 100% 1px;
+    padding-bottom: 2px;
+  }
+
+  .to::after {
+    content: '→' / '';
+    display: inline-block;
+    margin-left: 0.3em;
+    transition: transform 0.3s var(--ease);
+  }
+
+  .to:hover::after,
+  .to:focus-visible::after {
+    transform: translateX(3px);
+  }
+
+  @media (max-width: 640px) {
+    .stage {
+      height: clamp(280px, 46vh, 380px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tip {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { createWorld, DT, shapeOf, type V } from '../scripts/rigid';
+  import { logoOutlines } from '../scripts/logo-outlines';
+
+  const section = document.querySelector<HTMLElement>('[data-nf]');
+  if (section) {
+    const home = section.querySelector<HTMLAnchorElement>('[data-home]')!;
+
+    if (document.documentElement.lang === 'tr') {
+      const strings = JSON.parse(section.dataset.strings!) as Record<'en' | 'tr', Record<string, string>>;
+      const muted = document.querySelector('.footer .muted');
+      const time = muted?.querySelector('time');
+      if (muted?.firstChild && time) {
+        muted.firstChild.textContent = muted.firstChild.textContent!.replace(strings.en['footer.updated'], strings.tr['footer.updated']);
+        time.textContent = new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(time.dateTime));
+      }
+    }
+
+    const svg = section.querySelector<SVGSVGElement>('.pieces')!;
+    const stage = section.querySelector<HTMLElement>('.stage')!;
+    const els = [...svg.querySelectorAll<SVGPathElement>('path')];
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const world = createWorld(logoOutlines.map(shapeOf));
+    const bodies = world.bodies;
+    const homes = bodies.map(() => [0, 0] as V);
+
+    let W = 0;
+    let H = 0;
+    let k = 1;
+    const layout = () => {
+      const r = stage.getBoundingClientRect();
+      if (W) {
+        for (const b of bodies) {
+          b.x = (b.x / W) * r.width;
+          b.y = Math.min((b.y / H) * r.height, r.height - 1);
+          b.vx = b.vy = b.w = 0;
+        }
+      }
+      W = r.width;
+      H = r.height;
+      k = Math.min(300, Math.max(150, W * 0.22)) / 80;
+      world.size(W, H, k);
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      bodies.forEach((b, i) => (homes[i] = [W / 2 + (b.s.c[0] - 40) * k, H * 0.42 + (b.s.c[1] - 32) * k]));
+    };
+    const draw = () =>
+      bodies.forEach((b, i) =>
+        els[i].setAttribute(
+          'transform',
+          `translate(${b.x.toFixed(2)} ${b.y.toFixed(2)}) rotate(${((b.a * 180) / Math.PI).toFixed(2)}) scale(${k.toFixed(4)}) translate(${-b.s.c[0]} ${-b.s.c[1]})`,
+        ),
+      );
+    const toHome = () =>
+      bodies.forEach((b, i) => {
+        [b.x, b.y] = homes[i];
+        b.a = b.vx = b.vy = b.w = 0;
+      });
+
+    let mode: 'stand' | 'fall' | 'gather' = 'stand';
+    let raf = 0;
+    let last = 0;
+    let acc = 0;
+    const frame = (time: number) => {
+      const dt = Math.min((time - (last || time)) / 1000, 1 / 30);
+      last = time;
+      let done = false;
+      if (mode === 'gather') {
+        done = true;
+        for (let n = 0; n < 2; n++) {
+          const h = dt / 2;
+          bodies.forEach((b, i) => {
+            const turn = Math.round(b.a / (2 * Math.PI)) * 2 * Math.PI;
+            b.vx += ((homes[i][0] - b.x) * 190 - b.vx * 21) * h;
+            b.vy += ((homes[i][1] - b.y) * 190 - b.vy * 21) * h;
+            b.w += ((turn - b.a) * 190 - b.w * 21) * h;
+            b.x += b.vx * h;
+            b.y += b.vy * h;
+            b.a += b.w * h;
+          });
+        }
+        bodies.forEach((b, i) => {
+          if (Math.hypot(homes[i][0] - b.x, homes[i][1] - b.y) > 0.3 || Math.hypot(b.vx, b.vy) > 4) done = false;
+        });
+        if (done) toHome();
+      } else if (mode === 'fall') {
+        acc += dt;
+        while (acc >= DT) {
+          world.step();
+          acc -= DT;
+        }
+        done = world.still;
+      }
+      draw();
+      if (done) {
+        raf = 0;
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    const wake = () => {
+      if (raf) return;
+      last = 0;
+      acc = 0;
+      raf = requestAnimationFrame(frame);
+    };
+
+    const spread = [-1.7, -0.5, 0.6, 0.3, 1.9];
+    const loosen = (random: () => number) =>
+      bodies.forEach((b, i) => {
+        b.vx = spread[i] * k * 26 + (random() - 0.5) * k * 8;
+        b.vy = -k * (18 + random() * 14);
+        b.w = (random() - 0.5) * 3;
+      });
+
+    let atHome = false;
+    let rest: { x: number; y: number; a: number }[] = [];
+    const fall = () => {
+      if (atHome) return;
+      if (still) {
+        bodies.forEach((b, i) => Object.assign(b, rest[i]));
+        draw();
+        return;
+      }
+      mode = 'fall';
+      world.wakeAll();
+      loosen(Math.random);
+      wake();
+    };
+
+    layout();
+    toHome();
+    if (still) {
+      let seed = 7;
+      loosen(() => (seed = (seed * 16807) % 2147483647) / 2147483647);
+      for (let n = 0; n < 1200 && !world.still; n++) world.step();
+      rest = bodies.map((b) => ({ x: b.x, y: b.y, a: b.a, vx: 0, vy: 0, w: 0 }));
+      mode = 'fall';
+    }
+    draw();
+    stage.classList.add('live');
+    if (!still) svg.classList.add('hands');
+
+    const begin = () => {
+      const caret = els[4];
+      caret.classList.add('blink');
+      setTimeout(() => {
+        caret.classList.remove('blink');
+        fall();
+      }, 450);
+    };
+    const root = document.documentElement;
+    if (still) {
+    } else if (root.classList.contains('intro')) {
+      const watch = new MutationObserver(() => {
+        if (root.classList.contains('intro')) return;
+        watch.disconnect();
+        setTimeout(begin, 100);
+      });
+      watch.observe(root, { attributes: true, attributeFilter: ['class'] });
+    } else if (document.visibilityState === 'visible') setTimeout(begin, 150);
+    else
+      document.addEventListener('visibilitychange', function wait() {
+        if (document.visibilityState !== 'visible') return;
+        document.removeEventListener('visibilitychange', wait);
+        setTimeout(begin, 150);
+      });
+
+    let later = 0;
+    const gather = () => {
+      clearTimeout(later);
+      atHome = true;
+      world.drop();
+      svg.classList.remove('held');
+      if (still) {
+        toHome();
+        draw();
+        return;
+      }
+      mode = 'gather';
+      wake();
+    };
+    const release = () => {
+      clearTimeout(later);
+      later = window.setTimeout(() => {
+        atHome = false;
+        fall();
+      }, 450);
+    };
+    home.addEventListener('pointerenter', gather);
+    home.addEventListener('focus', gather);
+    home.addEventListener('pointerleave', release);
+    home.addEventListener('blur', release);
+
+    const point = (e: PointerEvent): V => {
+      const r = svg.getBoundingClientRect();
+      return [((e.clientX - r.left) * W) / r.width, ((e.clientY - r.top) * H) / r.height];
+    };
+    els.forEach((el, i) =>
+      el.addEventListener('pointerdown', (e) => {
+        if (still) return;
+        e.preventDefault();
+        clearTimeout(later);
+        atHome = false;
+        mode = 'fall';
+        world.hold(bodies[i], ...point(e));
+        svg.classList.add('held');
+        svg.setPointerCapture?.(e.pointerId);
+        wake();
+      }),
+    );
+    svg.addEventListener('pointermove', (e) => {
+      if (world.held) world.move(...point(e));
+    });
+    const drop = () => {
+      world.drop();
+      svg.classList.remove('held');
+    };
+    svg.addEventListener('pointerup', drop);
+    svg.addEventListener('pointercancel', drop);
+    svg.addEventListener('lostpointercapture', drop);
+
+    new ResizeObserver(() => {
+      const r = stage.getBoundingClientRect();
+      if (Math.abs(r.width - W) < 1 && Math.abs(r.height - H) < 1) return;
+      layout();
+      if (mode === 'stand' || atHome) toHome();
+      draw();
+      if (mode === 'fall' && !still) {
+        world.wakeAll();
+        wake();
+      }
+    }).observe(stage);
+  }
+</script>

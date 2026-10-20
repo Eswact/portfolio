@@ -1,0 +1,36 @@
+---
+import pkg from '../../package.json';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const built = new Date();
+const updated = new Intl.DateTimeFormat(lang === 'tr' ? 'tr-TR' : 'en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+}).format(built);
+---
+
+<footer class="container footer mono">
+  <span>© {built.getFullYear()} Eren Sarıbay</span>
+  <span class="muted">
+    v{pkg.version} · {t('footer.updated')} <time datetime={built.toISOString()}>{updated}</time>
+  </span>
+</footer>
+
+<style>
+  .footer {
+    font-size: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding-block: 32px 40px;
+    background: linear-gradient(var(--line), var(--line)) top center / calc(100% - 2 * var(--gutter)) 1px no-repeat;
+  }
+</style>
