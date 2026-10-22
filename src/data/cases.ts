@@ -520,83 +520,95 @@ export const cases: Record<string, Case> = {
         device: 'phone',
         shots: [
           {
-            key: 'warbly/app/listening',
+            key: 'warbly/app/voice',
             caption: { tr: 'Konuşurken', en: 'While you speak' },
             note: {
-              tr: 'Söylenen cümle yazıya dökülürken görev listesi arkada bekliyor.',
-              en: 'The sentence is transcribed while the task list waits behind it.',
+              tr: 'Söylenen cümle yazıya dökülürken Warbly ne istendiğini çıkarıyor.',
+              en: 'The sentence is transcribed while Warbly works out what you meant.',
             },
             alt: {
-              tr: 'Warbly dinleme ekranı: “Bu akşam saat 9’da anneannemi ziyarete gideceğim. Ziyarete gitmeden önce ona çiçek alacağım.” cümlesi anlaşılıyor.',
-              en: 'Warbly listening: the Turkish sentence “Tonight at 9 I’ll visit my grandmother. Before I go I’ll buy her flowers.” is being understood.',
+              tr: 'Warbly sesli ekleme: “Yarın akşam 7’de mangal yapacağız; kömür, köfte ve mısır alacağım” cümlesi anlaşılıyor, arkada bugünün görev listesi.',
+              en: 'Warbly voice capture: “Tomorrow at 7 pm we’re having a barbecue, I’ll buy charcoal, burgers and corn” is being understood, with today’s task list behind it.',
             },
           },
           {
-            key: 'warbly/app/tasks',
-            caption: { tr: 'Görevler', en: 'Tasks' },
+            key: 'warbly/app/plan',
+            caption: { tr: 'Sonuç', en: 'The result' },
             note: {
-              tr: 'Yeni görev saatiyle listede; az önce eklenen tek dokunuşla geri alınabiliyor.',
-              en: 'The new task is on the list with its time; what was just added can be undone with one tap.',
+              tr: 'Görev yarın 19.00’a, alınacaklar alt görev olarak eklendi; tek dokunuşla geri alınabiliyor.',
+              en: 'The task is set for 7 pm tomorrow with the shopping as subtasks; one tap undoes it.',
             },
             alt: {
-              tr: 'Görevler listesi: Pazara git (0/5 alt görev), her iki günde bir Spora git ve yeni eklenen Anneanneme ziyaret (13 Eki 2026 21:00); altta “1 görev, 1 alt görev eklendi” bildirimi ve Geri Al düğmesi.',
-              en: 'The task list: Go to the market (0/5 subtasks), Go to the gym every two days and the newly added Visit grandmother (13 Oct 2026 21:00); below, a “1 task, 1 subtask added” notice with an Undo button.',
+              tr: 'Bu Hafta görünümü: Yarın altında Kitap oku, Diş hekimi randevusu ve yeni eklenen Mangal yap (0/3); altta “1 görev, 3 alt görev eklendi: Mangal yap” bildirimi ve Geri Al düğmesi.',
+              en: 'This Week view: Read, Dentist appointment and the newly added Have a barbecue (0/3) under Tomorrow; below, a “1 task and 3 subtasks added: Have a barbecue” notice with an Undo button.',
+            },
+          },
+          {
+            key: 'warbly/app/today',
+            caption: { tr: 'Bugün', en: 'Today' },
+            note: {
+              tr: 'Gecikenler, bugünün görevleri ve bitenler aynı ekranda.',
+              en: 'What’s overdue, today’s tasks and what’s done, on one screen.',
+            },
+            alt: {
+              tr: 'Görevler, Bugün filtresi: gecikmiş Elektrik faturasını öde; bugün Sunum slaytlarını bitir, Market alışverişi, Annemi ara, Koşu ve Magnezyum al; altta tamamlananlar.',
+              en: 'Tasks, Today filter: Pay the electricity bill overdue; Finish the presentation slides, Grocery shopping, Call Mom, Run and Take magnesium today; completed tasks below.',
+            },
+          },
+          {
+            key: 'warbly/app/detail',
+            caption: { tr: 'Görev detayı', en: 'Task details' },
+            note: {
+              tr: 'Tarih, hatırlatma, tekrar, öncelik, etiket, alt görevler ve not tek panelde.',
+              en: 'Date, reminder, repeat, priority, tag, subtasks and a note in one panel.',
+            },
+            alt: {
+              tr: 'Sunum slaytlarını bitir paneli: Bugün 14:00, zamanında hatırlatma, tekrar yok, yüksek öncelik, İş etiketi; 1/3 alt görev ve not.',
+              en: 'The Finish the presentation slides panel: today at 14:00, an on-time reminder, no repeat, high priority, the Work tag; 1/3 subtasks and a note.',
             },
           },
           {
             key: 'warbly/app/calendar',
             caption: { tr: 'Takvim', en: 'Calendar' },
             note: {
-              tr: 'Haftalık şerit ve seçilen günün görevleri.',
-              en: 'A week strip and the chosen day’s tasks.',
+              tr: 'Haftalık şerit; güne dokununca o günün görevleri açılıyor.',
+              en: 'A week strip; tap a day to see its tasks.',
             },
             alt: {
-              tr: 'Takvim: haftalık şerit, bugün (13 Ekim) seçili, Anneanneme ziyaret görevi 21:00’de.',
-              en: 'Calendar: a week strip with today (13 October) selected and the Visit grandmother task at 21:00.',
+              tr: 'Takvim: 19–25 Ekim şeridi, bugün (22) seçili; altında günün görevleri ve tamamlananlar.',
+              en: 'Calendar: the 19–25 October strip with today (22) selected; the day’s tasks and completed ones below.',
             },
           },
           {
-            key: 'warbly/app/agenda',
-            caption: { tr: 'Ajanda', en: 'Agenda' },
+            key: 'warbly/app/tracking',
+            caption: { tr: 'Takip', en: 'Tracking' },
             note: {
-              tr: 'Yaklaşan görevler güne göre sıralanıyor.',
-              en: 'Upcoming tasks, grouped by day.',
+              tr: 'Takip görevinde her tamamlamada değer giriliyor ve tabloda birikiyor.',
+              en: 'A tracking task logs a value each time it’s done, and the values build up in a table.',
             },
             alt: {
-              tr: 'Ajanda: Bugün altında Anneanneme ziyaret, Yarın altında Pazara git ve Spora git.',
-              en: 'Agenda: Visit grandmother under Today, Go to the market and Go to the gym under Tomorrow.',
+              tr: 'Koşu takip görevi: haftada üç gün tekrar; Mesafe (km) ve Süre (dk) sütunlu takip tablosunda 8–20 Ekim arası altı kayıt.',
+              en: 'The Run tracking task: repeats three days a week; a tracking table with Distance (km) and Time (min) holds six entries from 8 to 20 October.',
             },
           },
           {
-            key: 'warbly/app/history',
-            caption: { tr: 'Geçmiş', en: 'History' },
+            key: 'warbly/app/offline',
+            caption: { tr: 'Çevrimdışı', en: 'Offline' },
             note: {
-              tr: 'Sesle ya da yazıyla yapılan her değişiklik burada ve her biri geri alınabiliyor.',
-              en: 'Every change made by voice or text is listed here, and each one can be undone.',
+              tr: 'Bağlantı yokken liste telefondan açılıyor; yazarak eklemek ve tamamlamak çalışıyor.',
+              en: 'Without a connection the list opens from the phone; adding by typing and completing still work.',
             },
             alt: {
-              tr: 'Geçmiş: eklenen üç görev ve alt görevleri, her birinin yanında Geri Al düğmesi.',
-              en: 'History: three added tasks and their subtasks, each with an Undo button.',
-            },
-          },
-          {
-            key: 'warbly/app/settings',
-            caption: { tr: 'Ayarlar', en: 'Settings' },
-            note: {
-              tr: 'Hesap, koyu mod ve altı vurgu rengi; etiketler, çöp kutusu ve geçmiş de buradan açılıyor.',
-              en: 'Account, dark mode and six accent colours; tags, the trash and history open from here too.',
-            },
-            alt: {
-              tr: 'Ayarlar: demo hesap, Çıkış yap, Hesabı Sil, Koyu Mod anahtarı, altı vurgu rengi, Etiketler, Çöp Kutusu ve Geçmiş.',
-              en: 'Settings: a demo account, Sign out, Delete account, the Dark mode switch, six accent colours, Tags, Trash and History.',
+              tr: 'Çevrimdışı uyarısı: “Görevlerin bu cihazdan gösteriliyor. Yazarak ekleyebilir, görevleri tamamlayabilirsin.”; altında bugünün görevleri.',
+              en: 'An offline notice: “Your tasks are shown from this device. You can still add tasks by typing and complete them.”; today’s tasks below.',
             },
           },
         ],
       },
     ],
     galleryNote: {
-      tr: 'Demo hesapla gerçek ekran görüntüleri, Türkçe; açık temada lacivert, koyu temada varsayılan yeşil vurgu',
-      en: 'Real screenshots with a demo account, in Turkish; navy accent in the light theme, the default green in the dark',
+      tr: 'Demo hesapla gerçek ekran görüntüleri, dil ve temaya göre değişir; açık temada lacivert, koyu temada varsayılan yeşil vurgu',
+      en: 'Real screenshots with a demo account, matched to language and theme; navy accent in the light theme, the default green in the dark',
     },
     sections: [
       {
@@ -684,12 +696,12 @@ export const cases: Record<string, Case> = {
             key: 'meetnal/app/record',
             caption: { tr: 'Kayıt', en: 'Record' },
             note: {
-              tr: 'Tek dokunuşla kayıt başlıyor; telefondaki bir ses dosyası da içe aktarılabiliyor.',
-              en: 'Recording starts with one tap; an audio file from the phone can be imported too.',
+              tr: 'Tek dokunuşla başlıyor, ekran kilitliyken de sürüyor; hazır bir ses dosyası da eklenebiliyor.',
+              en: 'One tap starts it and it keeps going with the screen locked; an existing audio file can be imported too.',
             },
             alt: {
-              tr: 'Kayıt ekranı: 0:00 sayacı, turuncu mikrofon düğmesi ve İçe Aktar.',
-              en: 'The record screen: a 0:00 timer, the orange microphone button and Import.',
+              tr: 'Kayıt ekranı: 24:37 sayacı, turuncu ses dalgası, duraklat düğmesi, İptal ve Bitir.',
+              en: 'The record screen: a 24:37 timer, an orange waveform, the pause button, Cancel and Finish.',
             },
           },
           {
@@ -700,8 +712,8 @@ export const cases: Record<string, Case> = {
               en: 'Recordings stay on the device first; the report of an analysed one is a tap away.',
             },
             alt: {
-              tr: 'Kayıtlar: Sprint planlama cihazda ve Analize Gönder düğmesiyle; Haftalık ürün toplantısı ve Müşteri görüşmesi Analiz Edildi ve Raporu Gör ile.',
-              en: 'Recordings: Sprint planning on the device with Send for Analysis; the weekly product meeting and a client call Analyzed, with View Report.',
+              tr: 'Kayıtlar: Sprint Planlama cihazda ve Analize Gönder düğmesiyle, Müşteri Görüşmesi analiz ediliyor, Ürün Toplantısı analiz edildi ve Raporu Gör ile.',
+              en: 'Recordings: Sprint Planning on the device with Send for Analysis, Client Call being analysed, Product Meeting analysed with View Report.',
             },
           },
           {
@@ -712,8 +724,8 @@ export const cases: Record<string, Case> = {
               en: 'Finished reports stay on the phone and open offline too.',
             },
             alt: {
-              tr: 'Raporlar: Haftalık ürün toplantısı ve Müşteri görüşmesi, kısa özetleri ve etiketleriyle.',
-              en: 'Reports: the weekly product meeting and a client call, with short summaries and tags.',
+              tr: 'Raporlar: Ürün Toplantısı, Q4 Bütçe Planı, Kampanya Fikirleri ve Oryantasyon, kısa özetleri ve ton etiketleriyle.',
+              en: 'Reports: Product Meeting, Q4 Budget Review, Campaign Brainstorm and Onboarding, with short summaries and tone tags.',
             },
           },
           {
@@ -724,8 +736,8 @@ export const cases: Record<string, Case> = {
               en: 'The meeting summary and time-stamped topic sections.',
             },
             alt: {
-              tr: 'Haftalık ürün toplantısı raporu: özet ve 0:00–9:00, 9:00–28:00, 28:00–47:12 aralıklarındaki konu bölümleri.',
-              en: 'The weekly product meeting report: the summary and topic sections at 0:00–9:00, 9:00–28:00 and 28:00–47:12.',
+              tr: 'Ürün Toplantısı raporu: özet ve 0:00–8:40, 8:40–21:15, 21:15–36:30 aralıklarındaki konu bölümleri.',
+              en: 'The Product Meeting report: the summary and topic sections at 0:00–8:40, 8:40–21:15 and 21:15–36:30.',
             },
           },
           {
@@ -736,20 +748,32 @@ export const cases: Record<string, Case> = {
               en: 'Overall, clarity, efficiency, communication and outcome clarity scores; participants and main topics.',
             },
             alt: {
-              tr: 'Skorlar: Genel 8, Netlik 8, Verimlilik 8, İletişim Kalitesi 7, Sonuç Netliği 7; altında katılımcılar, ana konular ve kararlar.',
-              en: 'Scores: Overall 8, Clarity 8, Efficiency 8, Communication 7, Outcome Clarity 7; participants, main topics and decisions below.',
+              tr: 'Skorlar: Genel 8, Netlik 9, Verimlilik 6, İletişim Kalitesi 8, Sonuç Netliği 9; altında katılımcılar ve ana konular.',
+              en: 'Scores: Overall 8, Clarity 9, Efficiency 6, Communication Quality 8, Outcome Clarity 9; participants and main topics below.',
             },
           },
           {
             key: 'meetnal/app/actions',
             caption: { tr: 'Aksiyonlar', en: 'Actions' },
             note: {
-              tr: 'Aksiyonlar, önemli sorular, sonraki adımlar ve konuşmacı bazında katkı.',
-              en: 'Action items, key questions, next steps and each speaker’s contribution.',
+              tr: 'Kararlar, sorumlusu ve süresiyle aksiyonlar, önemli sorular ve sonraki adımlar.',
+              en: 'Decisions, action items with an owner and a due date, key questions and next steps.',
             },
             alt: {
-              tr: 'Rapor: aksiyonlar, önemli sorular, sonraki adımlar ve üç konuşmacının katkı düzeyi.',
-              en: 'A report: action items, key questions, next steps and the contribution of three speakers.',
+              tr: 'Rapor: üç karar, sorumlusu ve süresiyle üç aksiyon, önemli sorular ve sonraki adımlar.',
+              en: 'A report: three decisions, three action items with owners and due dates, key questions and next steps.',
+            },
+          },
+          {
+            key: 'meetnal/app/speakers',
+            caption: { tr: 'Konuşmacılar', en: 'Speakers' },
+            note: {
+              tr: 'Her konuşmacının tonu, katkısı ve puanları; toplantıdan bir alıntıyla.',
+              en: 'Each speaker’s tone, contribution and scores, with a quote from the meeting.',
+            },
+            alt: {
+              tr: 'Konuşmacılar: Ayşe Demir ve Mert Kaya yüksek katkıyla, kısa özet, puanlar ve alıntıyla açık; Selin Aydın orta, Burak Öztürk düşük katkı.',
+              en: 'Speakers: Sarah Mitchell and David Chen with high contribution, open with a summary, scores and a quote; Emma Rodriguez medium, James Walker low.',
             },
           },
           {
@@ -760,16 +784,16 @@ export const cases: Record<string, Case> = {
               en: 'Six colour themes, dark mode and language.',
             },
             alt: {
-              tr: 'Ayarlar: koyu tema anahtarı, altı renk teması (Grafit + turuncu seçili), dil, demo hesap ve şirket.',
-              en: 'Settings: the dark theme switch, six colour themes (Graphite + orange selected), language, a demo account and company.',
+              tr: 'Ayarlar: koyu tema anahtarı, altı renk teması (Grafit + turuncu seçili), Türkçe dil, Ayşe Demir hesabı ve Demo Şirket.',
+              en: 'Settings: the dark theme switch, six colour themes (Graphite + orange selected), English as the language, the Sarah Mitchell account and Demo Company.',
             },
           },
         ],
       },
     ],
     galleryNote: {
-      tr: 'Demo hesap ve örnek toplantılarla gerçek ekran görüntüleri, Türkçe; temaya göre değişir',
-      en: 'Real screenshots with a demo account and sample meetings, in Turkish; matched to theme',
+      tr: 'Demo hesap ve örnek toplantılarla gerçek ekran görüntüleri, dil ve temaya göre değişir',
+      en: 'Real screenshots with a demo account and sample meetings, matched to language and theme',
     },
     sections: [
       {
