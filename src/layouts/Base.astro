@@ -56,16 +56,19 @@ const person = {
         const root = document.documentElement;
         const theme = localStorage.getItem('theme');
         if (theme === 'dark' || theme === 'light') root.dataset.theme = theme;
-        if (!sessionStorage.getItem('intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const internal = document.referrer.startsWith(location.origin + '/');
+        if (!internal && !sessionStorage.getItem('intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
           sessionStorage.setItem('intro', '1');
           root.classList.add('intro');
-          const go = () =>
+          const go = () => {
+            sessionStorage.setItem('intro', '1');
             requestAnimationFrame(() =>
               requestAnimationFrame(() => {
                 root.classList.add('intro-go');
                 dispatchEvent(new Event('intro:go'));
               }),
             );
+          };
           if (document.visibilityState === 'visible') go();
           else
             document.addEventListener('visibilitychange', function wait() {
