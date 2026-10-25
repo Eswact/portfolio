@@ -217,6 +217,11 @@ const nav = [
     transition: background-color 0.6s var(--ease);
   }
 
+  :global(html.vt-film-out) .site-header,
+  :global(html.vt-film-back) .site-header {
+    view-transition-name: none;
+  }
+
   @supports (animation-timeline: scroll()) {
     .site-header {
       animation: header-edge linear both;

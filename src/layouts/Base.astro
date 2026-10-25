@@ -4,6 +4,8 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Intro from '../components/Intro.astro';
 import Footer from '../components/Footer.astro';
+import FilmReel from '../components/FilmReel.astro';
+import filmSound from '../assets/me/loser.m4a?url';
 import { profile } from '../data/profile';
 import { defaultLang, languages, localePath, useTranslations, type Lang } from '../i18n/ui';
 
@@ -13,11 +15,12 @@ interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
+  bare?: boolean;
 }
 
-const { lang, path, title, description, noindex = false } = Astro.props;
+const { lang, path, title, description, noindex = false, bare = false } = Astro.props;
 const t = useTranslations(lang);
-const pageTitle = title ? `${title} — ${profile.name}` : t('meta.title');
+const pageTitle = bare ? profile.name : title ? `${title} — ${profile.name}` : t('meta.title');
 const pageDescription = description ?? t('meta.description');
 const canonical = new URL(localePath(lang, path), Astro.site);
 const alternates = (Object.keys(languages) as Lang[]).map((l) => ({
@@ -38,7 +41,7 @@ const person = {
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={lang} data-world={bare ? 'me' : undefined} data-sound={bare ? filmSound : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -49,15 +52,23 @@ const person = {
     <link rel="alternate" hreflang="x-default" href={new URL(localePath(defaultLang, path), Astro.site).href} />
     {noindex && <meta name="robots" content="noindex" />}
 
-    <meta name="theme-color" content="#f5f5f3" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#121213" media="(prefers-color-scheme: dark)" />
+    {
+      bare ? (
+        <meta name="theme-color" content="#1b1917" />
+      ) : (
+        <>
+          <meta name="theme-color" content="#f5f5f3" media="(prefers-color-scheme: light)" />
+          <meta name="theme-color" content="#121213" media="(prefers-color-scheme: dark)" />
+        </>
+      )
+    }
     <script is:inline>
       try {
         const root = document.documentElement;
         const theme = localStorage.getItem('theme');
         if (theme === 'dark' || theme === 'light') root.dataset.theme = theme;
         const internal = document.referrer.startsWith(location.origin + '/');
-        if (!internal && !sessionStorage.getItem('intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (!root.dataset.world && !internal && !sessionStorage.getItem('intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
           sessionStorage.setItem('intro', '1');
           root.classList.add('intro');
           const go = () => {
@@ -85,14 +96,43 @@ const person = {
         done.finally(() => (el.style.viewTransitionName = ''));
       };
       const vtFind = (path) => path && document.querySelector('[data-vt="' + path + '"]');
+      const side = (p) => (/^\/(tr\/?)?$/.test(p) ? 'home' : /^\/(tr\/)?me\/?$/.test(p) ? 'me' : '');
+      const film = (a, b) => {
+        const pair = side(a) + '>' + side(b);
+        return pair === 'home>me' ? 'vt-film' : pair === 'me>home' ? 'vt-film-back' : '';
+      };
+      const flag = (name, done) => {
+        const html = document.documentElement;
+        html.classList.add(name);
+        done.finally(() => html.classList.remove(name));
+      };
+      addEventListener('pageshow', () => document.documentElement.classList.remove('vt-film-out'));
+      const coarse = matchMedia('(hover: none) and (pointer: coarse)').matches;
+      const sound = (() => {
+        const src = document.documentElement.dataset.sound;
+        const act = window.navigation && navigation.activation;
+        if (!src || !act || !act.from || act.navigationType !== 'push') return null;
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+        return film(new URL(act.from.url).pathname, location.pathname) === 'vt-film' ? new Audio(src) : null;
+      })();
       addEventListener('pageswap', (e) => {
         if (!e.viewTransition || !e.activation) return;
+        if (coarse && e.activation.navigationType === 'traverse') return e.viewTransition.skipTransition();
         const to = new URL(e.activation.entry.url).pathname;
+        if (film(location.pathname, to)) return flag('vt-film-out', e.viewTransition.finished);
         vtName(vtFind(to) || vtFind(location.pathname), e.viewTransition.finished);
       });
       addEventListener('pagereveal', (e) => {
         if (!e.viewTransition) return;
-        const from = navigation.activation && navigation.activation.from && new URL(navigation.activation.from.url).pathname;
+        const nav = window.navigation;
+        if (coarse && nav && nav.activation && nav.activation.navigationType === 'traverse') return e.viewTransition.skipTransition();
+        const from = nav && nav.activation && nav.activation.from && new URL(nav.activation.from.url).pathname;
+        const dir = from && film(from, location.pathname);
+        if (dir === 'vt-film' && sound) {
+          sound.play().catch(() => {});
+          setTimeout(() => sound.currentTime < 0.1 && sound.pause(), 500);
+        }
+        if (dir) return flag(dir, e.viewTransition.finished);
         const own = () => vtFind(location.pathname) || vtFind(from);
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => vtName(own(), e.viewTransition.finished), { once: true });
         else vtName(own(), e.viewTransition.finished);
@@ -113,14 +153,23 @@ const person = {
   </head>
   <body>
     <a class="skip" href="#main">{t('nav.skip')}</a>
-    <Intro />
-    <div class="page">
-      <Header lang={lang} path={path} />
-      <main id="main">
+    {
+      bare ? (
         <slot />
-      </main>
-      <Footer lang={lang} />
-    </div>
+      ) : (
+        <>
+          <Intro />
+          <div class="page">
+            <Header lang={lang} path={path} />
+            <main id="main">
+              <slot />
+            </main>
+            <Footer lang={lang} />
+          </div>
+        </>
+      )
+    }
+    {(bare || path === '/') && <FilmReel />}
   </body>
 </html>
 

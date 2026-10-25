@@ -1,0 +1,1137 @@
+---
+import type { ImageMetadata } from 'astro';
+import { getImage, Picture } from 'astro:assets';
+import FilmSvg from './FilmSvg.astro';
+import { birthday, brands, films, games, links, photos, playlists, series, type Title } from '../data/me';
+import parkedCar from '../assets/me/clio-parked.webp';
+import carSheet from '../assets/me/clio.webp?url';
+import { languages, localePath, useTranslations, type L10n, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const langs = Object.keys(languages) as Lang[];
+const loc = (v: string | L10n) => (typeof v === 'string' ? v : v[lang]);
+const shotSizes = '(max-width: 640px) calc(50vw - 34px),(min-width: 1360px) 200px, max(190px, calc((100vw - 120px) / 6))';
+const thumbs = await Promise.all(
+  photos.slice(1).map((p) => getImage({ src: p.image, widths: [240, 360, 480, 600], sizes: shotSizes, format: 'webp', quality: 78 })),
+);
+const full = await Promise.all(
+  photos.map((p) => getImage({ src: p.image, width: Math.min(1400, p.image.width), format: 'webp', quality: 80 })),
+);
+const art = (src: ImageMetadata | string, width: number) =>
+  getImage({
+    src,
+    widths: [width, width * 2],
+    sizes: `${width}px`,
+    format: 'webp',
+    quality: 76,
+    ...(typeof src === 'string' ? { inferSize: true } : {}),
+  });
+const cards = (list: Title[]) =>
+  Promise.all(list.map(async (x) => ({ name: loc(x.name), note: loc(x.note), tag: x.tag?.[lang], lang: x.lang, cover: await art(x.cover, 100) })));
+const [filmCards, seriesCards, gameCards] = await Promise.all([cards(films), cards(series), cards(games)]);
+const listCards = await Promise.all(playlists.map(async (p) => ({ ...p, art: await art(p.cover, 200) })));
+const startMusic = photos.length + 2;
+const startFilms = startMusic + playlists.length + 1;
+const startSeries = startFilms + films.length + 1;
+const startGames = startSeries + series.length + 1;
+const born = new Date(`${birthday}T00:00:00`);
+const now = new Date();
+let level = now.getFullYear() - born.getFullYear();
+let nextBirthday = new Date(now.getFullYear(), born.getMonth(), born.getDate());
+if (now < nextBirthday) level--;
+else nextBirthday = new Date(now.getFullYear() + 1, born.getMonth(), born.getDate());
+const lastBirthday = new Date(nextBirthday.getFullYear() - 1, born.getMonth(), born.getDate());
+const progress = (now.getTime() - lastBirthday.getTime()) / (nextBirthday.getTime() - lastBirthday.getTime());
+const daysLeft = Math.ceil((nextBirthday.getTime() - now.getTime()) / 864e5);
+---
+
+<a class="back" href={localePath(lang, '/')} aria-label={t('me.backTo')}>
+  <FilmSvg id="back" thumb />
+  <span class="back-tag" aria-hidden="true">{t('me.back')}</span>
+</a>
+
+<div class="sheet">
+  <header class="bar">
+    <div class="lang">
+      {
+        langs.map((l) => (
+          <a href={localePath(l, '/me')} hreflang={l} lang={l} aria-current={l === lang ? 'true' : undefined}>
+            <span aria-hidden="true">{l.toUpperCase()}</span>
+            <span class="sr-only">{languages[l]}</span>
+          </a>
+        ))
+      }
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="title">
+      <h1>{t('me.title')}</h1>
+      <img class="parked defer" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" data-src={parkedCar.src} data-sheet={carSheet} alt="" width="160" height="160" decoding="async" />
+    </div>
+    <p class="lvl" data-birth={birthday}>
+      <span class="lv">LVL <b data-lv>{level}</b></span>
+      <span class="xp" aria-hidden="true"><i style={`--p: ${(progress * 100).toFixed(1)}%`}></i></span>
+      <small data-soon hidden={daysLeft > 10}>{t('me.nextLevel')}: <span data-left>{daysLeft}</span> {t('me.days')}</small>
+    </p>
+
+    <section aria-labelledby="me-photos">
+      <h2 id="me-photos">{t('me.photos')}</h2>
+      <div class="strip" role="region" tabindex="0" aria-labelledby="me-photos">
+        <ol class="frames shots" role="list" style={`--n: ${photos.length + 1}`}>
+          {
+            photos.map((p, i) => (
+              <li class="frame">
+                <span class="edge" aria-hidden="true">
+                  <span>▸ {i + 1}</span>
+                </span>
+                <button class="shot" type="button" data-full={full[i].src} data-alt={p.alt[lang]} data-caption={p.caption ?? ''} style={p.focus ? `--focus: ${p.focus}` : undefined}>
+                  {i === 0 ? (
+                    <Picture
+                      src={p.image}
+                      alt={p.alt[lang]}
+                      widths={[240, 360, 480]}
+                      sizes={shotSizes}
+                      formats={['avif', 'webp']}
+                      fallbackFormat="webp"
+                      loading="eager"
+                      fetchpriority="high"
+                      decoding="async"
+                    />
+                  ) : (
+                    <img
+                      class="defer"
+                      src="data:image/gif;base64,R0lGODlhAQABAAAAACw="
+                      data-src={thumbs[i - 1].src}
+                      data-srcset={thumbs[i - 1].srcSet.attribute}
+                      sizes={shotSizes}
+                      alt={p.alt[lang]}
+                      width={p.image.width}
+                      height={p.image.height}
+                      decoding="async"
+                    />
+                  )}
+                </button>
+                <span class="edge" aria-hidden="true"></span>
+              </li>
+            ))
+          }
+          <li class="frame">
+            <span class="edge" aria-hidden="true">
+              <span>▸ {photos.length + 1}</span>
+            </span>
+            <a class="card go" href={links.instagram} target="_blank" rel="noopener">
+              <svg class="brand" viewBox="0 0 24 24" aria-hidden="true"><path d={brands.instagram} /></svg>
+              <b class="sr-only" lang="en">Instagram</b>
+              <small>{t('me.more')} ↗</small>
+            </a>
+            <span class="edge" aria-hidden="true">
+              <span></span>
+              <span>ES 400</span>
+            </span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section aria-labelledby="me-music">
+      <h2 id="me-music">{t('me.music')}</h2>
+      <div class="strip" role="region" tabindex="0" aria-labelledby="me-music">
+        <ol class="frames lists" role="list" style={`--n: ${playlists.length + 1}`}>
+          {
+            listCards.map((p, i) => (
+              <li class="frame">
+                <span class="edge" aria-hidden="true">
+                  <span>▸ {startMusic + i}</span>
+                </span>
+                <a class="card play" href={p.href} target="_blank" rel="noopener" lang="en" aria-label={`Spotify: ${p.name}`}>
+                  <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+                  <img class="cover" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" data-src={p.art.src} data-srcset={p.art.srcSet.attribute} sizes="200px" alt="" decoding="async" />
+                  <b>{p.name}</b>
+                </a>
+                <span class="edge" aria-hidden="true"></span>
+              </li>
+            ))
+          }
+          <li class="frame">
+            <span class="edge" aria-hidden="true">
+              <span>▸ {startMusic + playlists.length}</span>
+            </span>
+            <a class="card go" href={links.spotify} target="_blank" rel="noopener">
+              <svg class="brand" viewBox="0 0 24 24" aria-hidden="true"><path d={brands.spotify} /></svg>
+              <b class="sr-only" lang="en">Spotify</b>
+              <small>{t('me.more')} ↗</small>
+            </a>
+            <span class="edge" aria-hidden="true">
+              <span></span>
+              <span>ES 400</span>
+            </span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section aria-labelledby="me-films">
+      <h2 id="me-films">{t('me.films')}</h2>
+      <div class="strip" role="region" tabindex="0" aria-labelledby="me-films">
+        <ol class="frames titles" role="list" style={`--n: ${films.length + 1}`}>
+          {
+            filmCards.map((c, i) => (
+              <li class="frame">
+                <span class="edge" aria-hidden="true">
+                  <span>▸ {startFilms + i}</span>
+                </span>
+                <div class="card art" lang={c.lang}>
+                  <img class="cover" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" data-src={c.cover.src} data-srcset={c.cover.srcSet.attribute} sizes="100px" alt="" decoding="async" />
+                  <span class="txt">
+                    <b>{c.name}</b>
+                    <small>{c.note}</small>
+                  </span>
+                </div>
+                <span class="edge" aria-hidden="true"></span>
+              </li>
+            ))
+          }
+          <li class="frame">
+            <span class="edge" aria-hidden="true">
+              <span>▸ {startFilms + films.length}</span>
+            </span>
+            <a class="card go" href={links.letterboxd} target="_blank" rel="noopener">
+              <svg class="brand" viewBox="0 0 24 24" aria-hidden="true"><path d={brands.letterboxd} /></svg>
+              <b class="sr-only" lang="en">Letterboxd</b>
+              <small>{t('me.more')} ↗</small>
+            </a>
+            <span class="edge" aria-hidden="true">
+              <span></span>
+              <span>ES 400</span>
+            </span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section aria-labelledby="me-series">
+      <h2 id="me-series">{t('me.series')}</h2>
+      <div class="strip" role="region" tabindex="0" aria-labelledby="me-series">
+        <ol class="frames titles" role="list" style={`--n: ${series.length + 1}`}>
+          {
+            seriesCards.map((c, i) => (
+              <li class="frame">
+                <span class="edge" aria-hidden="true">
+                  <span>▸ {startSeries + i}</span>
+                </span>
+                <div class="card art" lang={c.lang}>
+                  <img class="cover" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" data-src={c.cover.src} data-srcset={c.cover.srcSet.attribute} sizes="100px" alt="" decoding="async" />
+                  <span class="txt">
+                    {c.tag && <small class="tag" lang={lang}>{c.tag}</small>}
+                    <b>{c.name}</b>
+                    <small>{c.note}</small>
+                  </span>
+                </div>
+                <span class="edge" aria-hidden="true"></span>
+              </li>
+            ))
+          }
+          <li class="frame">
+            <span class="edge" aria-hidden="true">
+              <span>▸ {startSeries + series.length}</span>
+            </span>
+            <a class="card go" href={links.serializd} target="_blank" rel="noopener">
+              <svg class="brand" viewBox="0 0 24 24" aria-hidden="true"><path d={brands.serializd} /></svg>
+              <b class="sr-only" lang="en">Serializd</b>
+              <small>{t('me.more')} ↗</small>
+            </a>
+            <span class="edge" aria-hidden="true">
+              <span></span>
+              <span>ES 400</span>
+            </span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section aria-labelledby="me-games">
+      <h2 id="me-games">{t('me.games')}</h2>
+      <div class="strip" role="region" tabindex="0" aria-labelledby="me-games">
+        <ol class="frames titles" role="list" style={`--n: ${games.length + 1}`}>
+          {
+            gameCards.map((c, i) => (
+              <li class="frame">
+                <span class="edge" aria-hidden="true">
+                  <span>▸ {startGames + i}</span>
+                </span>
+                <div class="card art" lang={c.lang}>
+                  <img class="cover" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" data-src={c.cover.src} data-srcset={c.cover.srcSet.attribute} sizes="100px" alt="" decoding="async" />
+                  <span class="txt">
+                    <b>{c.name}</b>
+                    <small>{c.note}</small>
+                  </span>
+                </div>
+                <span class="edge" aria-hidden="true"></span>
+              </li>
+            ))
+          }
+          <li class="frame">
+            <span class="edge" aria-hidden="true">
+              <span>▸ {startGames + games.length}</span>
+            </span>
+            <a class="card go" href={links.steam} target="_blank" rel="noopener">
+              <svg class="brand" viewBox="0 0 24 24" aria-hidden="true"><path d={brands.steam} /></svg>
+              <b class="sr-only" lang="en">Steam</b>
+              <small>{t('me.more')} ↗</small>
+            </a>
+            <span class="edge" aria-hidden="true">
+              <span></span>
+              <span>ES 400</span>
+            </span>
+          </li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>© {new Date().getFullYear()} Eren Sarıbay</span>
+    <span>
+      <a href={links.instagram} target="_blank" rel="noopener">Instagram ↗</a>
+      <a href={links.letterboxd} target="_blank" rel="noopener">Letterboxd ↗</a>
+      <a href={links.serializd} target="_blank" rel="noopener">Serializd ↗</a>
+      <a href={links.spotify} target="_blank" rel="noopener">Spotify ↗</a>
+      <a href={links.steam} target="_blank" rel="noopener">Steam ↗</a>
+    </span>
+  </footer>
+</div>
+
+<dialog class="lb" aria-label={t('me.photos')}>
+  <button class="x" type="button" data-close aria-label={t('me.close')}>×</button>
+  <figure>
+    <img src={full[0].src} alt={photos[0].alt[lang]} loading="lazy" decoding="async" />
+    <figcaption lang="en">{photos[0].caption ?? ''}</figcaption>
+  </figure>
+  <button class="step prev" type="button" data-step="-1" aria-label={t('me.prev')}>←</button>
+  <button class="step next" type="button" data-step="1" aria-label={t('me.next')}>→</button>
+</dialog>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>('.sheet .lang a').forEach((a) =>
+    a.addEventListener('click', () => {
+      document.cookie = `lang=${a.hreflang}; path=/; max-age=31536000; samesite=lax`;
+    }),
+  );
+
+  const reveal = () =>
+    document.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((img) => {
+      img.addEventListener('load', () => img.classList.add('in'), { once: true });
+      img.srcset = img.dataset.srcset ?? '';
+      img.src = img.dataset.src ?? '';
+      img.removeAttribute('data-src');
+    });
+  const later = () => document.fonts.ready.then(() => requestAnimationFrame(() => setTimeout(reveal, 60)));
+  if (document.readyState === 'complete') later();
+  else addEventListener('load', later, { once: true });
+
+  const lvl = document.querySelector<HTMLElement>('.lvl');
+  if (lvl?.dataset.birth) {
+    const [y, m, d] = lvl.dataset.birth.split('-').map(Number);
+    const now = new Date();
+    let level = now.getFullYear() - y;
+    let next = new Date(now.getFullYear(), m - 1, d);
+    if (now < next) level--;
+    else next = new Date(now.getFullYear() + 1, m - 1, d);
+    const prev = new Date(next.getFullYear() - 1, m - 1, d);
+    const lv = lvl.querySelector('[data-lv]');
+    const left = lvl.querySelector('[data-left]');
+    if (lv) lv.textContent = String(level);
+    const days = Math.ceil((next.getTime() - now.getTime()) / 864e5);
+    if (left) left.textContent = String(days);
+    const soon = lvl.querySelector<HTMLElement>('[data-soon]');
+    if (soon) soon.hidden = days > 10;
+    lvl.querySelector<HTMLElement>('.xp i')?.style.setProperty('--p', `${(((now.getTime() - prev.getTime()) / (next.getTime() - prev.getTime())) * 100).toFixed(1)}%`);
+  }
+
+  const parked = document.querySelector<HTMLImageElement>('.parked');
+  if (parked?.dataset.sheet && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const wake = () => import('../scripts/clio').then(({ roam }) => roam(parked, parked.dataset.sheet ?? ''));
+    const later = () => document.fonts.ready.then(() => setTimeout(wake, 4000));
+    if (document.readyState === 'complete') later();
+    else addEventListener('load', later, { once: true });
+  }
+
+  const html = document.documentElement;
+  const sheet = document.querySelector('.sheet');
+  const from = document.referrer.startsWith(location.origin) ? new URL(document.referrer).pathname : '';
+  const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+  const viaFilm = /^\/(tr\/?)?$/.test(from) || html.classList.contains('vt-film') || nav?.type === 'back_forward';
+  if (sheet && !viaFilm && !matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+    sheet.querySelectorAll('main section').forEach((s) => {
+      if (s.getBoundingClientRect().top < innerHeight) s.classList.add('seen', 'now');
+    });
+    sheet.classList.add('anim');
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          e.target.classList.add('seen');
+          io.unobserve(e.target);
+        }),
+      { threshold: 0.2 },
+    );
+    sheet.querySelectorAll('main section:not(.seen)').forEach((s) => io.observe(s));
+  }
+
+  const dialog = document.querySelector<HTMLDialogElement>('dialog.lb');
+  const shots = [...document.querySelectorAll<HTMLButtonElement>('.shot')];
+  if (dialog && shots.length) {
+    const img = dialog.querySelector('img')!;
+    const caption = dialog.querySelector('figcaption')!;
+    let index = 0;
+    const show = (k: number) => {
+      index = (k + shots.length) % shots.length;
+      const { full = '', alt = '', caption: text = '' } = shots[index].dataset;
+      img.src = full;
+      img.alt = alt;
+      caption.textContent = text;
+    };
+    shots.forEach((s, k) =>
+      s.addEventListener('click', () => {
+        show(k);
+        dialog.showModal();
+      }),
+    );
+    dialog.addEventListener('click', (e) => {
+      const step = (e.target as Element).closest<HTMLElement>('[data-step]');
+      if (step) return show(index + Number(step.dataset.step));
+      if ((e.target as Element).closest('img')) return;
+      dialog.close();
+    });
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') show(index + 1);
+      if (e.key === 'ArrowLeft') show(index - 1);
+    });
+    dialog.addEventListener('close', () => shots[index]?.focus());
+  }
+</script>
+
+<style>
+  :global(html[data-world='me']) {
+    color-scheme: dark;
+    scrollbar-color: #3a342c #1b1917;
+  }
+
+  :global(html[data-world='me'] body) {
+    background: #1b1917;
+    color: #efe8dc;
+  }
+
+  .sheet {
+    --bg: #1b1917;
+    --fg: #efe8dc;
+    --muted: #a39a8c;
+    --line: #3a342c;
+    --amber: #e9a64a;
+    --film: #080706;
+    container-type: inline-size;
+    width: 100%;
+    max-width: var(--max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .sheet ::selection {
+    background: var(--amber);
+    color: var(--film);
+  }
+
+  .back {
+    --h: 36px;
+    --tip: 44px;
+    --hole: #ffe6bf;
+    position: absolute;
+    left: 0;
+    top: 32px;
+    z-index: 5;
+    width: calc(var(--h) * 420 / 76);
+    height: var(--h);
+    transform: translateX(calc(var(--tip) - 100%)) rotate(4deg);
+    transform-origin: 100% 50%;
+    filter: drop-shadow(0 0 10px rgb(255 150 70 / 0.35));
+    transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.04);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .back:hover,
+  .back:focus-visible {
+    transform: translateX(calc(var(--tip) + 110px - 100%)) rotate(2deg);
+  }
+
+  .back:focus-visible {
+    outline: 2px solid #e9a64a;
+    outline-offset: 4px;
+  }
+
+  .back-tag {
+    position: absolute;
+    left: calc(100% + 14px);
+    top: 50%;
+    translate: 0 -50%;
+    rotate: -2deg;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: #e9a64a;
+    opacity: 0;
+    transition: opacity 0.3s 0.1s;
+  }
+
+  .back:hover .back-tag,
+  .back:focus-visible .back-tag {
+    opacity: 1;
+  }
+
+  .bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 16px;
+    padding-block: 14px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--amber);
+  }
+
+  .lang {
+    display: flex;
+  }
+
+  .lang a {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 44px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.25s;
+  }
+
+  .lang a[aria-current],
+  .lang a:hover,
+  .lang a:focus-visible {
+    color: var(--amber);
+  }
+
+  .lang a[aria-current] span:first-child {
+    text-decoration: underline;
+    text-underline-offset: 0.35em;
+    text-decoration-thickness: 1.5px;
+  }
+
+  .title {
+    position: relative;
+    margin-top: clamp(24px, 6vw, 72px);
+    font-size: clamp(5.75rem, 1rem + 15vw, 15rem);
+  }
+
+  h1 {
+    width: fit-content;
+    font-size: 1em;
+    font-weight: 700;
+    line-height: 0.88;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+  }
+
+  .parked {
+    position: absolute;
+    left: 0.25095em;
+    top: 0.44974em;
+    width: 0.26958em;
+    height: auto;
+    pointer-events: none;
+  }
+
+  .parked[hidden] {
+    display: none;
+  }
+
+  .parked:global(.in) {
+    animation: me-park 1.6s var(--ease) 1.2s;
+  }
+
+  @keyframes me-park {
+    45% {
+      translate: 0.05em 0;
+    }
+  }
+
+  section {
+    margin-top: clamp(40px, 6vw, 72px);
+  }
+
+  h2 {
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--amber);
+  }
+
+  .strip {
+    --gap: clamp(8px, 1vw, 12px);
+    --pad: clamp(10px, 1.2vw, 14px);
+    --fw: max(170px, calc((100cqw - 2 * var(--pad) - 5 * var(--gap)) / 6));
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) var(--film);
+    background: var(--film);
+  }
+
+  .strip:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 3px;
+  }
+
+  .frames {
+    display: grid;
+    grid-template-columns: repeat(var(--n), var(--fw));
+    gap: var(--gap);
+    margin: 0;
+    padding: 0 var(--pad);
+    list-style: none;
+  }
+
+  .frame {
+    display: grid;
+    grid-template-rows: 26px auto 26px;
+    scroll-snap-align: start;
+    scroll-margin-inline: 14px;
+  }
+
+  .edge {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: var(--amber);
+  }
+
+  .shot,
+  .card {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    border-radius: 4px;
+  }
+
+  .shot {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: #0f0e0d;
+    cursor: zoom-in;
+  }
+
+  .shot :global(picture),
+  .shot :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .shot :global(img) {
+    object-fit: cover;
+    object-position: var(--focus, 50% 50%);
+    border-radius: 4px;
+    transition: filter 0.4s var(--ease);
+  }
+
+  .shot:hover :global(img),
+  .shot:focus-visible :global(img) {
+    filter: brightness(1.08);
+  }
+
+  .shot:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 3px;
+  }
+
+  .card {
+    display: grid;
+    align-content: end;
+    gap: 6px;
+    padding: clamp(10px, 1.2vw, 14px);
+    background: #0f0e0d;
+    box-shadow: inset 0 0 0 1px #2c2925;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .card b {
+    font-size: clamp(1.125rem, 0.85rem + 0.8vw, 1.5rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+  }
+
+  .card small {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--amber);
+  }
+
+  .card small.tag {
+    color: var(--muted);
+  }
+
+  a.card {
+    transition: box-shadow 0.3s var(--ease);
+  }
+
+  a.card:hover,
+  a.card:focus-visible {
+    box-shadow: inset 0 0 0 1px var(--amber);
+  }
+
+  .card.go {
+    background: #0b0a09;
+  }
+
+  .brand {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: clamp(30px, 3vw, 40px);
+    height: auto;
+    aspect-ratio: 1;
+    translate: -50% -62%;
+    fill: var(--fg);
+    fill-rule: evenodd;
+    opacity: 0.88;
+    transition: opacity 0.3s var(--ease), scale 0.4s var(--spring);
+  }
+
+  a.card:hover .brand,
+  a.card:focus-visible .brand {
+    opacity: 1;
+    scale: 1.08;
+  }
+
+  .card.art {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    align-content: stretch;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .cover {
+    width: auto;
+    height: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    background: #17140f;
+  }
+
+  .card.play {
+    display: block;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .play .cover {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .play::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 45%, rgb(8 7 6 / 0.78));
+    pointer-events: none;
+  }
+
+  .play b {
+    position: absolute;
+    left: clamp(10px, 1.2vw, 14px);
+    right: clamp(10px, 1.2vw, 14px);
+    bottom: clamp(8px, 1vw, 12px);
+    z-index: 1;
+    font-size: clamp(1.125rem, 0.95rem + 0.5vw, 1.375rem);
+    text-transform: none;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 0.5);
+  }
+
+  .cover:not(.in) {
+    opacity: 0;
+  }
+
+  .cover.in {
+    transition: opacity 0.5s var(--ease);
+  }
+
+  .defer:not(.in) {
+    opacity: 0;
+  }
+
+  .defer.in {
+    transition: opacity 0.5s var(--ease);
+  }
+
+  .txt {
+    display: grid;
+    align-content: end;
+    gap: 6px;
+    min-width: 0;
+    padding: clamp(8px, 1vw, 12px);
+  }
+
+  .card.art b {
+    font-size: clamp(0.875rem, 0.8rem + 0.2vw, 1rem);
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    text-transform: none;
+    overflow-wrap: break-word;
+  }
+
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding-block: clamp(48px, 7vw, 88px) 32px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .foot span:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+  }
+
+  .foot a {
+    color: var(--amber);
+    text-decoration: none;
+  }
+
+  .foot a:hover,
+  .foot a:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+
+  .lb {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: clamp(16px, 4vw, 48px);
+    border: 0;
+    background: rgb(8 7 6 / 0.96);
+    color: #efe8dc;
+  }
+
+  .lb[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  .lb::backdrop {
+    background: transparent;
+  }
+
+  .lb figure {
+    display: grid;
+    gap: 12px;
+    justify-items: center;
+    margin: 0;
+  }
+
+  .lb img {
+    max-width: min(92vw, 1400px);
+    max-height: 78dvh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
+  .lb figcaption:empty {
+    display: none;
+  }
+
+  .lb figcaption {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: #e9a64a;
+    text-align: center;
+  }
+
+  .lb button {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: none;
+    color: #efe8dc;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  .lb button:focus-visible {
+    outline: 2px solid #e9a64a;
+  }
+
+  .x {
+    top: 12px;
+    right: 12px;
+  }
+
+  .step {
+    bottom: 16px;
+  }
+
+  .prev {
+    left: calc(50% - 56px);
+  }
+
+  .next {
+    left: calc(50% + 12px);
+  }
+
+  .lvl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    margin-top: clamp(14px, 2vw, 22px);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lv {
+    color: var(--amber);
+    letter-spacing: 0.06em;
+  }
+
+  .lv b {
+    font-weight: 400;
+    color: var(--fg);
+  }
+
+  .xp {
+    flex: 0 1 220px;
+    height: 6px;
+    border-radius: 4px;
+    background: #2a2622;
+    overflow: hidden;
+  }
+
+  .xp i {
+    display: block;
+    width: var(--p);
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #b8742a, var(--amber));
+    animation: me-xp 1.4s var(--ease) 0.3s backwards;
+  }
+
+  @keyframes me-xp {
+    from {
+      width: 0;
+    }
+  }
+
+  .eq {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 14px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .eq i {
+    width: 3px;
+    height: 100%;
+    background: var(--amber);
+    transform-origin: bottom;
+    animation: me-eq 0.8s ease-in-out infinite alternate paused;
+  }
+
+  .eq i:nth-child(2) {
+    animation-delay: -0.3s;
+  }
+
+  .eq i:nth-child(3) {
+    animation-delay: -0.55s;
+  }
+
+  .play:hover .eq,
+  .play:focus-visible .eq {
+    opacity: 1;
+  }
+
+  .play:hover .eq i,
+  .play:focus-visible .eq i {
+    animation-play-state: running;
+  }
+
+  @keyframes me-eq {
+    from {
+      transform: scaleY(0.25);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  .anim section:not(.seen) .strip {
+    opacity: 0;
+  }
+
+  .anim section.seen:not(.now) .strip {
+    animation: me-roll 0.9s var(--ease) backwards;
+  }
+
+  @keyframes me-roll {
+    from {
+      opacity: 0;
+      transform: translateX(48px);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .strip {
+      width: auto;
+      overflow: visible;
+    }
+
+    .frames {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0 8px;
+      padding: 0 10px;
+    }
+
+    .frames.shots {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .frame {
+      grid-template-rows: 24px auto;
+      grid-auto-rows: 24px;
+      min-width: 0;
+      scroll-snap-align: none;
+    }
+
+    .frame:not(:last-child) > .edge:last-child {
+      display: none;
+    }
+
+    .edge {
+      font-size: 0.6875rem;
+      letter-spacing: 0.02em;
+    }
+
+    .shot,
+    .card {
+      align-self: start;
+    }
+
+    .card {
+      padding: 8px;
+    }
+
+    .card small {
+      font-size: 0.6875rem;
+    }
+
+    .lists .card {
+      aspect-ratio: 1;
+    }
+
+    .titles .card.go {
+      aspect-ratio: 2 / 3;
+    }
+
+    .titles .card.art {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      align-content: start;
+      aspect-ratio: auto;
+      overflow: visible;
+      background: none;
+      box-shadow: none;
+    }
+
+    .titles .cover {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    .titles .txt {
+      align-content: start;
+      gap: 3px;
+      padding: 7px 0 10px;
+    }
+
+    .titles .card.art b {
+      font-size: 0.8125rem;
+    }
+
+    .play b {
+      left: 8px;
+      right: 8px;
+      bottom: 6px;
+      font-size: 1rem;
+    }
+
+    .brand {
+      width: 28px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back {
+      transition: none;
+    }
+
+    .parked:global(.in) {
+      animation: none;
+    }
+
+    .xp i,
+    .eq i {
+      animation: none;
+    }
+  }
+</style>

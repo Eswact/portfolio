@@ -1,0 +1,11 @@
+---
+import Base from '../../layouts/Base.astro';
+import Me from '../../components/Me.astro';
+import { useTranslations } from '../../i18n/ui';
+
+const t = useTranslations('tr');
+---
+
+<Base lang="tr" path="/me" description={t('me.description')} noindex bare>
+  <Me lang="tr" />
+</Base>

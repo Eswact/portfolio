@@ -1,6 +1,7 @@
 ---
 import SectionHead from './SectionHead.astro';
 import WorkCard from './WorkCard.astro';
+import FilmStrip from './FilmStrip.astro';
 import { experience, profile } from '../data/profile';
 import { featured, nameOf, projects } from '../data/projects';
 import { localePath, useTranslations, type Lang } from '../i18n/ui';
@@ -83,6 +84,8 @@ const projectLink = (slug: string | { name: string; href: string }) => {
     }
   </ol>
 </section>
+
+<FilmStrip lang={lang} />
 
 <section class="container contact" aria-labelledby="contact">
   <SectionHead id="contact" title={t('section.contact')} />

@@ -1,5 +1,4 @@
 ---
-import pkg from '../../package.json';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -19,7 +18,7 @@ const updated = new Intl.DateTimeFormat(lang === 'tr' ? 'tr-TR' : 'en-GB', {
 <footer class="container footer mono">
   <span>© {built.getFullYear()} Eren Sarıbay</span>
   <span class="muted">
-    v{pkg.version} · {t('footer.updated')} <time datetime={built.toISOString()}>{updated}</time>
+    {t('footer.updated')} <time datetime={built.toISOString()}>{updated}</time>
   </span>
 </footer>
 

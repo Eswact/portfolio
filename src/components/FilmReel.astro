@@ -1,0 +1,195 @@
+<style is:global>
+  html.vt-film::view-transition-old(root),
+  html.vt-film::view-transition-new(root),
+  html.vt-film-back::view-transition-old(root),
+  html.vt-film-back::view-transition-new(root) {
+    mix-blend-mode: normal;
+    transform-origin: 50% 50%;
+  }
+
+  html.vt-film::view-transition-old(root) {
+    animation: film-old 2s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  html.vt-film::view-transition-new(root) {
+    animation: film-new 2s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  html.vt-film-back::view-transition-old(root) {
+    animation: film-back-old 1.7s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  html.vt-film-back::view-transition-new(root) {
+    animation: film-back-new 1.7s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  html.vt-film::view-transition,
+  html.vt-film-back::view-transition {
+    background-color: #0d0c0b;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='560' viewBox='0 0 560 560' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2324201c'/%3E%3Cstop offset='.6' stop-color='%23171513'/%3E%3Cstop offset='1' stop-color='%231f1a15'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='560' height='560' rx='8' fill='url(%23g)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='560' viewBox='0 0 560 560' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2324201c'/%3E%3Cstop offset='.6' stop-color='%23171513'/%3E%3Cstop offset='1' stop-color='%231f1a15'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='560' height='560' rx='8' fill='url(%23g)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='560' viewBox='0 0 560 560' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2324201c'/%3E%3Cstop offset='.6' stop-color='%23171513'/%3E%3Cstop offset='1' stop-color='%231f1a15'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='560' height='560' rx='8' fill='url(%23g)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='560' viewBox='0 0 560 560' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2324201c'/%3E%3Cstop offset='.6' stop-color='%23171513'/%3E%3Cstop offset='1' stop-color='%231f1a15'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='560' height='560' rx='8' fill='url(%23g)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='22'%3E%3Crect x='10' width='16' height='22' rx='3.5' fill='%23fbf1de'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='22'%3E%3Crect x='10' width='16' height='22' rx='3.5' fill='%23fbf1de'/%3E%3C/svg%3E"),
+      linear-gradient(180deg, #96471a, #c26b2e 14%, #cc7a3a 50%, #c26b2e 86%, #96471a);
+    background-size:
+      56vw 56dvh,
+      56vw 56dvh,
+      56vw 56dvh,
+      56vw 56dvh,
+      auto 3dvh,
+      auto 3dvh,
+      100% 71dvh;
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, repeat-x, no-repeat;
+  }
+
+  html.vt-film::view-transition {
+    animation: film-bg 2s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  html.vt-film-back::view-transition {
+    animation: film-bg-back 1.7s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  html.vt-film::view-transition-old(root),
+  html.vt-film-back::view-transition-new(root) {
+    background-color: var(--bg);
+  }
+
+  html.vt-film::view-transition-new(root),
+  html.vt-film-back::view-transition-old(root) {
+    background-color: #1b1917;
+  }
+
+  @keyframes film-bg {
+    0%,
+    30% {
+      background-position:
+        -98vw 22dvh,
+        -38vw 22dvh,
+        142vw 22dvh,
+        202vw 22dvh,
+        0 15.6dvh,
+        0 81.4dvh,
+        0 14.5dvh;
+    }
+    64%,
+    100% {
+      background-position:
+        -158vw 22dvh,
+        -98vw 22dvh,
+        82vw 22dvh,
+        142vw 22dvh,
+        -60vw 15.6dvh,
+        -60vw 81.4dvh,
+        0 14.5dvh;
+    }
+  }
+
+  @keyframes film-bg-back {
+    0%,
+    30% {
+      background-position:
+        -158vw 22dvh,
+        -98vw 22dvh,
+        82vw 22dvh,
+        142vw 22dvh,
+        0 15.6dvh,
+        0 81.4dvh,
+        0 14.5dvh;
+    }
+    64%,
+    100% {
+      background-position:
+        -98vw 22dvh,
+        -38vw 22dvh,
+        142vw 22dvh,
+        202vw 22dvh,
+        60vw 15.6dvh,
+        60vw 81.4dvh,
+        0 14.5dvh;
+    }
+  }
+
+  @keyframes film-old {
+    0% {
+      transform: none;
+      filter: brightness(1) saturate(1);
+    }
+    26%,
+    30% {
+      transform: scale(0.56);
+      filter: brightness(1) saturate(1);
+    }
+    64%,
+    100% {
+      transform: translateX(-60%) scale(0.56);
+      filter: brightness(0.62) saturate(0.7);
+    }
+  }
+
+  @keyframes film-new {
+    0%,
+    24% {
+      opacity: 0;
+      transform: translateX(60%) scale(0.56);
+      filter: brightness(0.62) saturate(0.7);
+    }
+    30% {
+      opacity: 1;
+      transform: translateX(60%) scale(0.56);
+    }
+    64%,
+    68% {
+      transform: translateX(0) scale(0.56);
+      filter: brightness(0.62) saturate(0.7);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      filter: brightness(1) saturate(1);
+    }
+  }
+
+  @keyframes film-back-old {
+    0% {
+      transform: none;
+      filter: brightness(1) saturate(1);
+    }
+    26%,
+    30% {
+      transform: scale(0.56);
+      filter: brightness(1) saturate(1);
+    }
+    64%,
+    100% {
+      transform: translateX(60%) scale(0.56);
+      filter: brightness(0.62) saturate(0.7);
+    }
+  }
+
+  @keyframes film-back-new {
+    0%,
+    24% {
+      opacity: 0;
+      transform: translateX(-60%) scale(0.56);
+      filter: brightness(0.62) saturate(0.7);
+    }
+    30% {
+      opacity: 1;
+      transform: translateX(-60%) scale(0.56);
+    }
+    64%,
+    68% {
+      transform: translateX(0) scale(0.56);
+      filter: brightness(0.62) saturate(0.7);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      filter: brightness(1) saturate(1);
+    }
+  }
+</style>

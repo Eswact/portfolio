@@ -1,0 +1,74 @@
+---
+import FilmSvg from './FilmSvg.astro';
+import filmSound from '../assets/me/loser.m4a?url';
+import { localePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<div class="slot">
+  <a class="film" href={localePath(lang, '/me')} aria-label={t('me.enter')} data-sound={filmSound}>
+    <FilmSvg id="film" />
+  </a>
+</div>
+
+<script>
+  const film = document.querySelector<HTMLAnchorElement>('.film[data-sound]');
+  if (film && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const warm = () => {
+      fetch(film.dataset.sound!).catch(() => {});
+      ['pointerenter', 'touchstart', 'focus'].forEach((type) => film.removeEventListener(type, warm));
+    };
+    ['pointerenter', 'touchstart', 'focus'].forEach((type) => film.addEventListener(type, warm, { passive: true }));
+  }
+</script>
+
+<style>
+  .slot {
+    position: relative;
+    height: 0;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  .film {
+    --h: clamp(34px, 3.2vw, 44px);
+    --hole: color-mix(in srgb, #ffe6bf calc(var(--spot) * 100%), var(--bg));
+    --tip: 44px;
+    position: absolute;
+    right: 0;
+    top: calc(clamp(80px, 10vw, 140px) * -0.42 - var(--h) / 2);
+    width: calc(var(--h) * 420 / 76);
+    height: var(--h);
+    transform: translateX(calc(100% - var(--tip))) rotate(4deg);
+    transform-origin: 0% 50%;
+    filter: drop-shadow(0 3px 6px rgb(0 0 0 / calc(0.18 - var(--spot) * 0.18)))
+      drop-shadow(0 0 calc(var(--spot) * 12px) rgb(255 150 70 / calc(var(--spot) * 0.5)));
+    transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.04);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .film:hover,
+  .film:focus-visible {
+    transform: translateX(calc(100% - var(--tip) - 110px)) rotate(2deg);
+  }
+
+  .film:focus-visible {
+    outline-offset: 4px;
+  }
+
+  .film :global(svg) {
+    transform: scaleX(-1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .film {
+      transition: none;
+    }
+  }
+</style>

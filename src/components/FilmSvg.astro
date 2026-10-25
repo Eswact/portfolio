@@ -1,0 +1,63 @@
+---
+interface Props {
+  id: string;
+  thumb?: boolean;
+}
+
+const { id, thumb = false } = Astro.props;
+const outline = 'M0 0H412L420 8V68L412 76H0Z';
+const frames = ['#3d2a1d', '#5a3a24', '#2f2a33', '#6b4426', '#463024', '#3a3f45', '#5c3b28'];
+---
+
+<svg viewBox="0 0 420 76" aria-hidden="true">
+  <defs>
+    <linearGradient id={`${id}-base`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9541f"></stop>
+      <stop offset="0.5" stop-color="#d07b38"></stop>
+      <stop offset="1" stop-color="#a9541f"></stop>
+    </linearGradient>
+    <pattern id={`${id}-holes`} width="12" height="76" patternUnits="userSpaceOnUse">
+      <rect class="hole" x="4" y="4" width="6" height="8" rx="1.6"></rect>
+      <rect class="hole" x="4" y="64" width="6" height="8" rx="1.6"></rect>
+    </pattern>
+  </defs>
+  <path d={outline} fill={`url(#${id}-base)`}></path>
+  <path d={outline} fill={`url(#${id}-holes)`}></path>
+  {
+    frames.map((c, f) => {
+      const x = 358 - f * 58;
+      if (thumb && f === 0)
+        return (
+          <g>
+            <rect x={x} y="16" width="52" height="44" rx="1.5" fill="#f5f5f3" />
+            <rect x={x + 6} y="22" width="20" height="3" fill="#151517" />
+            <rect x={x + 6} y="30" width="38" height="5" fill="#151517" />
+            <rect x={x + 6} y="38" width="30" height="5" fill="#151517" />
+            <rect x={x + 6} y="48" width="11" height="8" fill="#c8f03c" />
+            <rect x={x + 20} y="48" width="11" height="8" fill="#dcdcd8" />
+            <rect x={x + 34} y="48" width="11" height="8" fill="#dcdcd8" />
+          </g>
+        );
+      return (
+        <g>
+          <rect x={x} y="16" width="52" height="44" rx="1.5" fill={c} />
+          <rect x={x} y="40" width="52" height="20" fill="#ffd9b0" opacity="0.28" />
+          <circle cx={x + 36} cy="27" r="4" fill="#1d120b" opacity="0.7" />
+        </g>
+      );
+    })
+  }
+</svg>
+
+<style>
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hole {
+    fill: var(--hole, #f5f5f3);
+    transition: fill 0.6s var(--ease);
+  }
+</style>
