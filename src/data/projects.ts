@@ -20,7 +20,6 @@ export interface Project {
   live?: string;
   demo?: boolean;
   release?: string;
-  apk?: string;
   stores?: { name: 'App Store' | 'Google Play'; href: string }[];
   status?: 'live' | 'source' | 'apk';
   source?: string[];
@@ -35,7 +34,7 @@ export const projects: Project[] = [
     card: {
       code: 'ES-01',
       year: 2026,
-      status: 'apk',
+      status: 'live',
       platform: { tr: 'Android · iOS', en: 'Android · iOS' },
       object: 'phone',
       layers: [
@@ -66,7 +65,7 @@ export const projects: Project[] = [
       },
     ],
     live: 'https://fibi-app.vercel.app',
-    apk: 'https://github.com/Eswact/fibi-releases/releases/latest/download/fibi.apk',
+    stores: [{ name: 'App Store', href: 'https://apps.apple.com/us/app/fibi-expense-item-tracker/id6823529037' }],
   },
   {
     slug: 'barcode-api',

@@ -54,7 +54,6 @@ const next = featured[(index + 1) % featured.length];
       <dd class="links">
         {p.stores?.map((s) => <a class="link arrow" href={s.href}>{s.name}</a>)}
         {p.live && <a class="link arrow" href={p.live}>{t(p.demo ? 'work.demoLink' : 'work.live')}</a>}
-        {p.apk && <a class="link down" href={p.apk} download>{t('work.apk')}</a>}
         {p.release && <a class="link arrow" href={p.release}>{t('work.app')}</a>}
         {p.source?.map((href) => <a class="link arrow" href={href}>{t('work.source')}</a>)}
       </dd>
