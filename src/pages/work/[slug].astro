@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { cases } from '../../data/cases';
 import CaseStudy from '../../components/CaseStudy.astro';
 import { featured, type FeaturedProject } from '../../data/projects';
 
@@ -10,6 +11,6 @@ export function getStaticPaths() {
 const { project } = Astro.props as { project: FeaturedProject };
 ---
 
-<Base lang="en" path={`/work/${project.slug}`} title={project.title} description={project.summary.en}>
+<Base lang="en" path={`/work/${project.slug}`} title={project.title} skin={cases[project.slug]?.skin} description={project.summary.en}>
   <CaseStudy lang="en" project={project} />
 </Base>

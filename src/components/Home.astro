@@ -3,7 +3,7 @@ import SectionHead from './SectionHead.astro';
 import WorkCard from './WorkCard.astro';
 import FilmStrip from './FilmStrip.astro';
 import { experience, profile } from '../data/profile';
-import { featured, nameOf, projects } from '../data/projects';
+import { homeCards, nameOf, projects } from '../data/projects';
 import { localePath, useTranslations, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -33,7 +33,7 @@ const projectLink = (slug: string | { name: string; href: string }) => {
   </SectionHead>
   <ul class="cards" role="list">
     {
-      featured.map((p) => (
+      homeCards.map((p) => (
         <li>
           <WorkCard project={p} lang={lang} />
         </li>

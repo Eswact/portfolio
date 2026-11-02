@@ -67,6 +67,46 @@
   }
 }
 
+:root[data-skin='pinbazaar'] {
+  --bg: #f3e8d0;
+  --surface: #eadcbc;
+  --card: #f8f0dd;
+  --fg: #1b2a5c;
+  --muted: #4f5a80;
+  --line: #d8c49c;
+  --glow: rgb(255 248 230 / 0.7);
+  --dot: rgb(35 70 160 / 0.14);
+}
+
+:root[data-skin='pinbazaar'][data-theme='dark'] {
+  --bg: #111936;
+  --surface: #18224c;
+  --card: #141d42;
+  --fg: #f3e8d0;
+  --muted: #a9b2d4;
+  --line: #2b3a74;
+  --glow: rgb(217 162 58 / 0.12);
+  --dot: rgb(217 162 58 / 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-skin='pinbazaar']:not([data-theme='light']) {
+    --bg: #111936;
+    --surface: #18224c;
+    --card: #141d42;
+    --fg: #f3e8d0;
+    --muted: #a9b2d4;
+    --line: #2b3a74;
+    --glow: rgb(217 162 58 / 0.12);
+    --dot: rgb(217 162 58 / 0.12);
+  }
+}
+
+:root[data-skin='pinbazaar'] body {
+  background-image: radial-gradient(circle, var(--dot) 1.2px, transparent 1.7px);
+  background-size: 28px 28px;
+}
+
 *,
 *::before,
 *::after {

@@ -3,7 +3,10 @@ import type { L10n } from '../i18n/ui';
 export interface Case {
   claim: L10n;
   role: L10n;
-  demo: 'fibi' | 'barcode' | 'signage' | 'warbly' | 'meetnal';
+  demo: 'pinbazaar' | 'fibi' | 'barcode' | 'signage' | 'warbly' | 'meetnal';
+  skin?: 'pinbazaar';
+  music?: boolean;
+  tables?: { id: string; paid: boolean; name: L10n; trick: L10n }[];
   layers: { title: L10n; detail: L10n }[];
   sections: { title: L10n; body: L10n }[];
   gallery: GallerySurface[];
@@ -19,6 +22,132 @@ export interface GallerySurface {
 }
 
 export const cases: Record<string, Case> = {
+  pinbazaar: {
+    claim: {
+      tr: 'Pinball becerisi, roguelike kurgusu: her tur bir hedef puan, turlar arasında çarşı.',
+      en: 'Pinball skill, roguelike builds: a target score every round, the bazaar in between.',
+    },
+    role: { tr: 'Oyun tasarımı, geliştirme', en: 'Game design, development' },
+    demo: 'pinbazaar',
+    skin: 'pinbazaar',
+    music: true,
+    layers: [
+      {
+        title: { tr: 'Görünüm', en: 'View' },
+        detail: {
+          tr: 'Godot sahneleri ve shader’lar. Masa 270 × 450 piksellik bir ızgarada çizilir, yazılar cihaz çözünürlüğünde; her olayın hareketi, sesi ve titreşimi var.',
+          en: 'Godot scenes and shaders. The table is drawn on a 270 × 450 pixel grid, text at the device’s resolution; every event has its motion, sound and haptics.',
+        },
+      },
+      {
+        title: { tr: 'Kurallar', en: 'Rules' },
+        detail: {
+          tr: 'Tur, kombo, can, çarşı ve belalar. Ekrandaki hiçbir şeye dokunmaz; sadece olay yayınlar, görünüm ve ses onları dinler.',
+          en: 'Rounds, combo, HP, the bazaar and the bosses. It never touches what is on screen; it only emits events that the view and the sound listen to.',
+        },
+      },
+      {
+        title: { tr: 'Fizik', en: 'Physics' },
+        detail: {
+          tr: 'Hazır fizik motoru yok: kendi çarpışma kodu, saniyede 600 alt adım ve 64 bit sayılar.',
+          en: 'No physics engine: its own collision code, 600 substeps a second and 64-bit numbers.',
+        },
+      },
+      {
+        title: { tr: 'Tohumlu rastgelelik', en: 'Seeded randomness' },
+        detail: {
+          tr: 'Bütün rastgelelik tek bir tohumdan gelir. Aynı tohum aynı koşuyu verir; testler ve denge ölçümleri bu yüzden tekrarlanabilir.',
+          en: 'All randomness comes from one seed. The same seed plays the same run, so tests and balance measurements can be repeated.',
+        },
+      },
+    ],
+    sections: [
+      {
+        title: { tr: 'Beceri tek başına yetmez', en: 'Skill alone isn’t enough' },
+        body: {
+          tr: 'Kombo çarpanı ×3’te durur ve hedefler, hiçbir şey almadan oynayan birinin 4. turda tıkanacağı şekilde ayarlı. Daha ileri gitmenin yolu çarşıda kurulan yapı: muskalar, masa seviyeleri, top türleri ve beceriler.',
+          en: 'The combo multiplier stops at ×3, and the targets are tuned so that someone who buys nothing stalls by round 4. Going further takes a build from the bazaar: charms, table levels, ball types and skills.',
+        },
+      },
+      {
+        title: { tr: 'Dengeyi bir bot ölçüyor', en: 'A bot measures the balance' },
+        body: {
+          tr: 'Kendi kendine oynayan bir bot, paralel süreçlerde yüzlerce koşu oynuyor. Hedef puanlar, fiyatlar ve zorluk basamakları bu sonuçlara göre ayarlandı.',
+          en: 'A bot that plays by itself runs hundreds of runs in parallel processes. The target scores, the prices and the difficulty ladder were tuned from those results.',
+        },
+      },
+      {
+        title: { tr: 'Her olayın bir hissi var', en: 'Every event has a feel' },
+        body: {
+          tr: 'Vuruşlar, çatlayan boncuk ve belalar hareket, ses ve titreşimle gelir. Orta halli bir Android telefonda 60 fps çalışıyor; “efektleri azalt” ayarı sarsıntıyı ve flaşları kapatıyor.',
+          en: 'Hits, the cracking bead and the bosses arrive with motion, sound and haptics. It runs at 60 fps on a mid-range Android phone; a “reduce effects” setting turns off shake and flashes.',
+        },
+      },
+      {
+        title: { tr: 'Dokuz masa, iki yol', en: 'Nine tables, two roads' },
+        body: {
+          tr: 'Devlet Yolu’nun beş masası ücretsiz; Otoyol’un dördü tek bir satın almayla açılıyor. Reklam ve abonelik yok, çevrimdışı da çalışıyor.',
+          en: 'The Country Road’s five tables are free; the Motorway’s four open with one purchase. No ads, no subscription, and it works offline.',
+        },
+      },
+    ],
+    gallery: [
+      {
+        id: 'game',
+        label: { tr: 'Oyun', en: 'Game' },
+        device: 'phone',
+        shots: [
+          {
+            key: 'pinbazaar/game/play',
+            caption: { tr: 'Masa', en: 'Table' },
+            note: {
+              tr: 'Kapadokya masasında bir tur: kombo 8’e varınca çarpan en yükseğe çıkar, ekranın kenarları alev alır.',
+              en: 'A round on the Cappadocia table: at combo 8 the multiplier tops out and the screen’s edges catch fire.',
+            },
+            alt: {
+              tr: 'Pinbazaar’da Kapadokya masası: üstte tur, hedef puan ve kombo; masada tamponlar, balon ve peribacaları.',
+              en: 'The Cappadocia table in Pinbazaar: round, target score and combo at the top; bumpers, a balloon and fairy chimneys on the table.',
+            },
+          },
+          {
+            key: 'pinbazaar/game/shop',
+            caption: { tr: 'Çarşı', en: 'Bazaar' },
+            note: {
+              tr: 'Turlar arasında akçe muskalara, masa geliştirmelerine ve toplara harcanır. Kartta tek satır var, ayrıntısı dokununca açılır.',
+              en: 'Between rounds, coins go on charms, table upgrades and balls. A card shows one line; its details open on a tap.',
+            },
+            alt: {
+              tr: 'Pinbazaar çarşısı: üç muska kartı, fiyat etiketleri ve boş muska yuvaları.',
+              en: 'The Pinbazaar bazaar: three charm cards, price tags and empty charm slots.',
+            },
+          },
+          {
+            key: 'pinbazaar/game/roads',
+            caption: { tr: 'Yollar', en: 'Roads' },
+            note: {
+              tr: 'Zorluk basamakları masalara göre kartpostal gibi dizilir; kazanılan basamağın pulu mühürlenir.',
+              en: 'The difficulty stakes line up by table like postcards; a won stake’s stamp gets cancelled.',
+            },
+            alt: {
+              tr: 'Pinbazaar’da Devlet Yolu ekranı: Çarşı, Metro ve Boğaz kartpostalları, mühürlü pullar.',
+              en: 'The Country Road screen in Pinbazaar: Bazaar, Metro and Bosphorus postcards with cancelled stamps.',
+            },
+          },
+        ],
+      },
+    ],
+    tables: [
+      { id: 'carsi', paid: false, name: { tr: 'Çarşı', en: 'Bazaar' }, trick: { tr: 'Harf yolları bir kelime yazar; her kelime bir mühür basar.', en: 'Letter lanes spell a word; every word presses a seal.' } },
+      { id: 'metro', paid: false, name: { tr: 'Metro', en: 'Metro' }, trick: { tr: 'Bir tren sahanın ortasından geçer, kapıları açık durur.', en: 'A train crosses mid-field and stops with its doors open.' } },
+      { id: 'bogaz', paid: false, name: { tr: 'Boğaz', en: 'Bosphorus' }, trick: { tr: 'Fener topu masanın yukarısına fırlatır; yoldaki her vuruş daha çok kazandırır.', en: 'The lighthouse fires the ball up the table; every hit on the way pays more.' } },
+      { id: 'saat', paid: false, name: { tr: 'Saat Kulesi', en: 'Clock Tower' }, trick: { tr: 'Yelkovana bin; gong her puanı ikiye katlar.', en: 'Ride the minute hand; the gong doubles every point.' } },
+      { id: 'kapadokya', paid: false, name: { tr: 'Kapadokya', en: 'Cappadocia' }, trick: { tr: 'Balonlar topu yukarı taşır, gökyüzü bonusu birikir.', en: 'Balloons carry the ball up while a sky bonus builds.' } },
+      { id: 'uludag', paid: true, name: { tr: 'Uludağ', en: 'Uludağ' }, trick: { tr: 'Teleferik topu zirveye taşır; vuruşlar bir çığ biriktirir.', en: 'The cable car takes the ball to the summit; hits pack an avalanche.' } },
+      { id: 'alacati', paid: true, name: { tr: 'Alaçatı', en: 'Alaçatı' }, trick: { tr: 'Rüzgâr topu iter; bir sörfçü onu karşıya taşır.', en: 'The wind shoves the ball; a windsurfer carries it across.' } },
+      { id: 'efes', paid: true, name: { tr: 'Efes', en: 'Ephesus' }, trick: { tr: 'Dört heykeli yak, kütüphaneyi aç, bir parşömen kazan.', en: 'Light the four statues, open the library, win a scroll.' } },
+      { id: 'pamukkale', paid: true, name: { tr: 'Pamukkale', en: 'Pamukkale' }, trick: { tr: 'Antik havuzda dinlen; sıcak bir fışkırma topu terasların üstünden fırlatır.', en: 'Rest in the antique pool; a hot jet throws the ball over the terraces.' } },
+    ],
+  },
   fibi: {
     claim: {
       tr: 'Bir cümle söyle; gider de envanter de kaydolsun.',

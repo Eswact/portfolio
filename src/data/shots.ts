@@ -10,7 +10,7 @@ export interface ShotImages {
 }
 
 export function resolveShot(key: string, lang: Lang): ShotImages {
-  const light = get(`${key}-${lang}-light`) ?? get(`${key}-light`) ?? get(key);
+  const light = get(`${key}-${lang}-light`) ?? get(`${key}-light`) ?? get(`${key}-${lang}`) ?? get(key);
   if (!light) throw new Error(`Missing screenshot: ${key} (${lang})`);
-  return { light, dark: get(`${key}-${lang}-dark`) ?? get(`${key}-dark`) ?? (get(key) ? light : undefined) };
+  return { light, dark: get(`${key}-${lang}-dark`) ?? get(`${key}-dark`) ?? (get(`${key}-${lang}`) || get(key) ? light : undefined) };
 }

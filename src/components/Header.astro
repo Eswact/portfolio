@@ -87,6 +87,7 @@ const nav = [
 
   sync();
   media.addEventListener('change', sync);
+  addEventListener('pageshow', (e) => e.persisted && sync());
 
   document.querySelectorAll<HTMLAnchorElement>('.lang a').forEach((a) =>
     a.addEventListener('click', () => {

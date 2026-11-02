@@ -2,6 +2,10 @@
 import Architecture from './Architecture.astro';
 import CaseDemo from './CaseDemo.astro';
 import Gallery from './Gallery.astro';
+import Music from './Music.astro';
+import PlayVideo from './PlayVideo.astro';
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import { cases } from '../data/cases';
 import { featured, type FeaturedProject } from '../data/projects';
 import { localePath, useTranslations, type Lang } from '../i18n/ui';
@@ -16,12 +20,23 @@ const t = useTranslations(lang);
 const c = cases[p.slug];
 const index = featured.findIndex((f) => f.slug === p.slug);
 const next = featured[(index + 1) % featured.length];
+const boards = import.meta.glob<ImageMetadata>('../assets/work/*/tables/*.png', { eager: true, import: 'default' });
+const board = (id: string) => boards[`../assets/work/${p.slug}/tables/${id}.png`];
+const roads = c.tables
+  ? [
+      { id: 'free', shield: lang === 'tr' ? 'D-10' : 'R-10', label: t('work.roadFree'), rows: c.tables.filter((x) => !x.paid) },
+      { id: 'paid', shield: lang === 'tr' ? 'O-8' : 'M-8', label: t('work.roadPaid'), rows: c.tables.filter((x) => x.paid) },
+    ]
+  : [];
 ---
 
 <article class="case">
   <nav class="container crumbs mono" aria-label={t('work.caseStudy')}>
     <a class="link" href={`${localePath(lang, '/')}#work`}>← {t('work.back')}</a>
-    <span class="muted num">{p.card.code} · {index + 1} / {featured.length}</span>
+    <span class="crumbs-end">
+      {c.music && <Music lang={lang} />}
+      <span class="muted num">{p.card.code} · {index + 1} / {featured.length}</span>
+    </span>
   </nav>
 
   <header class="container head">
@@ -52,10 +67,24 @@ const next = featured[(index + 1) % featured.length];
     <div>
       <dt class="mono muted">{t('work.links')}</dt>
       <dd class="links">
-        {p.stores?.map((s) => <a class="link arrow" href={s.href}>{s.name}</a>)}
+        {p.stores?.map((s) =>
+          s.href && (
+            <a class="link arrow" href={s.href}>
+              {s.name}
+            </a>
+          ),
+        )}
         {p.live && <a class="link arrow" href={p.live}>{t(p.demo ? 'work.demoLink' : 'work.live')}</a>}
         {p.release && <a class="link arrow" href={p.release}>{t('work.app')}</a>}
         {p.source?.map((href) => <a class="link arrow" href={href}>{t('work.source')}</a>)}
+        {p.stores?.map(
+          (s) =>
+            !s.href && (
+              <span class="soon">
+                {s.name} <span class="mono">{t('work.soon')}</span>
+              </span>
+            ),
+        )}
       </dd>
     </div>
   </dl>
@@ -65,7 +94,7 @@ const next = featured[(index + 1) % featured.length];
       <h2 id="architecture">{t('work.architecture')}</h2>
     </div>
     <Architecture layers={c.layers} lang={lang}>
-      <CaseDemo kind={c.demo} lang={lang} />
+      {c.demo === 'pinbazaar' ? <PlayVideo lang={lang} /> : <CaseDemo kind={c.demo} lang={lang} />}
     </Architecture>
   </section>
 
@@ -76,6 +105,42 @@ const next = featured[(index + 1) % featured.length];
           <h2 id="screens">{t('work.screens')}</h2>
         </div>
         <Gallery surfaces={c.gallery} lang={lang} note={c.galleryNote?.[lang]} />
+      </section>
+    )
+  }
+
+  {
+    c.tables && (
+      <section class="container block" aria-labelledby="tables">
+        <div class="rule">
+          <h2 id="tables">{t('work.tables')}</h2>
+        </div>
+        {roads.map((road) => (
+          <div class:list={['road', road.id]}>
+            <p class="sign">
+              <span class="shield">{road.shield}</span>
+              {road.label}
+            </p>
+            <ul class="boards" role="list">
+              {road.rows.map((b) => (
+                <li>
+                  <Picture
+                    src={board(b.id)}
+                    alt=""
+                    widths={[270, 540]}
+                    sizes="(min-width: 1100px) 230px, (min-width: 700px) 18vw, 40vw"
+                    formats={['avif', 'webp']}
+                    fallbackFormat="webp"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <h3>{b.name[lang]}</h3>
+                  <p class="muted">{b.trick[lang]}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </section>
     )
   }
@@ -203,6 +268,10 @@ const next = featured[(index + 1) % featured.length];
     vertical-align: 1px;
   }
 
+  .status.soon::before {
+    background: linear-gradient(90deg, var(--fg) 50%, transparent 50%);
+  }
+
   .status.live::before {
     background: var(--fg);
   }
@@ -282,7 +351,113 @@ const next = featured[(index + 1) % featured.length];
     transform: translateX(12px);
   }
 
+
+  .crumbs-end {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .soon {
+    white-space: nowrap;
+  }
+
+  .soon .mono {
+    margin-left: 4px;
+    padding: 2px 6px;
+    border: 1px dashed var(--line);
+    font-size: 0.6875rem;
+    color: var(--muted);
+  }
+
+  .road {
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto 560px;
+  }
+
+  .road + .road {
+    margin-top: clamp(40px, 5vw, 64px);
+  }
+
+  .sign {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 6px 12px 6px 8px;
+    border: 2px solid #fff;
+    outline: 2px solid #1c4fa0;
+    border-radius: 6px;
+    background: #1c4fa0;
+    color: #fff;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+
+  .paid .sign {
+    outline-color: #1f7a3c;
+    background: #1f7a3c;
+  }
+
+  .shield {
+    padding: 3px 6px;
+    border: 1.5px solid #fff;
+    border-radius: 4px 4px 9px 9px;
+    font-size: 0.75rem;
+    line-height: 1;
+  }
+
+  .boards {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 24px 16px;
+  }
+
+  .boards li {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    min-width: 0;
+  }
+
+  .boards :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 270 / 450;
+    margin-bottom: 8px;
+    background: var(--surface);
+  }
+
+  .boards h3 {
+    font-size: var(--step-0);
+    font-weight: 600;
+  }
+
+  .boards p {
+    font-size: 0.875rem;
+  }
+
+  :global(html[data-skin='pinbazaar']) .rule {
+    border-top: 0;
+    padding-top: 18px;
+    background: repeating-linear-gradient(90deg, #2346a0 0 8px, #2fb5b0 8px 16px, transparent 16px 24px, #d8432f 24px 32px, transparent 32px 40px) top / 100% 6px no-repeat;
+  }
+
   @media (max-width: 899px) {
+    .boards {
+      grid-auto-flow: column;
+      grid-template-columns: none;
+      grid-auto-columns: minmax(150px, 42%);
+      overflow-x: auto;
+      contain: inline-size;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 8px;
+    }
+
+    .boards li {
+      scroll-snap-align: start;
+    }
+
     h1,
     .promise {
       grid-column: 1 / -1;

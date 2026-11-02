@@ -86,6 +86,28 @@ const meeting = tr
   ? { title: 'Haftalık toplantı', overall: 'Genel', upload: 'analize gönder', kinds: ['Netlik', 'Verimlilik', 'İletişim', 'Sonuç'] }
   : { title: 'Weekly meeting', overall: 'Overall', upload: 'send for analysis', kinds: ['Clarity', 'Efficiency', 'Communication', 'Outcome'] };
 const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
+
+const pinball = {
+  bumpers: [
+    { x: 40, y: 62, hits: [1542] },
+    { x: 84, y: 62, hits: [1198, 3905] },
+    { x: 62, y: 96, hits: [1953, 3468] },
+  ],
+  targets: [
+    { y: 112, hits: [2453] },
+    { y: 126, hits: [] },
+  ],
+  lights: [4025, 1542, 3468, 3905, 860],
+  pops: [
+    { x: 84, y: 62, t: 1198, pts: 50 },
+    { x: 40, y: 62, t: 1542, pts: 60 },
+    { x: 62, y: 96, t: 1953, pts: 70 },
+    { x: 5, y: 117, t: 2453, pts: 120 },
+    { x: 62, y: 96, t: 3468, pts: 90 },
+    { x: 84, y: 62, t: 3905, pts: 110 },
+  ],
+};
+const hitAnim = (name: string, hits: number[]) => (hits.length ? `--a: ${hits.map((h) => `${name} 0.28s var(--ease) ${h}ms`).join(', ')}` : '');
 ---
 
 <article class="card" data-object={card?.object ?? 'catalogue'}>
@@ -97,6 +119,58 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
   </div>
 
   <div class="obj" aria-hidden="true">
+    {
+      card.object === 'pinball' && (
+        <div class="pb">
+          <div class="pb-world">
+            <div class="pb-table">
+              <b class="pb-slab" />
+              <div class="pb-field">
+                <span class="pb-dots">
+                  {pinball.lights.map((d) => (
+                    <i style={`--d:${d}ms`} />
+                  ))}
+                </span>
+                <i class="pb-lane" />
+                <i class="pb-plunger" />
+                {pinball.bumpers.map((b) => (
+                  <span class="pb-bump" style={`--x:${b.x};--y:${b.y}`}>
+                    <b class="pb-base" />
+                    <b class="pb-mid" />
+                    <b class="pb-cap" style={hitAnim('pb-hit', b.hits)} />
+                  </span>
+                ))}
+                {pinball.targets.map((g) => (
+                  <i class="pb-tg" style={`--y:${g.y};${hitAnim('pb-tg', g.hits)}`} />
+                ))}
+                <i class="pb-sling l" />
+                <i class="pb-sling r" />
+                <i class="pb-flip l" />
+                <i class="pb-flip r" />
+                <span class="pb-ballw">
+                  <i class="pb-shadow" />
+                  <span class="pb-bill">
+                    <svg class="pb-bead" viewBox="0 0 32 32">
+                      <circle cx="16" cy="16" r="15" fill="#0f2a7a" />
+                      <circle cx="16" cy="16" r="13" fill="#1f4fcf" />
+                      <circle cx="16" cy="16" r="9.5" fill="#fffbf0" />
+                      <circle cx="16" cy="16" r="6.5" fill="#6fb7e8" />
+                      <circle cx="16" cy="16" r="3.2" fill="#111a3d" />
+                      <path class="pb-crack" d="M17 1 L13 9 L19 14 L12 21 L16 31" />
+                    </svg>
+                  </span>
+                </span>
+                {pinball.pops.map((o) => (
+                  <span class="pb-pop" style={`--x:${o.x};--y:${o.y};--d:${o.t}ms`}>
+                    <span class="mono">+{o.pts}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
     {
       card.object === 'phone' && (
         <div class="fb">
@@ -534,6 +608,10 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
     height: 7px;
     border-radius: 50%;
     border: 1px solid var(--fg);
+  }
+
+  .status.soon::before {
+    background: linear-gradient(90deg, var(--fg) 50%, transparent 50%);
   }
 
   .status.live::before {
@@ -1953,6 +2031,730 @@ const bars = [6, 12, 20, 9, 26, 15, 30, 18, 11, 24, 16, 8];
   @keyframes grow {
     from {
       transform: scaleX(0);
+    }
+  }
+
+  .pb {
+    --u: calc(100cqw / 360);
+    position: absolute;
+    inset: 0;
+  }
+
+  .pb-world {
+    position: absolute;
+    left: calc(172 * var(--u));
+    top: calc(116 * var(--u));
+    transform-style: preserve-3d;
+    transform: rotateX(56deg) rotateZ(-34deg);
+  }
+
+  .pb-table {
+    --u: calc(100cqw / 282);
+    position: absolute;
+    left: calc(-65 * var(--u));
+    top: calc(-105 * var(--u));
+    width: calc(130 * var(--u));
+    height: calc(210 * var(--u));
+    transform-style: preserve-3d;
+  }
+
+  .pb-slab,
+  .pb-field {
+    position: absolute;
+    inset: 0;
+    border-radius: calc(65 * var(--u)) calc(65 * var(--u)) calc(6 * var(--u)) calc(6 * var(--u));
+  }
+
+  .pb-slab {
+    background: var(--line);
+    transform: translateZ(calc(-10 * var(--u)));
+  }
+
+  .pb-field {
+    background: var(--card);
+    border: calc(2 * var(--u)) solid var(--fg);
+    transform-style: preserve-3d;
+    transition: background-color 0.6s var(--ease);
+  }
+
+  .pb-field > * {
+    position: absolute;
+  }
+
+  .pb-dots {
+    left: calc(28 * var(--u));
+    top: calc(22 * var(--u));
+    display: flex;
+    gap: calc(12 * var(--u));
+  }
+
+  .pb-dots i {
+    width: calc(4 * var(--u));
+    height: calc(4 * var(--u));
+    border-radius: 50%;
+    border: 1px solid var(--muted);
+  }
+
+  .pb-lane {
+    left: calc(112 * var(--u));
+    top: calc(60 * var(--u));
+    width: calc(1.5 * var(--u));
+    height: calc(146 * var(--u));
+    background: var(--fg);
+  }
+
+  .pb-plunger {
+    left: calc(116 * var(--u));
+    top: calc(199 * var(--u));
+    width: calc(10 * var(--u));
+    height: calc(7 * var(--u));
+    background: var(--fg);
+    transform-origin: bottom;
+  }
+
+  .pb-bump {
+    left: calc(var(--x) * var(--u));
+    top: calc(var(--y) * var(--u));
+    width: calc(22 * var(--u));
+    height: calc(22 * var(--u));
+    margin: calc(-11 * var(--u)) 0 0 calc(-11 * var(--u));
+    transform-style: preserve-3d;
+  }
+
+  .pb-bump b {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+  }
+
+  .pb-base {
+    border: calc(1.5 * var(--u)) solid var(--fg);
+    background: var(--surface);
+  }
+
+  .pb-mid {
+    margin: calc(2 * var(--u));
+    background: color-mix(in srgb, var(--fg) 40%, var(--surface));
+    transform: translateZ(calc(4 * var(--u)));
+  }
+
+  .pb-cap {
+    margin: calc(3 * var(--u));
+    background: var(--card);
+    border: calc(1.5 * var(--u)) solid var(--fg);
+    transform: translateZ(calc(8 * var(--u)));
+  }
+
+  .pb-tg {
+    left: calc(3 * var(--u));
+    top: calc(var(--y) * var(--u));
+    width: calc(4 * var(--u));
+    height: calc(10 * var(--u));
+    background: var(--surface);
+    border: 1px solid var(--fg);
+  }
+
+  .pb-sling {
+    top: calc(140 * var(--u));
+    border-top: calc(24 * var(--u)) solid transparent;
+  }
+
+  .pb-sling.l {
+    left: calc(14 * var(--u));
+    border-left: calc(10 * var(--u)) solid color-mix(in srgb, var(--fg) 25%, var(--surface));
+  }
+
+  .pb-sling.r {
+    left: calc(96 * var(--u));
+    border-right: calc(10 * var(--u)) solid color-mix(in srgb, var(--fg) 25%, var(--surface));
+  }
+
+  .pb-flip {
+    top: calc(174 * var(--u));
+    width: calc(30 * var(--u));
+    height: calc(7 * var(--u));
+    background: var(--fg);
+  }
+
+  .pb-flip.l {
+    left: calc(28 * var(--u));
+    border-radius: calc(4 * var(--u)) calc(2 * var(--u)) calc(2 * var(--u)) calc(4 * var(--u));
+    transform-origin: calc(3.5 * var(--u)) 50%;
+    transform: rotate(28deg);
+  }
+
+  .pb-flip.r {
+    left: calc(72 * var(--u));
+    border-radius: calc(2 * var(--u)) calc(4 * var(--u)) calc(4 * var(--u)) calc(2 * var(--u));
+    transform-origin: calc(26.5 * var(--u)) 50%;
+    transform: rotate(-28deg);
+  }
+
+  .pb-ballw {
+    left: 0;
+    top: 0;
+    transform-style: preserve-3d;
+    transform: translate(calc(121 * var(--u)), calc(196 * var(--u)));
+  }
+
+  .pb-shadow {
+    position: absolute;
+    width: calc(11 * var(--u));
+    height: calc(11 * var(--u));
+    margin: calc(-5.5 * var(--u)) 0 0 calc(-5.5 * var(--u));
+    border-radius: 50%;
+    background: rgb(0 0 0 / 0.18);
+  }
+
+  .pb-bill,
+  .pb-pop {
+    transform-style: preserve-3d;
+    transform: translateZ(calc(6 * var(--u))) rotateZ(34deg) rotateX(-56deg);
+  }
+
+  .pb-bill {
+    position: absolute;
+  }
+
+  .pb-bead {
+    position: absolute;
+    left: calc(-6 * var(--u));
+    top: calc(-6 * var(--u));
+    width: calc(12 * var(--u));
+    height: calc(12 * var(--u));
+    max-width: none;
+    overflow: visible;
+  }
+
+  .pb-crack {
+    fill: none;
+    stroke: #fffbf0;
+    stroke-width: 2.4;
+    stroke-linejoin: round;
+    opacity: 0;
+  }
+
+  .pb-pop {
+    left: calc(var(--x) * var(--u));
+    top: calc(var(--y) * var(--u));
+    opacity: 0;
+  }
+
+  .pb-pop span {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    transform: translateX(-50%);
+    font-size: calc(9 * var(--u));
+    line-height: 1;
+    color: var(--fg);
+    white-space: nowrap;
+  }
+
+  .card:hover .pb-ballw,
+  .card:has(:focus-visible) .pb-ballw {
+    animation: pb-ball 6.1s linear both;
+  }
+
+  .card:hover .pb-bead,
+  .card:hover .pb-shadow,
+  .card:has(:focus-visible) .pb-bead,
+  .card:has(:focus-visible) .pb-shadow {
+    animation: pb-gone 6.1s linear both;
+  }
+
+  .card:hover .pb-crack,
+  .card:has(:focus-visible) .pb-crack {
+    animation: pb-crack 6.1s linear both;
+  }
+
+  .card:hover .pb-plunger,
+  .card:has(:focus-visible) .pb-plunger {
+    animation: pb-pull 0.4s 150ms;
+  }
+
+  .card:hover .pb-flip.l,
+  .card:has(:focus-visible) .pb-flip.l {
+    animation: pb-flip 0.32s var(--ease) 2950ms;
+  }
+
+  .card:hover .pb-cap,
+  .card:hover .pb-tg,
+  .card:has(:focus-visible) .pb-cap,
+  .card:has(:focus-visible) .pb-tg {
+    animation: var(--a, none);
+  }
+
+  .card:hover .pb-dots i,
+  .card:has(:focus-visible) .pb-dots i {
+    animation: pb-lit 0.3s var(--d) both;
+  }
+
+  .card:hover .pb-pop,
+  .card:has(:focus-visible) .pb-pop {
+    animation: pb-pop 0.8s var(--ease) var(--d) both;
+  }
+
+  @keyframes pb-hit {
+    from {
+      transform: translateZ(calc(16 * var(--u)));
+      background: var(--fg);
+    }
+  }
+
+  @keyframes pb-tg {
+    from {
+      background: var(--fg);
+    }
+  }
+
+  @keyframes pb-lit {
+    to {
+      background: var(--fg);
+      border-color: var(--fg);
+    }
+  }
+
+  @keyframes pb-pull {
+    85% {
+      transform: scaleY(0.35);
+    }
+  }
+
+  @keyframes pb-flip {
+    25% {
+      transform: rotate(-22deg);
+    }
+  }
+
+  @keyframes pb-pop {
+    0% {
+      opacity: 0;
+      transform: translateZ(calc(14 * var(--u))) rotateZ(34deg) rotateX(-56deg);
+    }
+
+    20% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateZ(calc(34 * var(--u))) rotateZ(34deg) rotateX(-56deg);
+    }
+  }
+
+  @keyframes pb-gone {
+    0%,
+    84.9% {
+      opacity: 1;
+      scale: 1;
+    }
+
+    87.2%,
+    95.3% {
+      opacity: 0;
+      scale: 0.4;
+    }
+
+    98.7%,
+    100% {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+
+  @keyframes pb-crack {
+    0%,
+    80.5% {
+      opacity: 0;
+    }
+
+    80.7%,
+    95.3% {
+      opacity: 1;
+    }
+
+    95.4%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes pb-ball {
+    0% {
+      transform: translate(calc(121 * var(--u)), calc(196 * var(--u)));
+    }
+    2.46% {
+      transform: translate(calc(121 * var(--u)), calc(196 * var(--u)));
+    }
+    3.08% {
+      transform: translate(calc(121 * var(--u)), calc(197.5 * var(--u)));
+    }
+    3.7% {
+      transform: translate(calc(121 * var(--u)), calc(198.6 * var(--u)));
+    }
+    4.32% {
+      transform: translate(calc(121 * var(--u)), calc(199.5 * var(--u)));
+    }
+    4.94% {
+      transform: translate(calc(121 * var(--u)), calc(200.1 * var(--u)));
+    }
+    5.56% {
+      transform: translate(calc(121 * var(--u)), calc(200.6 * var(--u)));
+    }
+    6.17% {
+      transform: translate(calc(121 * var(--u)), calc(200.8 * var(--u)));
+    }
+    6.79% {
+      transform: translate(calc(121 * var(--u)), calc(200.9 * var(--u)));
+    }
+    7.41% {
+      transform: translate(calc(121 * var(--u)), calc(201 * var(--u)));
+    }
+    8.03% {
+      transform: translate(calc(121 * var(--u)), calc(201 * var(--u)));
+    }
+    8.69% {
+      transform: translate(calc(121 * var(--u)), calc(168 * var(--u)));
+    }
+    9.34% {
+      transform: translate(calc(121 * var(--u)), calc(135 * var(--u)));
+    }
+    10% {
+      transform: translate(calc(121 * var(--u)), calc(102 * var(--u)));
+    }
+    10.66% {
+      transform: translate(calc(121 * var(--u)), calc(69 * var(--u)));
+    }
+    11.31% {
+      transform: translate(calc(121 * var(--u)), calc(36 * var(--u)));
+    }
+    12.01% {
+      transform: translate(calc(109.9 * var(--u)), calc(26.5 * var(--u)));
+    }
+    12.7% {
+      transform: translate(calc(100.5 * var(--u)), calc(19.5 * var(--u)));
+    }
+    13.4% {
+      transform: translate(calc(94.2 * var(--u)), calc(15.6 * var(--u)));
+    }
+    14.1% {
+      transform: translate(calc(92 * var(--u)), calc(15.2 * var(--u)));
+    }
+    14.79% {
+      transform: translate(calc(91 * var(--u)), calc(12.8 * var(--u)));
+    }
+    15.48% {
+      transform: translate(calc(90 * var(--u)), calc(12.2 * var(--u)));
+    }
+    16.18% {
+      transform: translate(calc(89 * var(--u)), calc(13.5 * var(--u)));
+    }
+    16.87% {
+      transform: translate(calc(88 * var(--u)), calc(16.5 * var(--u)));
+    }
+    17.56% {
+      transform: translate(calc(87 * var(--u)), calc(21.4 * var(--u)));
+    }
+    18.25% {
+      transform: translate(calc(86 * var(--u)), calc(28.1 * var(--u)));
+    }
+    18.95% {
+      transform: translate(calc(85 * var(--u)), calc(36.7 * var(--u)));
+    }
+    19.64% {
+      transform: translate(calc(84 * var(--u)), calc(47 * var(--u)));
+    }
+    20.27% {
+      transform: translate(calc(79.3 * var(--u)), calc(42.1 * var(--u)));
+    }
+    20.89% {
+      transform: translate(calc(74.7 * var(--u)), calc(38.5 * var(--u)));
+    }
+    21.52% {
+      transform: translate(calc(70 * var(--u)), calc(36.1 * var(--u)));
+    }
+    22.14% {
+      transform: translate(calc(65.3 * var(--u)), calc(35.1 * var(--u)));
+    }
+    22.77% {
+      transform: translate(calc(60.7 * var(--u)), calc(35.3 * var(--u)));
+    }
+    23.4% {
+      transform: translate(calc(56 * var(--u)), calc(36.8 * var(--u)));
+    }
+    24.02% {
+      transform: translate(calc(51.3 * var(--u)), calc(39.6 * var(--u)));
+    }
+    24.65% {
+      transform: translate(calc(46.7 * var(--u)), calc(43.6 * var(--u)));
+    }
+    25.28% {
+      transform: translate(calc(42 * var(--u)), calc(49 * var(--u)));
+    }
+    25.95% {
+      transform: translate(calc(43.8 * var(--u)), calc(45.5 * var(--u)));
+    }
+    26.62% {
+      transform: translate(calc(45.6 * var(--u)), calc(43.5 * var(--u)));
+    }
+    27.3% {
+      transform: translate(calc(47.4 * var(--u)), calc(43 * var(--u)));
+    }
+    27.97% {
+      transform: translate(calc(49.2 * var(--u)), calc(44 * var(--u)));
+    }
+    28.64% {
+      transform: translate(calc(51 * var(--u)), calc(46.5 * var(--u)));
+    }
+    29.32% {
+      transform: translate(calc(52.8 * var(--u)), calc(50.4 * var(--u)));
+    }
+    29.99% {
+      transform: translate(calc(54.6 * var(--u)), calc(55.8 * var(--u)));
+    }
+    30.66% {
+      transform: translate(calc(56.4 * var(--u)), calc(62.7 * var(--u)));
+    }
+    31.34% {
+      transform: translate(calc(58.2 * var(--u)), calc(71.1 * var(--u)));
+    }
+    32.01% {
+      transform: translate(calc(60 * var(--u)), calc(81 * var(--u)));
+    }
+    32.64% {
+      transform: translate(calc(56.2 * var(--u)), calc(77.3 * var(--u)));
+    }
+    33.27% {
+      transform: translate(calc(52.3 * var(--u)), calc(74.8 * var(--u)));
+    }
+    33.91% {
+      transform: translate(calc(48.5 * var(--u)), calc(73.4 * var(--u)));
+    }
+    34.54% {
+      transform: translate(calc(44.6 * var(--u)), calc(73 * var(--u)));
+    }
+    35.17% {
+      transform: translate(calc(40.8 * var(--u)), calc(73.8 * var(--u)));
+    }
+    35.8% {
+      transform: translate(calc(36.9 * var(--u)), calc(75.7 * var(--u)));
+    }
+    36.43% {
+      transform: translate(calc(33.1 * var(--u)), calc(78.7 * var(--u)));
+    }
+    37.06% {
+      transform: translate(calc(29.2 * var(--u)), calc(82.8 * var(--u)));
+    }
+    37.69% {
+      transform: translate(calc(25.4 * var(--u)), calc(88 * var(--u)));
+    }
+    38.32% {
+      transform: translate(calc(21.5 * var(--u)), calc(94.4 * var(--u)));
+    }
+    38.95% {
+      transform: translate(calc(17.7 * var(--u)), calc(101.8 * var(--u)));
+    }
+    39.59% {
+      transform: translate(calc(13.8 * var(--u)), calc(110.3 * var(--u)));
+    }
+    40.22% {
+      transform: translate(calc(10 * var(--u)), calc(120 * var(--u)));
+    }
+    40.86% {
+      transform: translate(calc(13 * var(--u)), calc(117.7 * var(--u)));
+    }
+    41.5% {
+      transform: translate(calc(16 * var(--u)), calc(116.4 * var(--u)));
+    }
+    42.15% {
+      transform: translate(calc(19 * var(--u)), calc(116 * var(--u)));
+    }
+    42.79% {
+      transform: translate(calc(22 * var(--u)), calc(116.6 * var(--u)));
+    }
+    43.43% {
+      transform: translate(calc(25 * var(--u)), calc(118.2 * var(--u)));
+    }
+    44.08% {
+      transform: translate(calc(28 * var(--u)), calc(120.7 * var(--u)));
+    }
+    44.72% {
+      transform: translate(calc(31 * var(--u)), calc(124.3 * var(--u)));
+    }
+    45.36% {
+      transform: translate(calc(34 * var(--u)), calc(128.7 * var(--u)));
+    }
+    46.01% {
+      transform: translate(calc(37 * var(--u)), calc(134.2 * var(--u)));
+    }
+    46.65% {
+      transform: translate(calc(40 * var(--u)), calc(140.6 * var(--u)));
+    }
+    47.29% {
+      transform: translate(calc(43 * var(--u)), calc(148 * var(--u)));
+    }
+    47.94% {
+      transform: translate(calc(46 * var(--u)), calc(156.4 * var(--u)));
+    }
+    48.58% {
+      transform: translate(calc(49 * var(--u)), calc(165.7 * var(--u)));
+    }
+    49.22% {
+      transform: translate(calc(52 * var(--u)), calc(176 * var(--u)));
+    }
+    49.86% {
+      transform: translate(calc(53 * var(--u)), calc(158.4 * var(--u)));
+    }
+    50.5% {
+      transform: translate(calc(54 * var(--u)), calc(142.5 * var(--u)));
+    }
+    51.13% {
+      transform: translate(calc(55 * var(--u)), calc(128.5 * var(--u)));
+    }
+    51.77% {
+      transform: translate(calc(56 * var(--u)), calc(116.1 * var(--u)));
+    }
+    52.41% {
+      transform: translate(calc(57 * var(--u)), calc(105.6 * var(--u)));
+    }
+    53.04% {
+      transform: translate(calc(58 * var(--u)), calc(96.8 * var(--u)));
+    }
+    53.68% {
+      transform: translate(calc(59 * var(--u)), calc(89.8 * var(--u)));
+    }
+    54.31% {
+      transform: translate(calc(60 * var(--u)), calc(84.5 * var(--u)));
+    }
+    54.95% {
+      transform: translate(calc(61 * var(--u)), calc(81 * var(--u)));
+    }
+    55.59% {
+      transform: translate(calc(62 * var(--u)), calc(79.2 * var(--u)));
+    }
+    56.22% {
+      transform: translate(calc(63 * var(--u)), calc(79.2 * var(--u)));
+    }
+    56.86% {
+      transform: translate(calc(64 * var(--u)), calc(81 * var(--u)));
+    }
+    57.51% {
+      transform: translate(calc(66 * var(--u)), calc(71.2 * var(--u)));
+    }
+    58.16% {
+      transform: translate(calc(68 * var(--u)), calc(62.7 * var(--u)));
+    }
+    58.81% {
+      transform: translate(calc(70 * var(--u)), calc(55.7 * var(--u)));
+    }
+    59.46% {
+      transform: translate(calc(72 * var(--u)), calc(50 * var(--u)));
+    }
+    60.11% {
+      transform: translate(calc(74 * var(--u)), calc(45.7 * var(--u)));
+    }
+    60.76% {
+      transform: translate(calc(76 * var(--u)), calc(42.8 * var(--u)));
+    }
+    61.41% {
+      transform: translate(calc(78 * var(--u)), calc(41.2 * var(--u)));
+    }
+    62.06% {
+      transform: translate(calc(80 * var(--u)), calc(41.1 * var(--u)));
+    }
+    62.72% {
+      transform: translate(calc(82 * var(--u)), calc(42.4 * var(--u)));
+    }
+    63.37% {
+      transform: translate(calc(84 * var(--u)), calc(45 * var(--u)));
+    }
+    64.02% {
+      transform: translate(calc(86 * var(--u)), calc(49 * var(--u)));
+    }
+    64.68% {
+      transform: translate(calc(85.2 * var(--u)), calc(46.2 * var(--u)));
+    }
+    65.35% {
+      transform: translate(calc(84.3 * var(--u)), calc(44.3 * var(--u)));
+    }
+    66.01% {
+      transform: translate(calc(83.5 * var(--u)), calc(43.2 * var(--u)));
+    }
+    66.67% {
+      transform: translate(calc(82.6 * var(--u)), calc(43 * var(--u)));
+    }
+    67.34% {
+      transform: translate(calc(81.8 * var(--u)), calc(43.7 * var(--u)));
+    }
+    68% {
+      transform: translate(calc(81 * var(--u)), calc(45.2 * var(--u)));
+    }
+    68.67% {
+      transform: translate(calc(80.1 * var(--u)), calc(47.5 * var(--u)));
+    }
+    69.33% {
+      transform: translate(calc(79.3 * var(--u)), calc(50.7 * var(--u)));
+    }
+    70% {
+      transform: translate(calc(78.4 * var(--u)), calc(54.8 * var(--u)));
+    }
+    70.66% {
+      transform: translate(calc(77.6 * var(--u)), calc(59.7 * var(--u)));
+    }
+    71.33% {
+      transform: translate(calc(76.8 * var(--u)), calc(65.5 * var(--u)));
+    }
+    71.99% {
+      transform: translate(calc(75.9 * var(--u)), calc(72.1 * var(--u)));
+    }
+    72.66% {
+      transform: translate(calc(75.1 * var(--u)), calc(79.6 * var(--u)));
+    }
+    73.32% {
+      transform: translate(calc(74.2 * var(--u)), calc(87.9 * var(--u)));
+    }
+    73.99% {
+      transform: translate(calc(73.4 * var(--u)), calc(97.1 * var(--u)));
+    }
+    74.65% {
+      transform: translate(calc(72.6 * var(--u)), calc(107.1 * var(--u)));
+    }
+    75.31% {
+      transform: translate(calc(71.7 * var(--u)), calc(118 * var(--u)));
+    }
+    75.98% {
+      transform: translate(calc(70.9 * var(--u)), calc(129.8 * var(--u)));
+    }
+    76.64% {
+      transform: translate(calc(70 * var(--u)), calc(142.4 * var(--u)));
+    }
+    77.31% {
+      transform: translate(calc(69.2 * var(--u)), calc(155.9 * var(--u)));
+    }
+    77.97% {
+      transform: translate(calc(68.4 * var(--u)), calc(170.2 * var(--u)));
+    }
+    78.64% {
+      transform: translate(calc(67.5 * var(--u)), calc(185.4 * var(--u)));
+    }
+    79.3% {
+      transform: translate(calc(66.7 * var(--u)), calc(201.4 * var(--u)));
+    }
+    79.97% {
+      transform: translate(calc(65.8 * var(--u)), calc(218.3 * var(--u)));
+    }
+    80.63% {
+      transform: translate(calc(65 * var(--u)), calc(236 * var(--u)));
+    }
+    95.37% {
+      transform: translate(calc(65 * var(--u)), calc(236 * var(--u)));
+    }
+    95.39% {
+      transform: translate(calc(121 * var(--u)), calc(196 * var(--u)));
+    }
+    100% {
+      transform: translate(calc(121 * var(--u)), calc(196 * var(--u)));
     }
   }
 

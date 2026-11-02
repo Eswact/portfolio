@@ -1,5 +1,7 @@
 import type { L10n, Lang } from '../i18n/ui';
 
+export type Status = 'live' | 'soon' | 'source' | 'apk';
+
 export interface Project {
   slug: string;
   title: string | L10n;
@@ -8,19 +10,20 @@ export interface Project {
   summary: L10n;
   brief?: L10n;
   featured?: boolean;
+  home?: boolean;
   card?: {
     code: string;
     year: number;
-    status: 'live' | 'source' | 'apk';
+    status: Status;
     platform: L10n;
-    object: 'phone' | 'api' | 'screen' | 'voice' | 'meeting';
+    object: 'pinball' | 'phone' | 'api' | 'screen' | 'voice' | 'meeting';
     layers: L10n[];
   };
   details?: L10n[];
   live?: string;
   demo?: boolean;
   release?: string;
-  stores?: { name: 'App Store' | 'Google Play'; href: string }[];
+  stores?: { name: 'App Store' | 'Google Play'; href?: string }[];
   status?: 'live' | 'source' | 'apk';
   source?: string[];
   sites?: { name: string; href?: string }[];
@@ -28,11 +31,41 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    slug: 'pinbazaar',
+    title: 'Pinbazaar',
+    featured: true,
+    card: {
+      code: 'ES-01',
+      year: 2026,
+      status: 'soon',
+      platform: { tr: 'iOS · Android', en: 'iOS · Android' },
+      object: 'pinball',
+      layers: [
+        { tr: 'Görünüm', en: 'View' },
+        { tr: 'Kurallar', en: 'Rules' },
+        { tr: 'Fizik', en: 'Physics' },
+        { tr: 'Tohumlu rastgelelik', en: 'Seeded randomness' },
+      ],
+    },
+    type: { tr: 'Mobil pinball roguelike oyunu', en: 'Pinball roguelike for phones' },
+    stack: ['Godot', 'GDScript'],
+    summary: {
+      tr: 'Dikey telefon ekranı için yaptığım bir pinball roguelike. Toplar aşınırken her turda hedef puana ulaşılır, kazanılan akçe turlar arasında çarşıda muskalara ve masa geliştirmelerine harcanır; her üçüncü turda bir bela kuralları değiştirir.',
+      en: 'A pinball roguelike I made for portrait phones. Reach the target score each round while your balls wear out, then spend your coins in the bazaar on charms and table upgrades; every third round a boss changes the rules.',
+    },
+    brief: {
+      tr: 'Dikey telefon ekranı için bir pinball roguelike: her tur bir hedef puan, turlar arasında çarşı.',
+      en: 'A pinball roguelike for portrait phones: a target score every round, the bazaar between rounds.',
+    },
+    live: 'https://pinbazaar.vercel.app',
+    stores: [{ name: 'App Store' }, { name: 'Google Play' }],
+  },
+  {
     slug: 'fibi',
     title: 'Fibi',
     featured: true,
     card: {
-      code: 'ES-01',
+      code: 'ES-02',
       year: 2026,
       status: 'live',
       platform: { tr: 'Android · iOS', en: 'Android · iOS' },
@@ -72,7 +105,7 @@ export const projects: Project[] = [
     title: 'Barcode Lookup API',
     featured: true,
     card: {
-      code: 'ES-02',
+      code: 'ES-03',
       year: 2025,
       status: 'live',
       platform: { tr: 'REST API · SSE', en: 'REST API · SSE' },
@@ -112,7 +145,7 @@ export const projects: Project[] = [
     title: 'Meetnal',
     featured: true,
     card: {
-      code: 'ES-03',
+      code: 'ES-04',
       year: 2026,
       status: 'live',
       platform: { tr: 'Android · iOS', en: 'Android · iOS' },
@@ -144,7 +177,7 @@ export const projects: Project[] = [
     title: 'Digital Signage',
     featured: true,
     card: {
-      code: 'ES-04',
+      code: 'ES-05',
       year: 2026,
       status: 'source',
       platform: { tr: 'Android · Web', en: 'Android · Web' },
@@ -182,8 +215,9 @@ export const projects: Project[] = [
     slug: 'warbly',
     title: 'Warbly',
     featured: true,
+    home: false,
     card: {
-      code: 'ES-05',
+      code: 'ES-06',
       year: 2026,
       status: 'live',
       platform: { tr: 'iOS · Android', en: 'iOS · Android' },
@@ -289,7 +323,7 @@ export type FeaturedProject = Project & { title: string; card: NonNullable<Proje
 
 export const featured = projects.filter((p): p is FeaturedProject => !!p.featured && !!p.card && typeof p.title === 'string');
 
-export type Status = 'live' | 'source' | 'apk';
+export const homeCards = featured.filter((p) => p.home !== false);
 
 export const nameOf = (p: Project, lang: Lang) => (typeof p.title === 'string' ? p.title : p.title[lang]);
 

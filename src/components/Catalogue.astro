@@ -24,7 +24,7 @@ interface Row {
 }
 
 const linksOf = (p: Project) => [
-  ...(p.stores ?? []).map((s) => ({ label: s.name, href: s.href })),
+  ...(p.stores ?? []).flatMap((s) => (s.href ? [{ label: s.name, href: s.href }] : [])),
   ...(p.live ? [{ label: t(p.demo ? 'work.demoLink' : 'work.live'), href: p.live }] : []),
   ...(p.release ? [{ label: t('work.app'), href: p.release }] : []),
   ...(p.source ?? []).map((href) => ({ label: t('work.source'), href })),
@@ -276,6 +276,10 @@ const groups = [
     height: 7px;
     border-radius: 50%;
     border: 1px solid var(--fg);
+  }
+
+  .status.soon::before {
+    background: linear-gradient(90deg, var(--fg) 50%, transparent 50%);
   }
 
   .status.live::before {
