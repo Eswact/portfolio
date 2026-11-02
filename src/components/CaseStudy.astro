@@ -121,14 +121,14 @@ const roads = c.tables
               <span class="shield">{road.shield}</span>
               {road.label}
             </p>
-            <ul class="boards" role="list">
+            <ul class="boards" role="list" data-boards>
               {road.rows.map((b) => (
                 <li>
                   <Picture
                     src={board(b.id)}
                     alt=""
                     widths={[270, 540]}
-                    sizes="(min-width: 1100px) 230px, (min-width: 700px) 18vw, 40vw"
+                    sizes="(min-width: 1100px) 230px, (min-width: 900px) 18vw, (min-width: 700px) 40vw, 66vw"
                     formats={['avif', 'webp']}
                     fallbackFormat="webp"
                     loading="lazy"
@@ -139,6 +139,19 @@ const roads = c.tables
                 </li>
               ))}
             </ul>
+            <div class="pager" data-pager>
+              <span class="dots" aria-hidden="true">
+                {road.rows.map((_, i) => (
+                  <i class:list={{ on: i === 0 }} />
+                ))}
+              </span>
+              <button type="button" class="step" data-step="-1" aria-label={t('work.prevTable')} disabled>
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5L7 10l5.5 5.5" /></svg>
+              </button>
+              <button type="button" class="step" data-step="1" aria-label={t('work.nextTable')}>
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5L13 10l-5.5 5.5" /></svg>
+              </button>
+            </div>
           </div>
         ))}
       </section>
@@ -169,6 +182,38 @@ const roads = c.tables
     </a>
   </div>
 </article>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-boards]').forEach((list) => {
+    const pager = list.nextElementSibling as HTMLElement;
+    const dots = [...pager.querySelectorAll('i')];
+    const [prev, next] = pager.querySelectorAll<HTMLButtonElement>('[data-step]');
+    const items = [...list.children] as HTMLElement[];
+    let current = 0;
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
+      const max = list.scrollWidth - list.clientWidth;
+      const step = items[1] ? items[1].offsetLeft - items[0].offsetLeft : 1;
+      const i = list.scrollLeft >= max - 2 ? items.length - 1 : Math.round(list.scrollLeft / step);
+      prev.disabled = list.scrollLeft <= 2;
+      next.disabled = list.scrollLeft >= max - 2;
+      if (i === current) return;
+      dots[current]?.classList.remove('on');
+      dots[i]?.classList.add('on');
+      current = i;
+    };
+
+    list.addEventListener('scroll', () => (frame ||= requestAnimationFrame(update)), { passive: true });
+    pager.addEventListener('click', (e) => {
+      const button = (e.target as Element).closest<HTMLButtonElement>('[data-step]');
+      if (!button) return;
+      const i = Math.max(0, Math.min(items.length - 1, current + Number(button.dataset.step)));
+      list.scrollTo({ left: items[i].offsetLeft - items[0].offsetLeft, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+  });
+</script>
 
 <style>
   .case {
@@ -443,19 +488,95 @@ const roads = c.tables
     background: repeating-linear-gradient(90deg, #2346a0 0 8px, #2fb5b0 8px 16px, transparent 16px 24px, #d8432f 24px 32px, transparent 32px 40px) top / 100% 6px no-repeat;
   }
 
+  .pager {
+    display: none;
+  }
+
   @media (max-width: 899px) {
+    .road {
+      margin-inline: calc(-1 * var(--gutter));
+      padding-inline: var(--gutter);
+    }
+
     .boards {
       grid-auto-flow: column;
       grid-template-columns: none;
-      grid-auto-columns: minmax(150px, 42%);
+      grid-auto-columns: min(66%, 300px);
+      gap: 16px;
+      margin-inline: calc(-1 * var(--gutter));
+      padding-inline: var(--gutter);
+      scroll-padding-inline: var(--gutter);
       overflow-x: auto;
+      overscroll-behavior-x: contain;
       contain: inline-size;
       scroll-snap-type: x mandatory;
-      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+
+    .boards::-webkit-scrollbar {
+      display: none;
     }
 
     .boards li {
       scroll-snap-align: start;
+    }
+
+    .pager {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+      margin-right: auto;
+    }
+
+    .dots i {
+      width: 6px;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--line);
+      transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.3s;
+    }
+
+    .dots i.on {
+      width: 20px;
+      background: var(--fg);
+    }
+
+    .step {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      background: none;
+      color: var(--fg);
+      cursor: pointer;
+    }
+
+    .step svg {
+      width: 32px;
+      height: 32px;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      transition: border-color 0.2s, opacity 0.2s;
+    }
+
+    .step:disabled {
+      cursor: default;
+      opacity: 0.35;
+    }
+
+    .step:not(:disabled):active svg {
+      border-color: var(--fg);
     }
 
     h1,
