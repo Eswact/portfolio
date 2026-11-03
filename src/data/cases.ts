@@ -84,10 +84,10 @@ export const cases: Record<string, Case> = {
         },
       },
       {
-        title: { tr: 'Dokuz masa, iki yol', en: 'Nine tables, two roads' },
+        title: { tr: 'On masa, iki yol', en: 'Ten tables, two roads' },
         body: {
-          tr: 'Devlet Yolu’nun beş masası ücretsiz; Otoyol’un dördü tek bir satın almayla açılıyor. Reklam ve abonelik yok, çevrimdışı da çalışıyor.',
-          en: 'The Country Road’s five tables are free; the Motorway’s four open with one purchase. No ads, no subscription, and it works offline.',
+          tr: 'Devlet Yolu’nun beş masası ücretsiz; Otoyol’un beşi tek bir satın almayla açılıyor. Reklam ve abonelik yok, çevrimdışı da çalışıyor.',
+          en: 'The Country Road’s five tables are free; the Motorway’s five open with one purchase. No ads, no subscription, and it works offline.',
         },
       },
     ],
@@ -146,6 +146,7 @@ export const cases: Record<string, Case> = {
       { id: 'alacati', paid: true, name: { tr: 'Alaçatı', en: 'Alaçatı' }, trick: { tr: 'Rüzgâr topu iter; bir sörfçü onu karşıya taşır.', en: 'The wind shoves the ball; a windsurfer carries it across.' } },
       { id: 'efes', paid: true, name: { tr: 'Efes', en: 'Ephesus' }, trick: { tr: 'Dört heykeli yak, kütüphaneyi aç, bir parşömen kazan.', en: 'Light the four statues, open the library, win a scroll.' } },
       { id: 'pamukkale', paid: true, name: { tr: 'Pamukkale', en: 'Pamukkale' }, trick: { tr: 'Antik havuzda dinlen; sıcak bir fışkırma topu terasların üstünden fırlatır.', en: 'Rest in the antique pool; a hot jet throws the ball over the terraces.' } },
+      { id: 'van', paid: true, name: { tr: 'Van Gölü', en: 'Lake Van' }, trick: { tr: 'Balığa vur, Van kedisini uyandır: vuruşlarına atılır, topu patisiyle bastırıp masanın yukarısına savurur.', en: 'Hit the fish to wake the Van cat: it pounces on your shots, pins the ball and swats it up the table.' } },
     ],
   },
   fibi: {

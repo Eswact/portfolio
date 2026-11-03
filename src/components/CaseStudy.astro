@@ -25,7 +25,7 @@ const board = (id: string) => boards[`../assets/work/${p.slug}/tables/${id}.png`
 const roads = c.tables
   ? [
       { id: 'free', shield: lang === 'tr' ? 'D-10' : 'R-10', label: t('work.roadFree'), rows: c.tables.filter((x) => !x.paid) },
-      { id: 'paid', shield: lang === 'tr' ? 'O-8' : 'M-8', label: t('work.roadPaid'), rows: c.tables.filter((x) => x.paid) },
+      { id: 'paid', shield: lang === 'tr' ? 'O-10' : 'M-10', label: t('work.roadPaid'), rows: c.tables.filter((x) => x.paid) },
     ]
   : [];
 ---
