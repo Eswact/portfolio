@@ -37,8 +37,8 @@ export const projects: Project[] = [
     card: {
       code: 'ES-01',
       year: 2026,
-      status: 'soon',
-      platform: { tr: 'iOS · Android', en: 'iOS · Android' },
+      status: 'live',
+      platform: { tr: 'Android · iOS', en: 'Android · iOS' },
       object: 'pinball',
       layers: [
         { tr: 'Görünüm', en: 'View' },
@@ -58,7 +58,10 @@ export const projects: Project[] = [
       en: 'A pinball roguelike for portrait phones: a target score every round, the bazaar between rounds.',
     },
     live: 'https://pinbazaar.vercel.app',
-    stores: [{ name: 'App Store' }, { name: 'Google Play' }],
+    stores: [
+      { name: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.eswact.pinbazaar' },
+      { name: 'App Store' },
+    ],
   },
   {
     slug: 'fibi',
