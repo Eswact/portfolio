@@ -31,6 +31,11 @@ export default function middleware(request: Request) {
   const url = new URL(request.url);
   const path = url.pathname;
   const isTr = path === '/tr' || path.startsWith('/tr/');
+  const socials = /^(\/tr)?\/socials\/?$/.exec(path);
+  if (socials) {
+    url.pathname = `${socials[1] ?? ''}/me`;
+    return Response.redirect(url, 308);
+  }
   const chosen = /(?:^|;\s*)lang=(tr|en)(?:;|$)/.exec(request.headers.get('cookie') ?? '')?.[1];
 
   if (isTr) {

@@ -38,6 +38,12 @@ const nav = [
           </li>
         ))
       }
+      <li class="ext">
+        <a class="link arrow" href={profile.github}>GitHub</a>
+      </li>
+      <li class="ext">
+        <a class="link arrow" href={profile.linkedin}>LinkedIn</a>
+      </li>
     </ul>
 
     <div class="lang mono" data-cur={lang}>
@@ -288,6 +294,29 @@ const nav = [
     color: var(--fg);
   }
 
+  .ext {
+    display: none;
+  }
+
+  @media (min-width: 960px) {
+    .ext {
+      display: block;
+    }
+
+    .links li:not(.ext) + .ext {
+      display: flex;
+      gap: clamp(16px, 2.4vw, 28px);
+    }
+
+    .links li:not(.ext) + .ext::before {
+      content: '';
+      align-self: center;
+      width: 1px;
+      height: 1em;
+      background: var(--line);
+    }
+  }
+
   .lang {
     position: relative;
     display: grid;
@@ -452,7 +481,7 @@ const nav = [
   }
 
   @media (max-width: 719px) {
-    .links li:not(:last-child) {
+    .links li:not(:nth-child(3)) {
       display: none;
     }
   }

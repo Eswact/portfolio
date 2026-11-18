@@ -5,6 +5,10 @@ export const profile = {
   email: 'eren99srb@gmail.com',
   github: 'https://github.com/Eswact',
   linkedin: 'https://www.linkedin.com/in/eren-saribay/',
+  cvPage: {
+    tr: '/cv/tr.html',
+    en: '/cv/en.html',
+  } satisfies L10n,
   cv: {
     tr: '/cv/eren-saribay-cv-tr.pdf',
     en: '/cv/eren-saribay-cv-en.pdf',

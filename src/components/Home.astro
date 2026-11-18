@@ -99,6 +99,7 @@ const projectLink = (slug: string | { name: string; href: string }) => {
   <ul class="links" role="list">
     <li><a class="link arrow" href={profile.github}>GitHub</a></li>
     <li><a class="link arrow" href={profile.linkedin}>LinkedIn</a></li>
+    <li><a class="link arrow" href={profile.cvPage[lang]} target="_blank" rel="noopener">{t('contact.cvView')}</a></li>
     <li><a class="link" href={profile.cv[lang]} download>{t('contact.cv')} (PDF)</a></li>
   </ul>
 </section>

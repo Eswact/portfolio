@@ -69,6 +69,20 @@ export const games: Title[] = [
   { name: 'Dying Light', note: '2015', lang: 'en', cover: cover('dying-light') },
 ];
 
+interface Video {
+  id: string;
+  title: string;
+  lang: 'en' | 'tr';
+  cover: ImageMetadata;
+}
+
+const video = (id: string, title: string, lang: Video['lang']): Video => ({ id, title, lang, cover: cover(`yt-${id}`) });
+
+export const videos: Video[] = [
+  video('EHb7I-Igfj8', 'Pinbazaar – Official Trailer', 'en'),
+  video('hxy3BPm4t-0', 'Pinbazaar – Resmi Fragman', 'tr'),
+];
+
 export const videoSlots = 5;
 
 export const birthday = '2001-12-23';

@@ -6,6 +6,10 @@ const site = 'https://erensaribay.com';
 export default defineConfig({
   site,
   trailingSlash: 'never',
+  redirects: {
+    '/socials': '/me',
+    '/tr/socials': '/tr/me',
+  },
   build: {
     inlineStylesheets: 'always',
     format: 'directory',

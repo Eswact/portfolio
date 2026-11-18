@@ -84,7 +84,7 @@ const places = [
         header.querySelector('.brand').setAttribute('href', '/tr');
         header.querySelector('nav').setAttribute('aria-label', S['nav.label']);
         const navKeys = ['nav.work', 'nav.about', 'nav.contact'];
-        header.querySelectorAll('.links a').forEach((a, i) => {
+        header.querySelectorAll('.links li:not(.ext) a').forEach((a, i) => {
           a.textContent = S[navKeys[i]];
           a.href = '/tr' + a.getAttribute('href').replace(/^\//, '');
         });
