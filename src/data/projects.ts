@@ -60,7 +60,7 @@ export const projects: Project[] = [
     live: 'https://pinbazaar.vercel.app',
     stores: [
       { name: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.eswact.pinbazaar' },
-      { name: 'App Store' },
+      { name: 'App Store', href: 'https://apps.apple.com/app/pinbazaar/id6830262603' },
     ],
   },
   {
@@ -101,7 +101,10 @@ export const projects: Project[] = [
       },
     ],
     live: 'https://fibi-app.vercel.app',
-    stores: [{ name: 'App Store', href: 'https://apps.apple.com/us/app/fibi-expense-item-tracker/id6823529037' }],
+    stores: [
+      { name: 'App Store', href: 'https://apps.apple.com/us/app/fibi-expense-item-tracker/id6823529037' },
+      { name: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.nsasoft.fibi' },
+    ],
   },
   {
     slug: 'barcode-api',
